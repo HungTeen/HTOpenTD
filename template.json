@@ -1,0 +1,25 @@
+{
+  "item_settings": {
+    "max_stack_size": 64,
+    "max_damage": 0,
+    "requirements": [
+      {
+        "type": "experience",
+        "level": 5,
+        "cost_experience": 100
+      }
+    ]
+  },
+  "tower_settings": {
+    "type": "pvz_plant",
+    "shoot_components": [
+
+    ],
+    "pult_components": [
+
+    ],
+    "gen_components": [
+
+    ]
+  }
+}
