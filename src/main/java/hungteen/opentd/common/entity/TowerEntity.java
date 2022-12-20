@@ -2,6 +2,7 @@ package hungteen.opentd.common.entity;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -9,6 +10,8 @@ import net.minecraft.server.players.OldUsersConverter;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.entity.IEntityAdditionalSpawnData;
+import net.minecraftforge.network.NetworkHooks;
 import software.bernie.geckolib3.core.IAnimatable;
 
 import java.util.Optional;
@@ -19,7 +22,7 @@ import java.util.UUID;
  * @author: HungTeen
  * @create: 2022-12-14 21:12
  **/
-public abstract class TowerEntity extends PathfinderMob implements IAnimatable {
+public abstract class TowerEntity extends PathfinderMob implements IAnimatable, IEntityAdditionalSpawnData {
 
     private static final EntityDataAccessor<Optional<UUID>> OWNER_UUID = SynchedEntityData.defineId(TowerEntity.class, EntityDataSerializers.OPTIONAL_UUID);
 
@@ -75,5 +78,10 @@ public abstract class TowerEntity extends PathfinderMob implements IAnimatable {
 
     public void setOwnerUUID(UUID uuid) {
         this.entityData.set(OWNER_UUID, Optional.ofNullable(uuid));
+    }
+
+    @Override
+    public Packet<?> getAddEntityPacket() {
+        return NetworkHooks.getEntitySpawningPacket(this);
     }
 }

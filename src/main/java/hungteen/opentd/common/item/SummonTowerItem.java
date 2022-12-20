@@ -45,73 +45,79 @@ public class SummonTowerItem extends Item {
     }
 
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
-        ItemStack itemstack = player.getItemInHand(hand);
+        ItemStack itemStack = player.getItemInHand(hand);
         BlockHitResult hitResult = getPlayerPOVHitResult(level, player, ClipContext.Fluid.SOURCE_ONLY);
         if (hitResult.getType() == HitResult.Type.MISS) {
-            return InteractionResultHolder.pass(itemstack);
+            return InteractionResultHolder.pass(itemStack);
         } else if (!(level instanceof ServerLevel)) {
-            return InteractionResultHolder.success(itemstack);
+            return InteractionResultHolder.success(itemStack);
         } else if(hitResult.getType() == HitResult.Type.BLOCK){
             Vec3 vec3 = player.getViewVector(1.0F);
             final double scale = 5.0D;
             List<Entity> list = level.getEntities(player, player.getBoundingBox().expandTowards(vec3.scale(scale)).inflate(1.0D), ENTITY_PREDICATE);
             if (!list.isEmpty()) {
-                Vec3 vec31 = player.getEyePosition();
-
+                Vec3 origin = player.getEyePosition();
                 for(Entity entity : list) {
                     AABB aabb = entity.getBoundingBox().inflate(entity.getPickRadius());
-                    if (aabb.contains(vec31)) {
-                        return InteractionResultHolder.pass(itemstack);
+                    if (aabb.contains(origin)) {
+                        return InteractionResultHolder.pass(itemStack);
                     }
                 }
             }
 
-            BlockPos blockpos = hitResult.getBlockPos();
-            BlockState state = level.getBlockState(blockpos);
-            if (level.mayInteract(player, blockpos) && player.mayUseItemAt(blockpos, hitResult.getDirection(), itemstack)) {
-                if (Level.isInSpawnableBounds(blockpos) && canPlace(level, player, itemstack, state, blockpos)) {
-                    Entity entity = getTowerSettings(itemstack).createEntity((ServerLevel) level, player, itemstack, blockpos);
-                    if (entity == null) {
-                        return InteractionResultHolder.pass(itemstack);
-                    } else {
-                        if (!player.getAbilities().instabuild) {
-                            itemstack.hurtAndBreak(1, player, (p) -> {
-                                player.broadcastBreakEvent(hand);
-                            });
-                        }
+            BlockState state = level.getBlockState(hitResult.getBlockPos());
+            BlockPos blockpos;
+            if (state.getCollisionShape(level, hitResult.getBlockPos()).isEmpty()) {
+                blockpos = hitResult.getBlockPos();
+            } else {
+                blockpos = hitResult.getBlockPos().relative(hitResult.getDirection());
+            }
 
-                        player.awardStat(Stats.ITEM_USED.get(this));
-                        level.gameEvent(player, GameEvent.ENTITY_PLACE, entity.position());
-                        return InteractionResultHolder.consume(itemstack);
+            if (level.mayInteract(player, blockpos) && player.mayUseItemAt(blockpos, hitResult.getDirection(), itemStack)) {
+                if (Level.isInSpawnableBounds(blockpos) && canPlace(level, player, itemStack, state, blockpos)) {
+                    Entity entity = getTowerSettings(itemStack).createEntity((ServerLevel) level, player, itemStack, blockpos);
+                    if (entity == null) {
+                        return InteractionResultHolder.pass(itemStack);
+                    } else {
+                        this.consume((ServerLevel)level, player, entity, itemStack, hand);
+                        return InteractionResultHolder.consume(itemStack);
                     }
                 }
             } else {
-                return InteractionResultHolder.fail(itemstack);
+                return InteractionResultHolder.fail(itemStack);
             }
         }
-        return InteractionResultHolder.pass(itemstack);
+        return InteractionResultHolder.pass(itemStack);
     }
 
     public static void use(PlayerInteractEvent.EntityInteractSpecific event){
         if (event.getLevel() instanceof ServerLevel
                 && event.getItemStack().getItem() instanceof SummonTowerItem
+                && ! event.getEntity().getCooldowns().isOnCooldown(event.getItemStack().getItem())
                 && Level.isInSpawnableBounds(event.getTarget().blockPosition())
                 && ((SummonTowerItem) event.getItemStack().getItem()).canPlace(event.getLevel(), event.getEntity(), event.getItemStack(), event.getTarget())) {
             Entity entity = getTowerSettings(event.getItemStack()).createEntity((ServerLevel) event.getLevel(), event.getEntity(), event.getItemStack(), event.getTarget().blockPosition());
             if (entity != null) {
-                if (!event.getEntity().getAbilities().instabuild) {
-                    event.getItemStack().hurtAndBreak(1, event.getEntity(), (p) -> {
-                        event.getEntity().broadcastBreakEvent(event.getHand());
-                    });
-                }
-
-                event.getEntity().awardStat(Stats.ITEM_USED.get(event.getItemStack().getItem()));
-                event.getLevel().gameEvent(event.getEntity(), GameEvent.ENTITY_PLACE, entity.position());
+                //TODO 骑乘
+                ((SummonTowerItem) event.getItemStack().getItem()).consume((ServerLevel) event.getLevel(), event.getEntity(), entity, event.getItemStack(), event.getHand());
                 event.setCancellationResult(InteractionResult.SUCCESS);
             } else{
                 event.setCancellationResult(InteractionResult.PASS);
             }
         }
+    }
+
+    public void consume(ServerLevel level, Player player, Entity entity, ItemStack itemstack, InteractionHand hand){
+        if (!player.getAbilities().instabuild) {
+            itemstack.hurtAndBreak(1, player, (p) -> {
+                player.broadcastBreakEvent(hand);
+            });
+        }
+
+        player.getCooldowns().addCooldown(this, getItemSettings(itemstack).cooldown());
+
+        player.awardStat(Stats.ITEM_USED.get(this));
+        level.gameEvent(player, GameEvent.ENTITY_PLACE, entity.position());
     }
 
     public boolean canPlace(Level level, Player player, ItemStack stack, Entity entity){
@@ -126,7 +132,7 @@ public class SummonTowerItem extends Item {
 
     @Override
     public void fillItemCategory(CreativeModeTab tab, NonNullList<ItemStack> itemStacks) {
-        if (this.allowedIn(tab)) {
+        if (tab == CreativeModeTab.TAB_SEARCH || this.allowedIn(tab)) {
             HTSummonItems.SUMMON_ITEMS.getValues().forEach(entry -> {
                 ItemStack stack = new ItemStack(OpenTDItems.SUMMON_TOWER_ITEM.get());
                 set(stack, entry);

@@ -3,11 +3,13 @@ package hungteen.opentd.impl.tower;
 import com.mojang.serialization.Codec;
 import hungteen.htlib.HTLib;
 import hungteen.htlib.common.registry.HTCodecRegistry;
+import hungteen.htlib.common.registry.HTRegistryHolder;
 import hungteen.htlib.common.registry.HTRegistryManager;
 import hungteen.htlib.common.registry.HTSimpleRegistry;
 import hungteen.opentd.OpenTD;
 import hungteen.opentd.api.interfaces.ITowerComponent;
 import hungteen.opentd.api.interfaces.ITowerComponentType;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.Arrays;
 
@@ -18,20 +20,25 @@ import java.util.Arrays;
  **/
 public class HTTowerComponents {
 
-    public static final HTSimpleRegistry<ITowerComponentType<?>> TOWER_TYPES = HTRegistryManager.create(HTLib.prefix("tower_type"));
+    public static final HTSimpleRegistry<ITowerComponentType<?>> TOWER_TYPES = HTRegistryManager.create(OpenTD.prefix("tower_type"));
     public static final HTCodecRegistry<ITowerComponent> TOWERS = HTRegistryManager.create(ITowerComponent.class, "tower_defence/tower_settings", HTTowerComponents::getCodec);
 
     /* Tower types */
 
-    public static final ITowerComponentType<PVZPlantTower> PVZ_PLANT_TOWER = new DefaultTower<>("pvz_plant",  CenterAreaTowerment.CODEC);
+    public static final ITowerComponentType<PVZPlantComponent> PVZ_PLANT_TOWER = new DefaultTower<>("pvz_plant",  PVZPlantComponent.CODEC);
 
     /* Towers */
 
-//    public static final HTRegistryHolder<ITowerComponent> DEFAULT = TowerMENTS.innerRegister(
-//            HTLib.prefix("default"), new CenterAreaTower(
-//                    Vec3.ZERO, 0, 1, true, 0, true
-//            )
-//    );
+    public static final HTRegistryHolder<ITowerComponent> PEA_SHOOTER = TOWERS.innerRegister(
+            OpenTD.prefix("pea_shooter"), new PVZPlantComponent(
+                    new PVZPlantComponent.PlantSettings(
+                            PVZPlantComponent.GrowSettings.DEFAULT,
+                            OpenTD.prefix("geo/pea_shooter.geo.json"),
+                            OpenTD.prefix("textures/entity/pea_shooter.png"),
+                            OpenTD.prefix("animations/pea_shooter.animation.json")
+                    )
+            )
+    );
 
     /**
      * {@link OpenTD#OpenTD()}

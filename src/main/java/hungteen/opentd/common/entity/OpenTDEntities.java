@@ -8,6 +8,7 @@ import hungteen.opentd.common.item.SummonTowerItem;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.Item;
+import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -25,6 +26,11 @@ public class OpenTDEntities {
     public static final RegistryObject<EntityType<PlantEntity>> PLANT_ENTITY = ENTITY_TYPES.register("plant_entity", () -> {
         return EntityType.Builder.of(PlantEntity::new, MobCategory.CREATURE).sized(1.375F, 0.5625F).build(OpenTD.prefix("plant_entity").toString());
     });
+
+    public static void addEntityAttributes(EntityAttributeCreationEvent ev) {
+        ev.put(PLANT_ENTITY.get(), PlantEntity.createAttributes().build());
+    }
+
 
     public static void register(IEventBus eventBus){
         ENTITY_TYPES.register(eventBus);
