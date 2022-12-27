@@ -1,14 +1,11 @@
-package hungteen.opentd.impl.target;
+package hungteen.opentd.impl.filter;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import hungteen.opentd.api.interfaces.ITargetFilter;
 import hungteen.opentd.api.interfaces.ITargetFilterType;
-import net.minecraft.core.Registry;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.PathfinderMob;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.List;
@@ -25,7 +22,7 @@ public record TypeTargetFilter(List<EntityType<?>> types) implements ITargetFilt
     ).apply(instance, TypeTargetFilter::new)).codec();
 
     @Override
-    public boolean match(Mob owner, Entity target) {
+    public boolean match(Entity owner, Entity target) {
         return this.types().stream().anyMatch(l -> l.equals(target.getType()));
     }
 

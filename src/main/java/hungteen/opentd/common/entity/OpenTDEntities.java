@@ -27,6 +27,10 @@ public class OpenTDEntities {
         return EntityType.Builder.of(PlantEntity::new, MobCategory.CREATURE).sized(1.375F, 0.5625F).build(OpenTD.prefix("plant_entity").toString());
     });
 
+    public static final RegistryObject<EntityType<BulletEntity>> BULLET_ENTITY = ENTITY_TYPES.register("bullet_entity", () -> {
+        return EntityType.Builder.of(BulletEntity::new, MobCategory.MISC).sized(0.5F, 0.5F).build(OpenTD.prefix("bullet_entity").toString());
+    });
+
     public static void addEntityAttributes(EntityAttributeCreationEvent ev) {
         ev.put(PLANT_ENTITY.get(), PlantEntity.createAttributes().build());
     }

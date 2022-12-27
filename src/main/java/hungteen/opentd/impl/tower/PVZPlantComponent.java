@@ -3,15 +3,17 @@ package hungteen.opentd.impl.tower;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import hungteen.opentd.api.interfaces.ITargetFilter;
+import hungteen.opentd.api.interfaces.ITargetFinder;
 import hungteen.opentd.api.interfaces.ITowerComponent;
 import hungteen.opentd.api.interfaces.ITowerComponentType;
 import hungteen.opentd.common.entity.OpenTDEntities;
 import hungteen.opentd.common.entity.PlantEntity;
-import hungteen.opentd.impl.target.HTTargetFilters;
-import hungteen.opentd.impl.work.HTWorkComponents;
+import hungteen.opentd.impl.filter.HTTargetFilters;
+import hungteen.opentd.impl.finder.HTTargetFinders;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
@@ -28,12 +30,12 @@ import java.util.Optional;
  * @author: HungTeen
  * @create: 2022-12-15 10:40
  **/
-public record PVZPlantComponent(PlantSettings plantSettings, List<TargetSettings> targetSettings, Optional<ShootSettings> shootSettingsOpt) implements ITowerComponent {
+public record PVZPlantComponent(PlantSettings plantSettings, List<TargetSettings> targetSettings, Optional<ShootGoalSettings> shootGoalSettings) implements ITowerComponent {
 
     public static final Codec<PVZPlantComponent> CODEC = RecordCodecBuilder.<PVZPlantComponent>mapCodec(instance -> instance.group(
             PlantSettings.CODEC.fieldOf("plant_settings").forGetter(PVZPlantComponent::plantSettings),
             TargetSettings.CODEC.listOf().optionalFieldOf("target_settings", Arrays.asList()).forGetter(PVZPlantComponent::targetSettings),
-            ShootSettings.CODEC.listOf().optionalFieldOf("shoot_settings", Arrays.as)
+            Codec.optionalField("shoot_goal", ShootGoalSettings.CODEC).forGetter(PVZPlantComponent::shootGoalSettings)
     ).apply(instance, PVZPlantComponent::new)).codec();
 
     @Override
@@ -48,10 +50,11 @@ public record PVZPlantComponent(PlantSettings plantSettings, List<TargetSettings
         return HTTowerComponents.PVZ_PLANT_TOWER;
     }
 
-    public record PlantSettings(GrowSettings growSettings, ResourceLocation modelLocation, ResourceLocation textureLocation, ResourceLocation animationLocation) {
+    public record PlantSettings(GrowSettings growSettings, boolean changeDirection, ResourceLocation modelLocation, ResourceLocation textureLocation, ResourceLocation animationLocation) {
 
         public static final Codec<PlantSettings> CODEC = RecordCodecBuilder.<PlantSettings>mapCodec(instance -> instance.group(
                 GrowSettings.CODEC.fieldOf("grow_settings").forGetter(PlantSettings::growSettings),
+                Codec.BOOL.optionalFieldOf("change_direction", true).forGetter(PlantSettings::changeDirection),
                 ResourceLocation.CODEC.fieldOf("model").forGetter(PlantSettings::modelLocation),
                 ResourceLocation.CODEC.fieldOf("texture").forGetter(PlantSettings::textureLocation),
                 ResourceLocation.CODEC.fieldOf("animation").forGetter(PlantSettings::animationLocation)
@@ -72,33 +75,37 @@ public record PVZPlantComponent(PlantSettings plantSettings, List<TargetSettings
         }
     }
 
-    public record TargetSettings(int priority, int chance, boolean checkSight, float width, float height, List<ITargetFilter> targetFilters){
+    public record TargetSettings(int priority, int chance, ITargetFinder targetFinder){
 
         public static final Codec<TargetSettings> CODEC = RecordCodecBuilder.<TargetSettings>mapCodec(instance -> instance.group(
                 Codec.intRange(0, Integer.MAX_VALUE).fieldOf("priority").forGetter(TargetSettings::priority),
                 Codec.intRange(0, Integer.MAX_VALUE).fieldOf("chance").forGetter(TargetSettings::chance),
-                Codec.BOOL.optionalFieldOf("check_sight", true).forGetter(TargetSettings::checkSight),
-                Codec.floatRange(0, Float.MAX_VALUE).fieldOf("width").forGetter(TargetSettings::width),
-                Codec.floatRange(0, Float.MAX_VALUE).fieldOf("height").forGetter(TargetSettings::height),
-                HTTargetFilters.getCodec().listOf().optionalFieldOf("target_filters", Arrays.asList()).forGetter(TargetSettings::targetFilters)
-        ).apply(instance, TargetSettings::new)).codec();
-
-        public boolean match(Mob owner, Entity target){
-            return this.targetFilters().stream().allMatch(l -> l.match(owner, target));
-        }
+                HTTargetFinders.getCodec().fieldOf("target_finder").forGetter(TargetSettings::targetFinder)
+                ).apply(instance, TargetSettings::new)).codec();
 
     }
 
-    public record ShootSettings(int shootTick, Vec3 offset, double angleOffset, BulletSettings bulletSettings) {
+    public record ShootGoalSettings(int coolDown, int startTick, int shootCount, Optional<SoundEvent> shootSound, List<ShootSettings> shootSettings) {
+        public static final Codec<ShootGoalSettings> CODEC = RecordCodecBuilder.<ShootGoalSettings>mapCodec(instance -> instance.group(
+                Codec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("cool_down", 30).forGetter(ShootGoalSettings::coolDown),
+                Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("start_tick", 0).forGetter(ShootGoalSettings::startTick),
+                Codec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("shoot_count", 1).forGetter(ShootGoalSettings::shootCount),
+                Codec.optionalField("shoot_sound", SoundEvent.CODEC).forGetter(ShootGoalSettings::shootSound),
+                ShootSettings.CODEC.listOf().fieldOf("shoot_settings").forGetter(ShootGoalSettings::shootSettings)
+        ).apply(instance, ShootGoalSettings::new)).codec();
+    }
+
+    public record ShootSettings(boolean plantFoodOnly, int shootTick, Vec3 offset, double angleOffset, BulletSettings bulletSettings) {
         public static final Codec<ShootSettings> CODEC = RecordCodecBuilder.<ShootSettings>mapCodec(instance -> instance.group(
+                Codec.BOOL.optionalFieldOf("plant_food_only", false).forGetter(ShootSettings::plantFoodOnly),
                 Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("shoot_tick", 0).forGetter(ShootSettings::shootTick),
-                Vec3.CODEC.optionalFieldOf("offset", Vec3.ZERO).forGetter(ShootSettings::offset),
+                Vec3.CODEC.optionalFieldOf("originOffset", Vec3.ZERO).forGetter(ShootSettings::offset),
                 Codec.DOUBLE.optionalFieldOf("angle_offset", 0D).forGetter(ShootSettings::angleOffset),
                 BulletSettings.CODEC.fieldOf("bullet_settings").forGetter(ShootSettings::bulletSettings)
         ).apply(instance, ShootSettings::new)).codec();
     }
 
-    public record BulletSettings(ITargetFilter targetFilter, float bulletDamage, float bulletSpeed, int maxExistTick, float gravity, float slowDown, ResourceLocation modelLocation, ResourceLocation textureLocation, ResourceLocation animationLocation) {
+    public record BulletSettings(ITargetFilter targetFilter, float bulletDamage, float bulletSpeed, int maxExistTick, float gravity, float slowDown, float scale, ResourceLocation modelLocation, ResourceLocation textureLocation, ResourceLocation animationLocation) {
 
         public static final Codec<BulletSettings> CODEC = RecordCodecBuilder.<BulletSettings>mapCodec(instance -> instance.group(
                 HTTargetFilters.getCodec().fieldOf("target_filter").forGetter(BulletSettings::targetFilter),
@@ -107,7 +114,8 @@ public record PVZPlantComponent(PlantSettings plantSettings, List<TargetSettings
                 Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("max_exist_tick", 50).forGetter(BulletSettings::maxExistTick),
                 Codec.floatRange(0, Float.MAX_VALUE).optionalFieldOf("gravity", 0.03F).forGetter(BulletSettings::gravity),
                 Codec.floatRange(0, 1F).optionalFieldOf("slow_down", 0.99F).forGetter(BulletSettings::slowDown),
-                net.minecraft.resources.ResourceLocation.CODEC.fieldOf("model").forGetter(BulletSettings::modelLocation),
+                Codec.floatRange(0, 10F).optionalFieldOf("scale", 1F).forGetter(BulletSettings::scale),
+                ResourceLocation.CODEC.fieldOf("model").forGetter(BulletSettings::modelLocation),
                 ResourceLocation.CODEC.fieldOf("texture").forGetter(BulletSettings::textureLocation),
                 ResourceLocation.CODEC.fieldOf("animation").forGetter(BulletSettings::animationLocation)
         ).apply(instance, BulletSettings::new)).codec();

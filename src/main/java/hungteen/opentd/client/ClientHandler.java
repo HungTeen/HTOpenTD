@@ -2,6 +2,7 @@ package hungteen.opentd.client;
 
 import hungteen.htlib.client.render.entity.HTBoatRender;
 import hungteen.htlib.common.entity.HTEntities;
+import hungteen.opentd.client.render.entity.BulletEntityRender;
 import hungteen.opentd.client.render.entity.PlantEntityRender;
 import hungteen.opentd.common.entity.OpenTDEntities;
 import net.minecraftforge.api.distmarker.Dist;
@@ -19,6 +20,7 @@ public class ClientHandler {
 
     @SubscribeEvent
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
+        event.registerEntityRenderer(OpenTDEntities.BULLET_ENTITY.get(), BulletEntityRender::new);
         event.registerEntityRenderer(OpenTDEntities.PLANT_ENTITY.get(), PlantEntityRender::new);
     }
 }

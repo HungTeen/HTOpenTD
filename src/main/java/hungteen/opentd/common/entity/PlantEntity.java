@@ -1,13 +1,12 @@
 package hungteen.opentd.common.entity;
 
 import hungteen.opentd.OpenTD;
-import hungteen.opentd.api.interfaces.IRangeAttackEntity;
-import hungteen.opentd.common.entity.ai.TowerTargetGoal;
-import hungteen.opentd.common.item.OpenTDItems;
-import hungteen.opentd.common.item.SummonTowerItem;
+import hungteen.opentd.common.entity.ai.PlantShootGoal;
+import hungteen.opentd.common.entity.ai.PlantTargetGoal;
 import hungteen.opentd.impl.HTSummonItems;
 import hungteen.opentd.impl.tower.HTTowerComponents;
 import hungteen.opentd.impl.tower.PVZPlantComponent;
+import hungteen.opentd.util.EntityUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -20,11 +19,9 @@ import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.ForgeMod;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib3.core.PlayState;
 import software.bernie.geckolib3.core.builder.AnimationBuilder;
@@ -35,6 +32,9 @@ import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 import software.bernie.geckolib3.util.GeckoLibUtil;
 
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -42,17 +42,19 @@ import java.util.Optional;
  * @author: HungTeen
  * @create: 2022-12-14 21:10
  **/
-public class PlantEntity extends TowerEntity implements IRangeAttackEntity {
+public class PlantEntity extends TowerEntity {
 
     public static final String YROT = "YRot";
     private static final EntityDataAccessor<Integer> AGE = SynchedEntityData.defineId(PlantEntity.class, EntityDataSerializers.INT);
 
+    private static final EntityDataAccessor<Integer> SHOOT_TICK = SynchedEntityData.defineId(PlantEntity.class, EntityDataSerializers.INT);
     private final AnimationFactory factory = GeckoLibUtil.createFactory(this);
     private CompoundTag componentTag = new CompoundTag();
     private PVZPlantComponent component;
     protected int growTick = 0;
     protected int forcedAgeTimer;
     private boolean updated = false;
+    protected int shootCount = 0;
 
     public PlantEntity(EntityType<? extends TowerEntity> entityType, Level level) {
         super(entityType, level);
@@ -62,6 +64,7 @@ public class PlantEntity extends TowerEntity implements IRangeAttackEntity {
     protected void defineSynchedData() {
         super.defineSynchedData();
         entityData.define(AGE, 1);
+        entityData.define(SHOOT_TICK, 0);
     }
 
     @Override
@@ -99,11 +102,9 @@ public class PlantEntity extends TowerEntity implements IRangeAttackEntity {
             this.targetSelector.removeAllGoals();
             this.goalSelector.removeAllGoals();
             this.getComponent().targetSettings().forEach(targetSettings -> {
-                this.targetSelector.addGoal(targetSettings.priority(), new TowerTargetGoal(this, targetSettings));
+                this.targetSelector.addGoal(targetSettings.priority(), new PlantTargetGoal(this, targetSettings));
             });
-            this.getComponent().workSettings().forEach(workSettings -> {
-                Optional.ofNullable(workSettings.createGoal(this)).ifPresent(l -> this.goalSelector.addGoal(1, l));
-            });
+            this.goalSelector.addGoal(1, new PlantShootGoal(this));
         }
     }
 
@@ -153,6 +154,16 @@ public class PlantEntity extends TowerEntity implements IRangeAttackEntity {
                     ++ this.growTick;
                 }
             }
+            if(EntityUtil.inEnergetic(this)){
+                this.getShootSettings().stream().filter(PVZPlantComponent.ShootSettings::plantFoodOnly).forEach(this::performShoot);
+            }
+            if(this.getTarget() != null) {
+                if (! this.getShootSettings().isEmpty() && this.shootCount > 0 && ! EntityUtil.inEnergetic(this)) {
+                    final int count = this.getComponent().shootGoalSettings().get().shootCount();
+                    this.getShootSettings().stream().filter(l -> !l.plantFoodOnly() && l.shootTick() == count - this.shootCount).forEach(this::performShoot);
+                    -- this.shootCount;
+                }
+            }
         }
     }
 
@@ -161,25 +172,31 @@ public class PlantEntity extends TowerEntity implements IRangeAttackEntity {
         return PlayState.CONTINUE;
     }
 
+    public void startShootAttack(LivingEntity target){
+        if(this.getComponent() != null){
+            this.getComponent().shootGoalSettings().ifPresent(l -> this.shootCount = l.shootCount());
+            this.getComponent().shootGoalSettings().flatMap(PVZPlantComponent.ShootGoalSettings::shootSound).ifPresent(this::playSound);
+        }
+    }
+
     /**
      * shoot pea with offsets.
      */
-    public void performShoot(double forwardOffset, double rightOffset, double heightOffset, boolean needSound, double angleOffset) {
-        Optional.ofNullable(this.getTarget()).ifPresent(target -> {
-            final Vec3 vec = MathUtil.getHorizontalVec(this.position(), target.position()).normalize();
-            final double deltaY = this.getDimensions(getPose()).height * 0.7F + heightOffset;
-            final double deltaX = forwardOffset * vec.x - rightOffset * vec.z;
-            final double deltaZ = forwardOffset * vec.z + rightOffset * vec.x;
-            final PVZProjectile bullet = this.createBullet();
+    public void performShoot(PVZPlantComponent.ShootSettings shootSettings) {
+        final BulletEntity bullet = OpenTDEntities.BULLET_ENTITY.get().create(this.level);
+        if(bullet != null){
+            final Vec3 vec = this.getViewVector(1F);
+            final double deltaY = this.getDimensions(getPose()).height * 0.7F + shootSettings.offset().y;
+            final double deltaX = shootSettings.offset().x * vec.x - shootSettings.offset().z * vec.z;
+            final double deltaZ = shootSettings.offset().x * vec.z + shootSettings.offset().z * vec.x;
             bullet.setPos(this.getX() + deltaX, this.getY() + deltaY, this.getZ() + deltaZ);
-            bullet.shootPea(target.getX() - bullet.getX(), target.getY() + target.getBbHeight() - bullet.getY(), target.getZ() - bullet.getZ(), this.getBulletSpeed(), angleOffset);
-            if(needSound) {
-                EntityUtil.playSound(this, this.getShootSound());
+            if(this.getTarget() != null){
+                bullet.shootToTarget(this, shootSettings.bulletSettings(), this.getTarget().getX() - bullet.getX(), this.getTarget().getY() + this.getTarget().getBbHeight() - bullet.getY(), this.getTarget().getZ() - bullet.getZ(), shootSettings.angleOffset());
+            } else{
+                bullet.shootTo(this, shootSettings.bulletSettings(), vec, shootSettings.angleOffset());
             }
-            bullet.summonByOwner(this);
-            bullet.setAttackDamage(this.getAttackDamage());
             this.level.addFreshEntity(bullet);
-        });
+        }
     }
 
     public void onGrow(){
@@ -204,6 +221,23 @@ public class PlantEntity extends TowerEntity implements IRangeAttackEntity {
         return this.factory;
     }
 
+    @Override
+    public boolean hasLineOfSight(Entity entity) {
+//        if(this.getComponent() != null && ! this.getComponent().plantSettings().changeDirection()){
+//            if(entity.level != this.level){
+//                return false;
+//            } else{
+//                Vec3 vec = entity.getEyePosition().subtract(this.getEyePosition());
+//                if(vec.length() > 128 || vec.length() < 0.01){
+//                    return false;
+//                }
+//                double cos = (Math.acos(vec.normalize().dot(this.getLookAngle().normalize())) + 180) % 180;
+//                return cos < this.getComponent().plantSettings().senseAngle();
+//            }
+//        }
+        return super.hasLineOfSight(entity);
+    }
+
     public PVZPlantComponent getComponent() {
         if (component == null) {
             PVZPlantComponent.CODEC.parse(NbtOps.INSTANCE, this.componentTag)
@@ -218,6 +252,27 @@ public class PlantEntity extends TowerEntity implements IRangeAttackEntity {
             }
         }
         return component;
+    }
+
+    public int getCurrentShootCD(){
+        if(this.getComponent() != null && this.getComponent().shootGoalSettings().isPresent()) {
+            return this.getComponent().shootGoalSettings().get().coolDown();
+        }
+        return 1000000;
+    }
+
+    public int getStartShootTick(){
+        if(this.getComponent() != null && this.getComponent().shootGoalSettings().isPresent()) {
+            return this.getComponent().shootGoalSettings().get().startTick();
+        }
+        return 1000000;
+    }
+
+    public List<PVZPlantComponent.ShootSettings> getShootSettings() {
+        if(this.getComponent() != null && this.getComponent().shootGoalSettings().isPresent()) {
+            return this.getComponent().shootGoalSettings().get().shootSettings();
+        }
+        return Arrays.asList();
     }
 
     @Override
@@ -244,6 +299,8 @@ public class PlantEntity extends TowerEntity implements IRangeAttackEntity {
         tag.put("ComponentTag", this.componentTag);
         tag.putInt("CreatureAge", this.getAge());
         tag.putInt("CreatureGrowTick", this.growTick);
+        tag.putInt("ShootTick", this.getShootTick());
+        tag.putInt("ShootCount", this.shootCount);
     }
 
     @Override
@@ -258,6 +315,12 @@ public class PlantEntity extends TowerEntity implements IRangeAttackEntity {
         if(tag.contains("CreatureGrowTick")){
             this.growTick = tag.getInt("CreatureGrowTick");
         }
+        if(tag.contains("ShootTick")){
+            this.setShootTick(tag.getInt("ShootTick"));
+        }
+        if(tag.contains("ShootCount")) {
+            this.shootCount = tag.getInt("ShootCount");
+        }
     }
 
     public PVZPlantComponent.GrowSettings getGrowSettings() {
@@ -270,5 +333,13 @@ public class PlantEntity extends TowerEntity implements IRangeAttackEntity {
 
     public int getAge() {
         return entityData.get(AGE);
+    }
+
+    public void setShootTick(int tick) {
+        entityData.set(SHOOT_TICK, tick);
+    }
+
+    public int getShootTick() {
+        return entityData.get(SHOOT_TICK);
     }
 }

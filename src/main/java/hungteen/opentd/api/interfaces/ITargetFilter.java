@@ -11,7 +11,7 @@ import net.minecraft.world.entity.PathfinderMob;
  **/
 public interface ITargetFilter {
 
-    boolean match(Mob owner, Entity target);
+    boolean match(Entity owner, Entity target);
 
     /**
      * Get the type of filter.

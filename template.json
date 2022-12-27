@@ -12,9 +12,20 @@
   },
   "tower_settings": {
     "type": "pvz_plant",
-    "shoot_components": [
-
-    ],
+    "shoot_goal": {
+      "cool_down": 30,
+      "start_tick": 15,
+      "shoot_count": 4,
+      "shoot_sound": "xxx",
+      "shoot_settings": [
+        {
+          "plant_food_only": false,
+          "bullet_settings": {
+            "bullet_damage": 10
+          }
+        }
+      ]
+    },
     "pult_components": [
 
     ],

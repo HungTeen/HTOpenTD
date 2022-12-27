@@ -9,10 +9,13 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.Level;
@@ -27,6 +30,10 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.entity.IEntityAdditionalSpawnData;
 import net.minecraftforge.network.NetworkHooks;
+import software.bernie.geckolib3.core.IAnimatable;
+import software.bernie.geckolib3.core.manager.AnimationData;
+import software.bernie.geckolib3.core.manager.AnimationFactory;
+import software.bernie.geckolib3.util.GeckoLibUtil;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
@@ -37,10 +44,12 @@ import java.util.UUID;
  * @author: HungTeen
  * @create: 2022-12-20 14:22
  **/
-public class BulletEntity extends Projectile implements IEntityAdditionalSpawnData {
+public class BulletEntity extends Projectile implements IEntityAdditionalSpawnData, IAnimatable {
 
+    private final AnimationFactory factory = GeckoLibUtil.createFactory(this);
     private PVZPlantComponent.BulletSettings settings;
     protected boolean canExist = true;
+
 
     public BulletEntity(EntityType<? extends Projectile> entityType, Level level) {
         super(entityType, level);
@@ -51,17 +60,22 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
 
     }
 
+    public void summonBy(Entity owner, PVZPlantComponent.BulletSettings bulletSettings) {
+        this.setOwner(owner);
+        this.settings = bulletSettings;
+    }
+
     public void tick() {
         super.tick();
-        if(this.getSettings() == null) {
-            if(this.tickCount > 5){
+        if (this.getSettings() == null) {
+            if (this.tickCount > 5) {
                 this.discard();
             }
             return;
         }
         //reach alive time limit.
-        if (! level.isClientSide){
-            if(this.tickCount >= this.getMaxLiveTick()) {
+        if (!level.isClientSide) {
+            if (this.tickCount >= this.getMaxLiveTick()) {
                 this.discard();
             }
         }
@@ -69,7 +83,7 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
         HitResult hitresult = ProjectileUtil.getHitResult(this, this::canHitEntity);
         boolean flag = false;
         if (hitresult.getType() == HitResult.Type.BLOCK) {
-            BlockPos blockpos = ((BlockHitResult)hitresult).getBlockPos();
+            BlockPos blockpos = ((BlockHitResult) hitresult).getBlockPos();
             BlockState blockstate = this.level.getBlockState(blockpos);
             if (blockstate.is(Blocks.NETHER_PORTAL)) {
                 this.handleInsidePortal(blockpos);
@@ -77,7 +91,7 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
             } else if (blockstate.is(Blocks.END_GATEWAY)) {
                 BlockEntity blockentity = this.level.getBlockEntity(blockpos);
                 if (blockentity instanceof TheEndGatewayBlockEntity && TheEndGatewayBlockEntity.canEntityTeleport(this)) {
-                    TheEndGatewayBlockEntity.teleportEntity(this.level, blockpos, blockstate, this, (TheEndGatewayBlockEntity)blockentity);
+                    TheEndGatewayBlockEntity.teleportEntity(this.level, blockpos, blockstate, this, (TheEndGatewayBlockEntity) blockentity);
                 }
 
                 flag = true;
@@ -94,9 +108,10 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
         double d0 = this.getY() + vec3.y;
         double d1 = this.getZ() + vec3.z;
         ProjectileUtil.rotateTowardsMovement(this, 0.2F);
-        float f = this.getSettings().slowDown();;
+        float f = this.getSettings().slowDown();
+        ;
         if (this.isInWater()) {
-            for(int i = 0; i < 4; ++i) {
+            for (int i = 0; i < 4; ++i) {
                 float f1 = 0.25F;
                 this.level.addParticle(ParticleTypes.BUBBLE, d2 - vec3.x * 0.25D, d0 - vec3.y * 0.25D, d1 - vec3.z * 0.25D, vec3.x, vec3.y, vec3.z);
             }
@@ -108,10 +123,10 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
 
         if (!this.isNoGravity()) {
             Vec3 vec31 = this.getDeltaMovement();
-            this.setDeltaMovement(vec31.x, vec31.y - (double)this.getGravity(), vec31.z);
+            this.setDeltaMovement(vec31.x, vec31.y - (double) this.getGravity(), vec31.z);
         }
 
-        if(this.getTrailParticle() != null){
+        if (this.getTrailParticle() != null) {
             this.level.addParticle(this.getTrailParticle(), d2, d0 + 0.5D, d1, 0.0D, 0.0D, 0.0D);
         }
 
@@ -121,29 +136,25 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
     protected void onHit(HitResult result) {
         HitResult.Type type = result.getType();
         if (type == HitResult.Type.ENTITY) {
-            this.onHitEntity((EntityHitResult)result);
+            this.onHitEntity((EntityHitResult) result);
         } else if (type == HitResult.Type.BLOCK) {
-            this.onHitBlock((BlockHitResult)result);
+            this.onHitBlock((BlockHitResult) result);
         }
 
         if (type != HitResult.Type.MISS) {
             this.gameEvent(GameEvent.PROJECTILE_LAND, this.getOwner());
         }
         //handle hit and remove.
-        if(! this.level.isClientSide && ! this.canExist){
-            this.level.broadcastEntityEvent(this, (byte)3);
+        if (!this.level.isClientSide && !this.canExist) {
+            this.level.broadcastEntityEvent(this, (byte) 3);
             this.discard();
         }
 
     }
 
     protected void onHitEntity(EntityHitResult result) {
-        if(PVZConfig.bulletIngoreGroup()){
+        if (this.shouldHit(result.getEntity())) {
             this.dealDamageTo(result.getEntity());
-        } else{
-            if(this.shouldHit(result.getEntity())){
-                this.dealDamageTo(result.getEntity());
-            }
         }
     }
 
@@ -159,7 +170,7 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
 //    }
 
     protected boolean shouldHit(Entity target) {
-        return EntityUtil.canTargetEntity(this.getOwnerOrSelf(), target);
+        return this.getSettings() == null || this.getSettings().targetFilter().match(this, target);
     }
 
     protected void onHitBlock(BlockHitResult result) {
@@ -167,14 +178,14 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
         blockstate.onProjectileHit(this.level, blockstate, result, this);
     }
 
-    protected void dealDamageTo(Entity target){
+    protected void dealDamageTo(Entity target) {
 
     }
 
     /**
      * All projectile hurt method must invoke this one !
      */
-    protected void hurtTarget(Entity target, DamageSource source, float amount){
+    protected void hurtTarget(Entity target, DamageSource source, float amount) {
         target.hurt(source, amount);
     }
 
@@ -184,8 +195,8 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
     @Override
     public void handleEntityEvent(byte id) {
         if (id == 3) {//die event.
-            if(this.getHitParticle() != null){
-                for(int i = 0; i < 8; ++i) {
+            if (this.getHitParticle() != null) {
+                for (int i = 0; i < 8; ++i) {
                     final float offsetX = this.random.nextFloat() * 0.4F;
                     this.level.addParticle(this.getHitParticle(), this.getX() + offsetX, this.getY() + offsetX, this.getZ() + offsetX, 0.0D, 0.0D, 0.0D);
                 }
@@ -211,27 +222,33 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
 //    public void shootPea(Vec3 vec, double speed, double angleOffset) {
 //        this.shootPea(vec.x, vec.y, vec.z, speed, angleOffset);
 //    }
-//
-//    /**
-//     * shoot bullet such as pea or spore
-//     */
-//    public void shootPea(double dx, double dy, double dz, double speed, double angleOffset) {
-//        final double down = this.getShootPeaAngle();
-//        final double dxz = Math.sqrt(dx * dx + dz * dz);
-//        if(down != 0){
-//            dy = Mth.clamp(dy, - dxz / down, dxz / down);//fix dy by angle
-//        }
-//        final double degree = Mth.atan2(dz, dx) + Math.toRadians(angleOffset);
-//        dx = Math.cos(degree) * dxz;
-//        dz = Math.sin(degree) * dxz;
-//
-//        final double totSpeed = Math.sqrt(dxz * dxz + dy * dy);
-//        this.setDeltaMovement(new Vec3(dx / totSpeed, dy / totSpeed, dz / totSpeed).scale(speed));
-//    }
 
-    public void shootToTarget(LivingEntity target, double speed) {
-        this.bulletSpeed = speed;
-        this.setDeltaMovement(target.position().add(0, target.getEyeHeight(), 0).subtract(this.position()).normalize().scale(speed));
+    /**
+     * shoot bullet such as pea or spore
+     */
+    public void shootToTarget(Mob owner, PVZPlantComponent.BulletSettings bulletSettings, double dx, double dy, double dz, double angleOffset) {
+        final double down = 0;
+        final double dxz = Math.sqrt(dx * dx + dz * dz);
+        if (down != 0) {
+            dy = Mth.clamp(dy, -dxz / down, dxz / down);//fix dy by angle
+        }
+        final double degree = Mth.atan2(dz, dx) + Math.toRadians(angleOffset);
+        dx = Math.cos(degree) * dxz;
+        dz = Math.sin(degree) * dxz;
+
+        final double totSpeed = Math.sqrt(dxz * dxz + dy * dy);
+        this.setDeltaMovement(new Vec3(dx / totSpeed, dy / totSpeed, dz / totSpeed).scale(bulletSettings.bulletSpeed()));
+        this.summonBy(owner, bulletSettings);
+    }
+
+    public void shootTo(Mob owner, PVZPlantComponent.BulletSettings bulletSettings, Vec3 vec, double angleOffset) {
+        final double dxz = Math.sqrt(vec.x * vec.x + vec.z * vec.z);
+        final double degree = Mth.atan2(vec.z, vec.x) + Math.toRadians(angleOffset);
+        final double x = Math.cos(degree) * dxz;
+        final double z = Math.sin(degree) * dxz;
+        final double totSpeed = Math.sqrt(dxz * dxz + vec.y * vec.y);
+        this.setDeltaMovement(new Vec3(x / totSpeed, vec.y / totSpeed, z / totSpeed).scale(bulletSettings.bulletSpeed()));
+        this.summonBy(owner, bulletSettings);
     }
 
     @Override
@@ -252,7 +269,7 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
     /**
      * how long can bullet exist.
      */
-    public int getMaxLiveTick(){
+    public int getMaxLiveTick() {
         return this.getSettings() == null ? 0 : this.getSettings().maxExistTick();
     }
 
@@ -266,11 +283,11 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
 
     @Override
     public void writeSpawnData(FriendlyByteBuf buffer) {
-        if(this.settings != null){
+        if (this.settings != null) {
             PVZPlantComponent.BulletSettings.CODEC.encodeStart(NbtOps.INSTANCE, this.settings)
                     .resultOrPartial(msg -> OpenTD.log().error(msg + " [Bullet] "))
                     .ifPresent(tag -> buffer.writeNbt((CompoundTag) tag));
-        } else{
+        } else {
             buffer.writeNbt(new CompoundTag());
         }
     }
@@ -284,7 +301,7 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
 
     public void addAdditionalSaveData(CompoundTag compound) {
         compound.putInt("TickCount", this.tickCount);
-        if(this.settings != null){
+        if (this.settings != null) {
             PVZPlantComponent.BulletSettings.CODEC.encodeStart(NbtOps.INSTANCE, this.settings)
                     .resultOrPartial(msg -> OpenTD.log().error(msg + " [Bullet] "))
                     .ifPresent(tag -> compound.put("BulletSettings", tag));
@@ -295,10 +312,10 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
     public void readAdditionalSaveData(CompoundTag compound) {
-        if(compound.contains("TickCount")) {
+        if (compound.contains("TickCount")) {
             this.tickCount = compound.getInt("TickCount");
         }
-        if(compound.contains("BulletSettings")){
+        if (compound.contains("BulletSettings")) {
             PVZPlantComponent.BulletSettings.CODEC.parse(NbtOps.INSTANCE, compound.get("BulletSettings"))
                     .resultOrPartial(msg -> OpenTD.log().error(msg + " [Bullet] "))
                     .ifPresent(settings -> this.settings = settings);
@@ -306,7 +323,7 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
     }
 
     public Optional<UUID> getOwnerUUID() {
-        if(this.getOwner() != null){
+        if (this.getOwner() != null) {
             return Optional.of(this.getOwner().getUUID());
         }
         return Optional.empty();
@@ -317,4 +334,13 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
         return NetworkHooks.getEntitySpawningPacket(this);
     }
 
+    @Override
+    public void registerControllers(AnimationData animationData) {
+
+    }
+
+    @Override
+    public AnimationFactory getFactory() {
+        return factory;
+    }
 }

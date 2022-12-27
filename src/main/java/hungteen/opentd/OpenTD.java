@@ -2,10 +2,12 @@ package hungteen.opentd;
 
 import com.mojang.logging.LogUtils;
 import hungteen.htlib.HTLib;
+import hungteen.opentd.common.effect.OpenTDEffects;
 import hungteen.opentd.common.entity.OpenTDEntities;
 import hungteen.opentd.common.item.OpenTDItems;
+import hungteen.opentd.impl.finder.HTTargetFinders;
 import hungteen.opentd.impl.requirement.HTSummonRequirements;
-import hungteen.opentd.impl.target.HTTargetFilters;
+import hungteen.opentd.impl.filter.HTTargetFilters;
 import hungteen.opentd.impl.tower.HTTowerComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -32,6 +34,7 @@ public class OpenTD {
         modBus.addListener(EventPriority.NORMAL, OpenTDEntities::addEntityAttributes);
         OpenTDItems.register(modBus);
         OpenTDEntities.register(modBus);
+        OpenTDEffects.register(modBus);
     }
 
     public static void setUp(FMLCommonSetupEvent event){
@@ -39,6 +42,7 @@ public class OpenTD {
             HTTowerComponents.registerStuffs();
             HTSummonRequirements.registerStuffs();
             HTTargetFilters.registerStuffs();
+            HTTargetFinders.registerStuffs();
         });
     }
 

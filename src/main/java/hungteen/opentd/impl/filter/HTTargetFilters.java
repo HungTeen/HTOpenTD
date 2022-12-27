@@ -1,14 +1,12 @@
-package hungteen.opentd.impl.target;
+package hungteen.opentd.impl.filter;
 
 import com.mojang.serialization.Codec;
-import hungteen.htlib.HTLib;
 import hungteen.htlib.common.registry.HTCodecRegistry;
 import hungteen.htlib.common.registry.HTRegistryManager;
 import hungteen.htlib.common.registry.HTSimpleRegistry;
 import hungteen.opentd.OpenTD;
 import hungteen.opentd.api.interfaces.ITargetFilter;
 import hungteen.opentd.api.interfaces.ITargetFilterType;
-import hungteen.opentd.impl.tower.PVZPlantComponent;
 
 import java.util.Arrays;
 
@@ -27,6 +25,9 @@ public class HTTargetFilters {
     public static final ITargetFilterType<TagTargetFilter> TAG_FILTER = new DefaultFilter<>("tag",  TagTargetFilter.CODEC);
     public static final ITargetFilterType<OrTargetFilter> OR_FILTER = new DefaultFilter<>("or",  OrTargetFilter.CODEC);
     public static final ITargetFilterType<TypeTargetFilter> TYPE_FILTER = new DefaultFilter<>("types",  TypeTargetFilter.CODEC);
+    public static final ITargetFilterType<AndTargetFilter> AND_FILTER = new DefaultFilter<>("and",  AndTargetFilter.CODEC);
+
+    //    public static final ITargetFilterType<AlwaysTrueFilter> ALWAYS_TRUE = new DefaultFilter<>("always_true",  Codec.EMPTY);
 
     /* Towers */
 

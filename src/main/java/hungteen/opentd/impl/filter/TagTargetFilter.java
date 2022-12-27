@@ -1,4 +1,4 @@
-package hungteen.opentd.impl.target;
+package hungteen.opentd.impl.filter;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -8,9 +8,6 @@ import net.minecraft.core.Registry;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.PathfinderMob;
-import net.minecraft.world.level.dimension.DimensionType;
 
 /**
  * @program: HTOpenTD
@@ -24,7 +21,7 @@ public record TagTargetFilter(TagKey<EntityType<?>> entityTag) implements ITarge
     ).apply(instance, TagTargetFilter::new)).codec();
 
     @Override
-    public boolean match(Mob owner, Entity target) {
+    public boolean match(Entity owner, Entity target) {
         return target.getType().is(this.entityTag());
     }
 
