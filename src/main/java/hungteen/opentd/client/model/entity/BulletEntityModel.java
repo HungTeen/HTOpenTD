@@ -14,16 +14,16 @@ public class BulletEntityModel extends AnimatedGeoModel<BulletEntity> {
 
     @Override
     public ResourceLocation getModelResource(BulletEntity bulletEntity) {
-        return bulletEntity.getSettings().modelLocation();
+        return bulletEntity.getSettings().renderSettings().modelLocation();
     }
 
     @Override
     public ResourceLocation getTextureResource(BulletEntity bulletEntity) {
-        return bulletEntity.getSettings().textureLocation();
+        return bulletEntity.getSettings().renderSettings().textureLocation();
     }
 
     @Override
     public ResourceLocation getAnimationResource(BulletEntity bulletEntity) {
-        return bulletEntity.getSettings().animationLocation();
+        return bulletEntity.getSettings().renderSettings().animationLocation();
     }
 }

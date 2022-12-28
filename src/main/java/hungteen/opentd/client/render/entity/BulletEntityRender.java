@@ -27,7 +27,8 @@ public class BulletEntityRender extends GeoProjectilesRenderer<BulletEntity> {
     public void render(GeoModel model, BulletEntity animatable, float partialTick, RenderType type, PoseStack poseStack, @Nullable MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
         if (animatable.getSettings() != null) {
             poseStack.pushPose();
-            poseStack.scale(animatable.getSettings().scale(), animatable.getSettings().scale(), animatable.getSettings().scale());
+            final float scale = animatable.getSettings().renderSettings().scale();
+            poseStack.scale(scale, scale, scale);
             super.render(model, animatable, partialTick, type, poseStack, bufferSource, buffer, packedLight, packedOverlay, red, green, blue, alpha);
             poseStack.popPose();
         }

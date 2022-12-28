@@ -2,12 +2,11 @@ package hungteen.opentd.impl.tower;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import hungteen.opentd.api.interfaces.ITargetFilter;
-import hungteen.opentd.api.interfaces.ITargetFinder;
-import hungteen.opentd.api.interfaces.ITowerComponent;
-import hungteen.opentd.api.interfaces.ITowerComponentType;
+import hungteen.opentd.OpenTD;
+import hungteen.opentd.api.interfaces.*;
 import hungteen.opentd.common.entity.OpenTDEntities;
 import hungteen.opentd.common.entity.PlantEntity;
+import hungteen.opentd.impl.effect.HTEffectComponents;
 import hungteen.opentd.impl.filter.HTTargetFilters;
 import hungteen.opentd.impl.finder.HTTargetFinders;
 import net.minecraft.core.BlockPos;
@@ -50,22 +49,38 @@ public record PVZPlantComponent(PlantSettings plantSettings, List<TargetSettings
         return HTTowerComponents.PVZ_PLANT_TOWER;
     }
 
-    public record PlantSettings(GrowSettings growSettings, boolean changeDirection, ResourceLocation modelLocation, ResourceLocation textureLocation, ResourceLocation animationLocation) {
+    public record RenderSettings(float width, float height, float scale, ResourceLocation modelLocation, ResourceLocation textureLocation, ResourceLocation animationLocation){
+
+        public static final RenderSettings DEFAULT = new RenderSettings(
+                0.8F, 0.8F, 1F,
+                OpenTD.prefix("geo/pea_shooter.geo.json"),
+                OpenTD.prefix("textures/entity/pea_shooter.png"),
+                OpenTD.prefix("animations/pea_shooter.animation.json")
+        );
+
+        public static final Codec<RenderSettings> CODEC = RecordCodecBuilder.<RenderSettings>mapCodec(instance -> instance.group(
+                Codec.floatRange(0, Float.MAX_VALUE).fieldOf("width").forGetter(RenderSettings::width),
+                Codec.floatRange(0, Float.MAX_VALUE).fieldOf("height").forGetter(RenderSettings::height),
+                Codec.floatRange(0, Float.MAX_VALUE).fieldOf("scale").forGetter(RenderSettings::scale),
+                ResourceLocation.CODEC.fieldOf("model").forGetter(RenderSettings::modelLocation),
+                ResourceLocation.CODEC.fieldOf("texture").forGetter(RenderSettings::textureLocation),
+                ResourceLocation.CODEC.fieldOf("animation").forGetter(RenderSettings::animationLocation)
+        ).apply(instance, RenderSettings::new)).codec();
+    }
+
+    public record PlantSettings(GrowSettings growSettings, boolean changeDirection, RenderSettings renderSettings) {
 
         public static final Codec<PlantSettings> CODEC = RecordCodecBuilder.<PlantSettings>mapCodec(instance -> instance.group(
                 GrowSettings.CODEC.fieldOf("grow_settings").forGetter(PlantSettings::growSettings),
                 Codec.BOOL.optionalFieldOf("change_direction", true).forGetter(PlantSettings::changeDirection),
-                ResourceLocation.CODEC.fieldOf("model").forGetter(PlantSettings::modelLocation),
-                ResourceLocation.CODEC.fieldOf("texture").forGetter(PlantSettings::textureLocation),
-                ResourceLocation.CODEC.fieldOf("animation").forGetter(PlantSettings::animationLocation)
+                RenderSettings.CODEC.fieldOf("render_settings").forGetter(PlantSettings::renderSettings)
         ).apply(instance, PlantSettings::new)).codec();
     }
 
-    public record GrowSettings(float width, float height, List<Float> scales, List<Integer> growDurations){
-        public static final GrowSettings DEFAULT = new GrowSettings(0.8F, 1.5F, Arrays.asList(1F), Arrays.asList());
+    public record GrowSettings(List<Float> scales, List<Integer> growDurations){
+        public static final GrowSettings DEFAULT = new GrowSettings(Arrays.asList(1F), Arrays.asList());
+
         public static final Codec<GrowSettings> CODEC = RecordCodecBuilder.<GrowSettings>mapCodec(instance -> instance.group(
-                Codec.floatRange(0, Float.MAX_VALUE).fieldOf("width").forGetter(GrowSettings::width),
-                Codec.floatRange(0, Float.MAX_VALUE).fieldOf("height").forGetter(GrowSettings::height),
                 Codec.floatRange(0, Float.MAX_VALUE).listOf().fieldOf("scales").forGetter(GrowSettings::scales),
                 Codec.intRange(0, Integer.MAX_VALUE).listOf().fieldOf("grow_durations").forGetter(GrowSettings::growDurations)
                 ).apply(instance, GrowSettings::new)).codec();
@@ -105,19 +120,18 @@ public record PVZPlantComponent(PlantSettings plantSettings, List<TargetSettings
         ).apply(instance, ShootSettings::new)).codec();
     }
 
-    public record BulletSettings(ITargetFilter targetFilter, float bulletDamage, float bulletSpeed, int maxExistTick, float gravity, float slowDown, float scale, ResourceLocation modelLocation, ResourceLocation textureLocation, ResourceLocation animationLocation) {
+    public record BulletSettings(ITargetFilter targetFilter, List<IEffectComponent> effects, float bulletSpeed, int maxHitCount, int maxExistTick, float gravity, float slowDown, boolean ignoreBlock, RenderSettings renderSettings) {
 
         public static final Codec<BulletSettings> CODEC = RecordCodecBuilder.<BulletSettings>mapCodec(instance -> instance.group(
                 HTTargetFilters.getCodec().fieldOf("target_filter").forGetter(BulletSettings::targetFilter),
-                Codec.floatRange(0, Float.MAX_VALUE).optionalFieldOf("bullet_damage", 2F).forGetter(BulletSettings::bulletDamage),
+                HTEffectComponents.getCodec().listOf().optionalFieldOf("effects", Arrays.asList()).forGetter(BulletSettings::effects),
                 Codec.floatRange(0, Float.MAX_VALUE).optionalFieldOf("bullet_speed", 0.15F).forGetter(BulletSettings::bulletSpeed),
+                Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("max_hit_count", 1).forGetter(BulletSettings::maxHitCount),
                 Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("max_exist_tick", 50).forGetter(BulletSettings::maxExistTick),
                 Codec.floatRange(0, Float.MAX_VALUE).optionalFieldOf("gravity", 0.03F).forGetter(BulletSettings::gravity),
                 Codec.floatRange(0, 1F).optionalFieldOf("slow_down", 0.99F).forGetter(BulletSettings::slowDown),
-                Codec.floatRange(0, 10F).optionalFieldOf("scale", 1F).forGetter(BulletSettings::scale),
-                ResourceLocation.CODEC.fieldOf("model").forGetter(BulletSettings::modelLocation),
-                ResourceLocation.CODEC.fieldOf("texture").forGetter(BulletSettings::textureLocation),
-                ResourceLocation.CODEC.fieldOf("animation").forGetter(BulletSettings::animationLocation)
+                Codec.BOOL.optionalFieldOf("ignore_block", false).forGetter(BulletSettings::ignoreBlock),
+                RenderSettings.CODEC.fieldOf("render_settings").forGetter(BulletSettings::renderSettings)
         ).apply(instance, BulletSettings::new)).codec();
     }
 }

@@ -8,6 +8,9 @@ import hungteen.htlib.common.registry.HTSimpleRegistry;
 import hungteen.opentd.OpenTD;
 import hungteen.opentd.api.interfaces.ITowerComponent;
 import hungteen.opentd.api.interfaces.ITowerComponentType;
+import hungteen.opentd.impl.effect.DamageEffectComponent;
+import hungteen.opentd.impl.effect.SplashEffectComponent;
+import hungteen.opentd.impl.filter.OrTargetFilter;
 import hungteen.opentd.impl.filter.TypeTargetFilter;
 import hungteen.opentd.impl.finder.RangeFinder;
 import net.minecraft.sounds.SoundEvents;
@@ -38,9 +41,7 @@ public class HTTowerComponents {
                     new PVZPlantComponent.PlantSettings(
                             PVZPlantComponent.GrowSettings.DEFAULT,
                             true,
-                            OpenTD.prefix("geo/pea_shooter.geo.json"),
-                            OpenTD.prefix("textures/entity/pea_shooter.png"),
-                            OpenTD.prefix("animations/pea_shooter.animation.json")
+                            PVZPlantComponent.RenderSettings.DEFAULT
                     ),
                     Arrays.asList(new PVZPlantComponent.TargetSettings(
                             1, 10,
@@ -53,10 +54,12 @@ public class HTTowerComponents {
                                             false, 0, Vec3.ZERO, 0,
                                             new PVZPlantComponent.BulletSettings(
                                                     new TypeTargetFilter(Arrays.asList(EntityType.CREEPER)),
-                                                    2F, 0.4F, 50, 0.01F, 0.99F, 0.2F,
-                                                    OpenTD.prefix("geo/pea_shooter.geo.json"),
-                                                    OpenTD.prefix("textures/entity/pea_shooter.png"),
-                                                    OpenTD.prefix("animations/pea_shooter.animation.json")
+                                                    Arrays.asList(
+                                                            new DamageEffectComponent(5F),
+                                                            new SplashEffectComponent(5, 5, true, 1F, new OrTargetFilter(Arrays.asList()))
+                                                    ),
+                                                    0.8F, 1, 50, 0.01F, 0.99F, false,
+                                                    PVZPlantComponent.RenderSettings.DEFAULT
                                             )
                                     )
                             )

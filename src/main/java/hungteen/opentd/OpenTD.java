@@ -5,6 +5,7 @@ import hungteen.htlib.HTLib;
 import hungteen.opentd.common.effect.OpenTDEffects;
 import hungteen.opentd.common.entity.OpenTDEntities;
 import hungteen.opentd.common.item.OpenTDItems;
+import hungteen.opentd.impl.effect.HTEffectComponents;
 import hungteen.opentd.impl.finder.HTTargetFinders;
 import hungteen.opentd.impl.requirement.HTSummonRequirements;
 import hungteen.opentd.impl.filter.HTTargetFilters;
@@ -41,6 +42,7 @@ public class OpenTD {
         event.enqueueWork(() -> {
             HTTowerComponents.registerStuffs();
             HTSummonRequirements.registerStuffs();
+            HTEffectComponents.registerStuffs();
             HTTargetFilters.registerStuffs();
             HTTargetFinders.registerStuffs();
         });

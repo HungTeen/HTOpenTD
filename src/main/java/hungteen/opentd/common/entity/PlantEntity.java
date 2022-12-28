@@ -205,7 +205,7 @@ public class PlantEntity extends TowerEntity {
     }
 
     public int getMaxAge(){
-        return this.getComponent().plantSettings().growSettings().getMaxAge();
+        return this.getComponent() == null ? 1 : this.getComponent().plantSettings().growSettings().getMaxAge();
     }
 
     public boolean canGrow(){
@@ -277,9 +277,9 @@ public class PlantEntity extends TowerEntity {
 
     @Override
     public EntityDimensions getDimensions(Pose pose) {
-        final float width = getGrowSettings().width();
-        final float height = getGrowSettings().height();
-        final float scale = getGrowSettings().scales().get(this.getAge() - 1);
+        final float width = getRenderSettings().width();
+        final float height = getRenderSettings().height();
+        final float scale = getGrowSettings().scales().get(this.getAge() - 1) * getRenderSettings().scale();
         return EntityDimensions.scalable(width * scale, height * scale);
     }
 
@@ -325,6 +325,10 @@ public class PlantEntity extends TowerEntity {
 
     public PVZPlantComponent.GrowSettings getGrowSettings() {
         return this.getComponent() == null ? PVZPlantComponent.GrowSettings.DEFAULT : this.getComponent().plantSettings().growSettings();
+    }
+
+    public PVZPlantComponent.RenderSettings getRenderSettings() {
+        return this.getComponent() == null ? PVZPlantComponent.RenderSettings.DEFAULT : this.getComponent().plantSettings().renderSettings();
     }
 
     public void setAge(int age) {

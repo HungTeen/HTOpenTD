@@ -1,5 +1,7 @@
 package hungteen.opentd.util;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -20,6 +22,13 @@ public class MathUtil {
         final double xz = horizontalLength * Math.cos(verticalRadians) - vec.y() * Math.sin(verticalRadians);
         final double y = vec.y() * Math.cos(verticalRadians) + horizontalLength * Math.sin(verticalRadians);
         return new Vec3(x / horizontalLength * xz, y, z / horizontalLength * xz);
+    }
+
+    /**
+     * get expand collide box.
+     */
+    public static AABB getAABB(Vec3 pos, double radius, double height) {
+        return new AABB(pos.x() - radius, pos.y() - height, pos.z() - radius, pos.x() + radius, pos.y() + height, pos.z() + radius);
     }
 
 }

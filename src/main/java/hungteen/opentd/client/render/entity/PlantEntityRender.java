@@ -28,7 +28,7 @@ public class PlantEntityRender extends GeoEntityRenderer<PlantEntity> {
     protected void applyRotations(PlantEntity animatable, PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTick) {
         super.applyRotations(animatable, poseStack, ageInTicks, rotationYaw, partialTick);
         if (animatable.getComponent() != null) {
-            final float scale = animatable.getGrowSettings().scales().get(animatable.getAge() - 1);
+            final float scale = animatable.getGrowSettings().scales().get(animatable.getAge() - 1) * animatable.getComponent().plantSettings().renderSettings().scale();
             poseStack.scale(scale, scale, scale);
         }
     }

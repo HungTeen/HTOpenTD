@@ -14,7 +14,7 @@ public interface IEffectComponent {
 
     void effectTo(Entity owner, Entity entity);
 
-    void effectTo(Entity owner, BlockState blockState, BlockPos pos);
+    void effectTo(Entity owner, BlockPos pos);
 
     /**
      * Get the type of effect.

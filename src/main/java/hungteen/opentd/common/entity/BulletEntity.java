@@ -1,7 +1,9 @@
 package hungteen.opentd.common.entity;
 
 import hungteen.opentd.OpenTD;
+import hungteen.opentd.api.interfaces.IEffectComponent;
 import hungteen.opentd.impl.tower.PVZPlantComponent;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
@@ -11,10 +13,8 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
@@ -36,8 +36,7 @@ import software.bernie.geckolib3.core.manager.AnimationFactory;
 import software.bernie.geckolib3.util.GeckoLibUtil;
 
 import javax.annotation.Nullable;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * @program: HTOpenTD
@@ -48,7 +47,9 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
 
     private final AnimationFactory factory = GeckoLibUtil.createFactory(this);
     private PVZPlantComponent.BulletSettings settings;
-    protected boolean canExist = true;
+    private IntOpenHashSet hitSet = new IntOpenHashSet();
+    private int hitCount = 0;
+    private boolean canExist = true;
 
 
     public BulletEntity(EntityType<? extends Projectile> entityType, Level level) {
@@ -67,6 +68,7 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
 
     public void tick() {
         super.tick();
+        this.noPhysics = this.ignoreBlock();
         if (this.getSettings() == null) {
             if (this.tickCount > 5) {
                 this.discard();
@@ -154,39 +156,25 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
 
     protected void onHitEntity(EntityHitResult result) {
         if (this.shouldHit(result.getEntity())) {
-            this.dealDamageTo(result.getEntity());
+            this.getEffects().forEach(e -> e.effectTo(this, result.getEntity()));
+            hitSet.add(result.getEntity().getId());
+            if(++ this.hitCount > this.getMaxHitCount()) {
+                this.canExist = false;
+            }
         }
     }
 
-//    /**
-//     * Gets the EntityRayTraceResult representing the entity hit.
-//     * {@link #tick()}
-//     */
-//    @Nullable
-//    protected EntityRayTraceResult rayTraceEntities(Vector3d startVec, Vector3d endVec) {
-//        return EntityUtil.rayTraceEntities(level, this, startVec, endVec, entity ->
-//                entity.isPickable() && shouldHit(entity) && (this.hitEntities == null || !this.hitEntities.contains(entity.getId())
-//                ));
-//    }
+    protected void onHitBlock(BlockHitResult result) {
+        if(! this.ignoreBlock()){
+            BlockState blockstate = this.level.getBlockState(result.getBlockPos());
+            blockstate.onProjectileHit(this.level, blockstate, result, this);
+            this.getEffects().forEach(e -> e.effectTo(this, result.getBlockPos()));
+            this.canExist = false;
+        }
+    }
 
     protected boolean shouldHit(Entity target) {
-        return this.getSettings() == null || this.getSettings().targetFilter().match(this, target);
-    }
-
-    protected void onHitBlock(BlockHitResult result) {
-        BlockState blockstate = this.level.getBlockState(result.getBlockPos());
-        blockstate.onProjectileHit(this.level, blockstate, result, this);
-    }
-
-    protected void dealDamageTo(Entity target) {
-
-    }
-
-    /**
-     * All projectile hurt method must invoke this one !
-     */
-    protected void hurtTarget(Entity target, DamageSource source, float amount) {
-        target.hurt(source, amount);
+        return (this.getSettings() == null || this.getSettings().targetFilter().match(this, target)) && ! this.hitSet.contains(target.getId());
     }
 
     /**
@@ -207,8 +195,6 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
     @Nullable
     protected ParticleOptions getHitParticle() {
         return null;
-//        ItemStack itemstack = this.getItemRaw();
-//        return (ParticleOptions)(itemstack.isEmpty() ? ParticleTypes.ITEM_SNOWBALL : new ItemParticleOption(ParticleTypes.ITEM, itemstack));
     }
 
     @Nullable
@@ -216,12 +202,6 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
         return null;
     }
 
-//    /**
-//     * shoot bullet such as pea or spore
-//     */
-//    public void shootPea(Vec3 vec, double speed, double angleOffset) {
-//        this.shootPea(vec.x, vec.y, vec.z, speed, angleOffset);
-//    }
 
     /**
      * shoot bullet such as pea or spore
@@ -275,6 +255,18 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
 
     protected float getGravity() {
         return this.getSettings() == null ? 0 : this.getSettings().gravity();
+    }
+
+    protected int getMaxHitCount(){
+        return this.getSettings() == null ? 1 : this.getSettings().maxHitCount();
+    }
+
+    protected boolean ignoreBlock(){
+        return this.getSettings() != null && this.getSettings().ignoreBlock();
+    }
+
+    protected List<IEffectComponent> getEffects(){
+        return this.getSettings() == null ? Arrays.asList() : this.getSettings().effects();
     }
 
     public PVZPlantComponent.BulletSettings getSettings() {

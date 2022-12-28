@@ -13,16 +13,16 @@ public class PlantEntityModel extends AnimatedGeoModel<PlantEntity> {
 
     @Override
     public ResourceLocation getModelResource(PlantEntity plantEntity) {
-        return plantEntity.getComponent().plantSettings().modelLocation();
+        return plantEntity.getComponent().plantSettings().renderSettings().modelLocation();
     }
 
     @Override
     public ResourceLocation getTextureResource(PlantEntity plantEntity) {
-        return plantEntity.getComponent().plantSettings().textureLocation();
+        return plantEntity.getComponent().plantSettings().renderSettings().textureLocation();
     }
 
     @Override
     public ResourceLocation getAnimationResource(PlantEntity plantEntity) {
-        return plantEntity.getComponent().plantSettings().animationLocation();
+        return plantEntity.getComponent().plantSettings().renderSettings().animationLocation();
     }
 }

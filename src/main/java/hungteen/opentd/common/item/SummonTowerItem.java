@@ -3,6 +3,7 @@ package hungteen.opentd.common.item;
 import hungteen.opentd.api.interfaces.ITowerComponent;
 import hungteen.opentd.impl.HTItemSettings;
 import hungteen.opentd.impl.HTSummonItems;
+import hungteen.opentd.impl.tower.HTTowerComponents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.NbtOps;
@@ -164,7 +165,7 @@ public class SummonTowerItem extends Item {
 
     public static ITowerComponent getTowerSettings(ItemStack stack) {
         //TODO default.
-        return get(stack).map(HTSummonItems.SummonEntry::towerSettings).orElse(null);
+        return get(stack).map(HTSummonItems.SummonEntry::towerSettings).orElse(HTTowerComponents.PEA_SHOOTER.getValue());
     }
 
     public static Optional<HTSummonItems.SummonEntry> get(ItemStack stack) {

@@ -1,0 +1,58 @@
+package hungteen.opentd.impl.effect;
+
+import com.mojang.serialization.Codec;
+import hungteen.htlib.common.registry.HTCodecRegistry;
+import hungteen.htlib.common.registry.HTRegistryManager;
+import hungteen.htlib.common.registry.HTSimpleRegistry;
+import hungteen.opentd.OpenTD;
+import hungteen.opentd.api.interfaces.IEffectComponent;
+import hungteen.opentd.api.interfaces.IEffectComponentType;
+import hungteen.opentd.impl.tower.PVZPlantComponent;
+
+import java.util.Arrays;
+
+/**
+ * @program: HTOpenTD
+ * @author: HungTeen
+ * @create: 2022-12-15 10:28
+ **/
+public class HTEffectComponents {
+
+    public static final HTSimpleRegistry<IEffectComponentType<?>> EFFECT_TYPES = HTRegistryManager.create(OpenTD.prefix("effect_type"));
+    public static final HTCodecRegistry<IEffectComponent> EFFECTS = HTRegistryManager.create(IEffectComponent.class, "tower_defence/effects", HTEffectComponents::getCodec);
+
+    /* Effect types */
+
+    public static final IEffectComponentType<DamageEffectComponent> DAMAGE_EFFECT = new DefaultEffect<>("damage",  DamageEffectComponent.CODEC);
+    public static final IEffectComponentType<SplashEffectComponent> SPLASH_EFFECT = new DefaultEffect<>("splash",  SplashEffectComponent.CODEC);
+
+    /* Effects */
+
+    /**
+     * {@link OpenTD#OpenTD()}
+     */
+    public static void registerStuffs(){
+        Arrays.asList(DAMAGE_EFFECT, SPLASH_EFFECT).forEach(HTEffectComponents::registerEffectType);
+    }
+
+    public static void registerEffectType(IEffectComponentType<?> type){
+        EFFECT_TYPES.register(type);
+    }
+
+    public static Codec<IEffectComponent> getCodec(){
+        return EFFECT_TYPES.byNameCodec().dispatch(IEffectComponent::getType, IEffectComponentType::codec);
+    }
+
+    protected record DefaultEffect<P extends IEffectComponent>(String name, Codec<P> codec) implements IEffectComponentType<P> {
+
+        @Override
+        public String getName() {
+            return this.name;
+        }
+
+        @Override
+        public String getModID() {
+            return OpenTD.MOD_ID;
+        }
+    }
+}

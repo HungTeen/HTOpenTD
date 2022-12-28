@@ -48,11 +48,6 @@
 						}
 					}
 				}
-			},
-			"sound_effects": {
-				"0.68": {
-					"effect": "snow_shoot"
-				}
 			}
 		},
 		"animation.opentd.pea_shooter.idle": {
