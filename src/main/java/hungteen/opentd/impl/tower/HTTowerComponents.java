@@ -58,7 +58,7 @@ public class HTTowerComponents {
                                                             new DamageEffectComponent(5F),
                                                             new SplashEffectComponent(5, 5, true, 1F, new OrTargetFilter(Arrays.asList()))
                                                     ),
-                                                    0.8F, 1, 50, 0.01F, 0.99F, false,
+                                                    1F, 1, 30, 0.0001F, 0.99999F, false,
                                                     PVZPlantComponent.RenderSettings.DEFAULT
                                             )
                                     )

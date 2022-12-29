@@ -33,9 +33,7 @@ import software.bernie.geckolib3.core.manager.AnimationFactory;
 import software.bernie.geckolib3.util.GeckoLibUtil;
 
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * @program: HTOpenTD
@@ -48,6 +46,7 @@ public class PlantEntity extends TowerEntity {
     private static final EntityDataAccessor<Integer> AGE = SynchedEntityData.defineId(PlantEntity.class, EntityDataSerializers.INT);
 
     private static final EntityDataAccessor<Integer> SHOOT_TICK = SynchedEntityData.defineId(PlantEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> GEN_TICK = SynchedEntityData.defineId(PlantEntity.class, EntityDataSerializers.INT);
     private final AnimationFactory factory = GeckoLibUtil.createFactory(this);
     private CompoundTag componentTag = new CompoundTag();
     private PVZPlantComponent component;
@@ -65,6 +64,7 @@ public class PlantEntity extends TowerEntity {
         super.defineSynchedData();
         entityData.define(AGE, 1);
         entityData.define(SHOOT_TICK, 0);
+        entityData.define(GEN_TICK, 0);
     }
 
     @Override
@@ -191,9 +191,9 @@ public class PlantEntity extends TowerEntity {
             final double deltaZ = shootSettings.offset().x * vec.z + shootSettings.offset().z * vec.x;
             bullet.setPos(this.getX() + deltaX, this.getY() + deltaY, this.getZ() + deltaZ);
             if(this.getTarget() != null){
-                bullet.shootToTarget(this, shootSettings.bulletSettings(), this.getTarget().getX() - bullet.getX(), this.getTarget().getY() + this.getTarget().getBbHeight() - bullet.getY(), this.getTarget().getZ() - bullet.getZ(), shootSettings.angleOffset());
+                bullet.shootToTarget(this, shootSettings, this.getTarget(), this.getTarget().getX() - bullet.getX(), this.getTarget().getY() + this.getTarget().getBbHeight() - bullet.getY(), this.getTarget().getZ() - bullet.getZ());
             } else{
-                bullet.shootTo(this, shootSettings.bulletSettings(), vec, shootSettings.angleOffset());
+                bullet.shootTo(this, shootSettings, vec);
             }
             this.level.addFreshEntity(bullet);
         }
@@ -275,6 +275,13 @@ public class PlantEntity extends TowerEntity {
         return Arrays.asList();
     }
 
+    public List<PVZPlantComponent.GenSettings> getGenSettings() {
+        if(this.getComponent() != null && this.getComponent().genGoalSettings().isPresent()) {
+            return this.getComponent().genGoalSettings().get().genSettings();
+        }
+        return Arrays.asList();
+    }
+
     @Override
     public EntityDimensions getDimensions(Pose pose) {
         final float width = getRenderSettings().width();
@@ -301,6 +308,7 @@ public class PlantEntity extends TowerEntity {
         tag.putInt("CreatureGrowTick", this.growTick);
         tag.putInt("ShootTick", this.getShootTick());
         tag.putInt("ShootCount", this.shootCount);
+        tag.putInt("GenTick", this.getGenTick());
     }
 
     @Override
@@ -320,6 +328,9 @@ public class PlantEntity extends TowerEntity {
         }
         if(tag.contains("ShootCount")) {
             this.shootCount = tag.getInt("ShootCount");
+        }
+        if(tag.contains("GenTick")){
+            this.setGenTick(tag.getInt("GenTick"));
         }
     }
 
@@ -345,5 +356,14 @@ public class PlantEntity extends TowerEntity {
 
     public int getShootTick() {
         return entityData.get(SHOOT_TICK);
+    }
+
+
+    public void setGenTick(int tick) {
+        entityData.set(GEN_TICK, tick);
+    }
+
+    public int getGenTick() {
+        return entityData.get(GEN_TICK);
     }
 }
