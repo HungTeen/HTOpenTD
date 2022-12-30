@@ -8,6 +8,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
@@ -134,7 +135,7 @@ public class SummonTowerItem extends Item {
     @Override
     public void fillItemCategory(CreativeModeTab tab, NonNullList<ItemStack> itemStacks) {
         if (tab == CreativeModeTab.TAB_SEARCH || this.allowedIn(tab)) {
-            HTSummonItems.SUMMON_ITEMS.getValues().forEach(entry -> {
+            HTSummonItems.SUMMON_ITEMS.getIds().forEach(entry -> {
                 ItemStack stack = new ItemStack(OpenTDItems.SUMMON_TOWER_ITEM.get());
                 set(stack, entry);
                 itemStacks.add(stack);
@@ -169,17 +170,11 @@ public class SummonTowerItem extends Item {
     }
 
     public static Optional<HTSummonItems.SummonEntry> get(ItemStack stack) {
-        return HTSummonItems.SummonEntry.CODEC
-                .parse(NbtOps.INSTANCE, stack.getOrCreateTag().get(SUMMON_TAG))
-                .result();
+        return HTSummonItems.SUMMON_ITEMS.getValue(stack.getOrCreateTag().getString(SUMMON_TAG));
     }
 
-    public static void set(ItemStack stack, HTSummonItems.SummonEntry entry) {
-        HTSummonItems.SummonEntry.CODEC
-                .encodeStart(NbtOps.INSTANCE, entry)
-                .result().ifPresent(tag -> {
-                    stack.getOrCreateTag().put(SUMMON_TAG, tag);
-                });
+    public static void set(ItemStack stack, ResourceLocation entry) {
+        stack.getOrCreateTag().putString(SUMMON_TAG, entry.toString());
     }
 
 }

@@ -148,19 +148,28 @@ public record PVZPlantComponent(PlantSettings plantSettings, List<TargetSettings
         ).apply(instance, BulletSettings::new)).codec();
     }
 
-    public record GenGoalSettings(List<GenSettings> genSettings) {
+    public record GenGoalSettings(int coolDown, int startTick, int totalWeight, int emptyCD, List<GenSettings> genSettings) {
         public static final Codec<GenGoalSettings> CODEC = RecordCodecBuilder.<GenGoalSettings>mapCodec(instance -> instance.group(
+                Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("cool_down", 20).forGetter(GenGoalSettings::coolDown),
+                Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("start_tick", 10).forGetter(GenGoalSettings::startTick),
+                Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("total_weight", 0).forGetter(GenGoalSettings::totalWeight),
+                Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("empty_cd", 100).forGetter(GenGoalSettings::emptyCD),
                 GenSettings.CODEC.listOf().fieldOf("productions").forGetter(GenGoalSettings::genSettings)
         ).apply(instance, GenGoalSettings::new)).codec();
     }
 
-    public record GenSettings(int weight, int count, EntityType<?> entityType, CompoundTag nbt) {
+    public record GenSettings(boolean plantFoodOnly, int weight, int cooldown, int count, EntityType<?> entityType, CompoundTag nbt, Vec3 offset, double horizontalSpeed, double verticalSpeed) {
 
         public static final Codec<GenSettings> CODEC = RecordCodecBuilder.<GenSettings>mapCodec(instance -> instance.group(
+                Codec.BOOL.optionalFieldOf("plant_food_only", false).forGetter(GenSettings::plantFoodOnly),
                 Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("weight", 10).forGetter(GenSettings::weight),
+                Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("cool_down", 500).forGetter(GenSettings::cooldown),
                 Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("count", 1).forGetter(GenSettings::count),
                 ForgeRegistries.ENTITY_TYPES.getCodec().fieldOf("entity_type").forGetter(GenSettings::entityType),
-                CompoundTag.CODEC.optionalFieldOf("nbt", new CompoundTag()).forGetter(GenSettings::nbt)
+                CompoundTag.CODEC.optionalFieldOf("nbt", new CompoundTag()).forGetter(GenSettings::nbt),
+                Vec3.CODEC.optionalFieldOf("offset", Vec3.ZERO).forGetter(GenSettings::offset),
+                Codec.DOUBLE.optionalFieldOf("horizontal_speed", 0.25D).forGetter(GenSettings::horizontalSpeed),
+                Codec.DOUBLE.optionalFieldOf("vertical_speed", 0.3D).forGetter(GenSettings::verticalSpeed)
         ).apply(instance, GenSettings::new)).codec();
     }
 }

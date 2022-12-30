@@ -1,5 +1,8 @@
 package hungteen.opentd.common.entity;
 
+import hungteen.htlib.util.helper.EntityHelper;
+import hungteen.htlib.util.helper.MathHelper;
+import hungteen.htlib.util.helper.RandomHelper;
 import hungteen.opentd.OpenTD;
 import hungteen.opentd.common.entity.ai.PlantShootGoal;
 import hungteen.opentd.common.entity.ai.PlantTargetGoal;
@@ -7,14 +10,18 @@ import hungteen.opentd.impl.HTSummonItems;
 import hungteen.opentd.impl.tower.HTTowerComponents;
 import hungteen.opentd.impl.tower.PVZPlantComponent;
 import hungteen.opentd.util.EntityUtil;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.commands.SummonCommand;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -31,6 +38,7 @@ import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 import software.bernie.geckolib3.util.GeckoLibUtil;
+import sun.security.provider.Sun;
 
 import java.util.Arrays;
 import java.util.List;
@@ -50,7 +58,9 @@ public class PlantEntity extends TowerEntity {
     private final AnimationFactory factory = GeckoLibUtil.createFactory(this);
     private CompoundTag componentTag = new CompoundTag();
     private PVZPlantComponent component;
+    private PVZPlantComponent.GenSettings genSettings;
     protected int growTick = 0;
+    public int preGenTick = 0;
     protected int forcedAgeTimer;
     private boolean updated = false;
     protected int shootCount = 0;
@@ -199,6 +209,29 @@ public class PlantEntity extends TowerEntity {
         }
     }
 
+    public void gen(PVZPlantComponent.GenSettings genSettings){
+        if(genSettings != null){
+            if (this.level instanceof ServerLevel serverlevel && Level.isInSpawnableBounds(this.blockPosition())) {
+                CompoundTag compoundtag = genSettings.nbt().copy();
+                compoundtag.putString("id", genSettings.entityType().toString());
+                final Vec3 position = this.getEyePosition().add(genSettings.offset());
+                Entity entity = EntityType.loadEntityRecursive(compoundtag, serverlevel, (e) -> {
+                    e.moveTo(position.x() , position.y(), position.z(), this.getYRot(), this.getXRot());
+                    return e;
+                });
+                if (entity != null) {
+                    if (entity instanceof Mob) {
+                        ((Mob)entity).finalizeSpawn(serverlevel, serverlevel.getCurrentDifficultyAt(entity.blockPosition()), MobSpawnType.MOB_SUMMONED, null, null);
+                    }
+                    final double dx = RandomHelper.floatRange(this.getRandom());
+                    final double dz = RandomHelper.floatRange(this.getRandom());
+                    entity.setDeltaMovement(new Vec3(dx, 0, dz).scale(genSettings.horizontalSpeed()).add(0, genSettings.verticalSpeed(), 0));
+                    serverlevel.tryAddFreshEntityWithPassengers(entity);
+                }
+            }
+        }
+    }
+
     public void onGrow(){
         this.setAge(this.getAge() + 1);
         this.growTick = 0;
@@ -268,6 +301,20 @@ public class PlantEntity extends TowerEntity {
         return 1000000;
     }
 
+    public int getCurrentGenCD(){
+        if(this.getComponent() != null && this.getComponent().genGoalSettings().isPresent()) {
+            return this.getComponent().genGoalSettings().get().coolDown();
+        }
+        return 1000000;
+    }
+
+    public int getStartGenTick(){
+        if(this.getComponent() != null && this.getComponent().genGoalSettings().isPresent()) {
+            return this.getComponent().genGoalSettings().get().startTick();
+        }
+        return 1000000;
+    }
+
     public List<PVZPlantComponent.ShootSettings> getShootSettings() {
         if(this.getComponent() != null && this.getComponent().shootGoalSettings().isPresent()) {
             return this.getComponent().shootGoalSettings().get().shootSettings();
@@ -309,6 +356,12 @@ public class PlantEntity extends TowerEntity {
         tag.putInt("ShootTick", this.getShootTick());
         tag.putInt("ShootCount", this.shootCount);
         tag.putInt("GenTick", this.getGenTick());
+        tag.putInt("PreGenTick", this.preGenTick);
+        if(this.genSettings != null){
+            PVZPlantComponent.GenSettings.CODEC.encodeStart(NbtOps.INSTANCE, this.genSettings)
+                    .resultOrPartial(msg -> OpenTD.log().error(msg + " [Plant Gen]"))
+                    .ifPresent(nbt -> tag.put("Production", nbt));
+        }
     }
 
     @Override
@@ -332,6 +385,14 @@ public class PlantEntity extends TowerEntity {
         if(tag.contains("GenTick")){
             this.setGenTick(tag.getInt("GenTick"));
         }
+        if(tag.contains("PreGenTick")){
+            this.preGenTick = tag.getInt("PreGenTick");
+        }
+        if(tag.contains("Production")){
+            PVZPlantComponent.GenSettings.CODEC.parse(NbtOps.INSTANCE, tag.get("Production"))
+                    .resultOrPartial(msg -> OpenTD.log().error(msg + " [Plant Gen]"))
+                    .ifPresent(settings -> this.genSettings = settings);
+        }
     }
 
     public PVZPlantComponent.GrowSettings getGrowSettings() {
@@ -340,6 +401,15 @@ public class PlantEntity extends TowerEntity {
 
     public PVZPlantComponent.RenderSettings getRenderSettings() {
         return this.getComponent() == null ? PVZPlantComponent.RenderSettings.DEFAULT : this.getComponent().plantSettings().renderSettings();
+    }
+
+    @Nullable
+    public PVZPlantComponent.GenSettings getProduction() {
+        return this.genSettings;
+    }
+
+    public void setProduction(PVZPlantComponent.GenSettings settings){
+        this.genSettings = settings;
     }
 
     public void setAge(int age) {
