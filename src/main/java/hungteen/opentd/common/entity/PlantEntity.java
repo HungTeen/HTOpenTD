@@ -4,6 +4,7 @@ import hungteen.htlib.util.helper.EntityHelper;
 import hungteen.htlib.util.helper.MathHelper;
 import hungteen.htlib.util.helper.RandomHelper;
 import hungteen.opentd.OpenTD;
+import hungteen.opentd.common.entity.ai.PlantGenGoal;
 import hungteen.opentd.common.entity.ai.PlantShootGoal;
 import hungteen.opentd.common.entity.ai.PlantTargetGoal;
 import hungteen.opentd.impl.HTSummonItems;
@@ -22,7 +23,9 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.commands.SummonCommand;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -38,7 +41,6 @@ import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 import software.bernie.geckolib3.util.GeckoLibUtil;
-import sun.security.provider.Sun;
 
 import java.util.Arrays;
 import java.util.List;
@@ -50,17 +52,20 @@ import java.util.List;
  **/
 public class PlantEntity extends TowerEntity {
 
+    public static final String PLANT_SETTINGS = "PlantSettings";
     public static final String YROT = "YRot";
     private static final EntityDataAccessor<Integer> AGE = SynchedEntityData.defineId(PlantEntity.class, EntityDataSerializers.INT);
 
     private static final EntityDataAccessor<Integer> SHOOT_TICK = SynchedEntityData.defineId(PlantEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> GEN_TICK = SynchedEntityData.defineId(PlantEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> ATTACK_TICK = SynchedEntityData.defineId(PlantEntity.class, EntityDataSerializers.INT);
     private final AnimationFactory factory = GeckoLibUtil.createFactory(this);
     private CompoundTag componentTag = new CompoundTag();
     private PVZPlantComponent component;
     private PVZPlantComponent.GenSettings genSettings;
     protected int growTick = 0;
     public int preGenTick = 0;
+    public int preAttackTick = 0;
     protected int forcedAgeTimer;
     private boolean updated = false;
     protected int shootCount = 0;
@@ -75,12 +80,13 @@ public class PlantEntity extends TowerEntity {
         entityData.define(AGE, 1);
         entityData.define(SHOOT_TICK, 0);
         entityData.define(GEN_TICK, 0);
+        entityData.define(ATTACK_TICK, 0);
     }
 
     @Override
     public void onSyncedDataUpdated(EntityDataAccessor<?> dataAccessor) {
         super.onSyncedDataUpdated(dataAccessor);
-        if(dataAccessor.equals(AGE)) {
+        if (dataAccessor.equals(AGE)) {
             this.refreshDimensions();
         }
     }
@@ -89,15 +95,8 @@ public class PlantEntity extends TowerEntity {
     @Override
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor accessor, DifficultyInstance instance, MobSpawnType spawnType, @Nullable SpawnGroupData groupData, @Nullable CompoundTag compoundTag) {
         if (compoundTag != null) {
-            HTSummonItems.SUMMON_ITEMS.getCodec().parse(NbtOps.INSTANCE, compoundTag.getCompound("SummonEntry"))
-                    .resultOrPartial(msg -> OpenTD.log().error(msg))
-                    .flatMap(entry -> HTTowerComponents.getCodec()
-                            .encodeStart(NbtOps.INSTANCE, entry.towerSettings())
-                            .resultOrPartial(msg -> OpenTD.log().error(msg))
-                    ).ifPresent(tag -> {
-                        this.componentTag = (CompoundTag) tag;
-                    });
-            if(compoundTag.contains(YROT)){
+            this.componentTag = (CompoundTag) compoundTag.get(PLANT_SETTINGS);
+            if (compoundTag.contains(YROT)) {
                 this.setYRot(Direction.fromYRot(compoundTag.getFloat(YROT)).toYRot());
                 this.yHeadRot = this.getYRot();
                 this.yBodyRot = this.getYRot();
@@ -108,13 +107,14 @@ public class PlantEntity extends TowerEntity {
 
     @Override
     protected void registerGoals() {
-        if(this.getComponent() != null){
+        if (this.getComponent() != null) {
             this.targetSelector.removeAllGoals();
             this.goalSelector.removeAllGoals();
             this.getComponent().targetSettings().forEach(targetSettings -> {
                 this.targetSelector.addGoal(targetSettings.priority(), new PlantTargetGoal(this, targetSettings));
             });
             this.goalSelector.addGoal(1, new PlantShootGoal(this));
+            this.goalSelector.addGoal(1, new PlantGenGoal(this));
         }
     }
 
@@ -141,7 +141,7 @@ public class PlantEntity extends TowerEntity {
     @Override
     public void tick() {
         super.tick();
-        if(this.getComponent() != null && this.tickCount <= 5){
+        if (this.getComponent() != null && this.tickCount <= 5) {
             this.refreshDimensions();
         }
         if (this.level.isClientSide) {
@@ -151,39 +151,47 @@ public class PlantEntity extends TowerEntity {
                 }
                 --this.forcedAgeTimer;
             }
-        } else{
-            if(! this.updated && this.getComponent() != null){
+        } else {
+            if (!this.updated && this.getComponent() != null) {
                 this.updated = true;
                 this.registerGoals();
             }
-            if(this.isAlive()){
-                if(this.canGrow()){
-                    if(this.growTick >= this.getGrowNeedTime()){
+            if (this.isAlive()) {
+                if (this.canGrow()) {
+                    if (this.growTick >= this.getGrowNeedTime()) {
                         this.onGrow();
                     }
-                    ++ this.growTick;
+                    ++this.growTick;
                 }
             }
-            if(EntityUtil.inEnergetic(this)){
+            if (EntityUtil.inEnergetic(this)) {
                 this.getShootSettings().stream().filter(PVZPlantComponent.ShootSettings::plantFoodOnly).forEach(this::performShoot);
             }
-            if(this.getTarget() != null) {
-                if (! this.getShootSettings().isEmpty() && this.shootCount > 0 && ! EntityUtil.inEnergetic(this)) {
+            if (this.getTarget() != null) {
+                if (!this.getShootSettings().isEmpty() && this.shootCount > 0 && !EntityUtil.inEnergetic(this)) {
                     final int count = this.getComponent().shootGoalSettings().get().shootCount();
                     this.getShootSettings().stream().filter(l -> !l.plantFoodOnly() && l.shootTick() == count - this.shootCount).forEach(this::performShoot);
-                    -- this.shootCount;
+                    --this.shootCount;
                 }
             }
         }
     }
 
-    protected PlayState predicateAnimation(AnimationEvent<?> event){
-        event.getController().setAnimation(new AnimationBuilder().addAnimation("animation.opentd.pea_shooter.idle", ILoopType.EDefaultLoopTypes.LOOP));
+    protected PlayState predicateAnimation(AnimationEvent<?> event) {
+        final AnimationBuilder builder = new AnimationBuilder();
+        if(this.getShootTick() > 0){
+            builder.addAnimation("shoot", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
+        } else if(this.getGenTick() > 0){
+            builder.addAnimation("gen", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
+        } else {
+            builder.addAnimation("idle", ILoopType.EDefaultLoopTypes.LOOP);
+        }
+        event.getController().setAnimation(builder);
         return PlayState.CONTINUE;
     }
 
-    public void startShootAttack(LivingEntity target){
-        if(this.getComponent() != null){
+    public void startShootAttack(LivingEntity target) {
+        if (this.getComponent() != null) {
             this.getComponent().shootGoalSettings().ifPresent(l -> this.shootCount = l.shootCount());
             this.getComponent().shootGoalSettings().flatMap(PVZPlantComponent.ShootGoalSettings::shootSound).ifPresent(this::playSound);
         }
@@ -194,34 +202,34 @@ public class PlantEntity extends TowerEntity {
      */
     public void performShoot(PVZPlantComponent.ShootSettings shootSettings) {
         final BulletEntity bullet = OpenTDEntities.BULLET_ENTITY.get().create(this.level);
-        if(bullet != null){
+        if (bullet != null) {
             final Vec3 vec = this.getViewVector(1F);
             final double deltaY = this.getDimensions(getPose()).height * 0.7F + shootSettings.offset().y;
             final double deltaX = shootSettings.offset().x * vec.x - shootSettings.offset().z * vec.z;
             final double deltaZ = shootSettings.offset().x * vec.z + shootSettings.offset().z * vec.x;
             bullet.setPos(this.getX() + deltaX, this.getY() + deltaY, this.getZ() + deltaZ);
-            if(this.getTarget() != null){
+            if (this.getTarget() != null) {
                 bullet.shootToTarget(this, shootSettings, this.getTarget(), this.getTarget().getX() - bullet.getX(), this.getTarget().getY() + this.getTarget().getBbHeight() - bullet.getY(), this.getTarget().getZ() - bullet.getZ());
-            } else{
+            } else {
                 bullet.shootTo(this, shootSettings, vec);
             }
             this.level.addFreshEntity(bullet);
         }
     }
 
-    public void gen(PVZPlantComponent.GenSettings genSettings){
-        if(genSettings != null){
+    public void gen(PVZPlantComponent.GenSettings genSettings) {
+        if (genSettings != null) {
             if (this.level instanceof ServerLevel serverlevel && Level.isInSpawnableBounds(this.blockPosition())) {
                 CompoundTag compoundtag = genSettings.nbt().copy();
-                compoundtag.putString("id", genSettings.entityType().toString());
+                compoundtag.putString("id", EntityHelper.getKey(genSettings.entityType()).toString());
                 final Vec3 position = this.getEyePosition().add(genSettings.offset());
                 Entity entity = EntityType.loadEntityRecursive(compoundtag, serverlevel, (e) -> {
-                    e.moveTo(position.x() , position.y(), position.z(), this.getYRot(), this.getXRot());
+                    e.moveTo(position.x(), position.y(), position.z(), this.getYRot(), this.getXRot());
                     return e;
                 });
                 if (entity != null) {
                     if (entity instanceof Mob) {
-                        ((Mob)entity).finalizeSpawn(serverlevel, serverlevel.getCurrentDifficultyAt(entity.blockPosition()), MobSpawnType.MOB_SUMMONED, null, null);
+                        ((Mob) entity).finalizeSpawn(serverlevel, serverlevel.getCurrentDifficultyAt(entity.blockPosition()), MobSpawnType.MOB_SUMMONED, null, null);
                     }
                     final double dx = RandomHelper.floatRange(this.getRandom());
                     final double dz = RandomHelper.floatRange(this.getRandom());
@@ -232,20 +240,91 @@ public class PlantEntity extends TowerEntity {
         }
     }
 
-    public void onGrow(){
+    @Override
+    public void push(Entity target) {
+        if (!this.isSleeping() && !this.isPassengerOfSameVehicle(target)) {
+            if (!target.noPhysics && !this.noPhysics) {
+                double d0 = target.getX() - this.getX();
+                double d1 = target.getZ() - this.getZ();
+                double d2 = Mth.absMax(d0, d1);
+                if (d2 >= (double) 0.01F) {
+                    d2 = Math.sqrt(d2);
+                    d0 /= d2;
+                    d1 /= d2;
+                    double d3 = 1.0D / d2;
+                    if (d3 > 1.0D) {
+                        d3 = 1.0D;
+                    }
+
+                    d0 *= d3;
+                    d1 *= d3;
+                    d0 *= (double) 0.05F;
+                    d1 *= (double) 0.05F;
+//                    if (!this.isVehicle() && this.isPushable()) {
+//                        this.push(-d0, 0.0D, -d1);
+//                    }
+                    //TODO Push Filter
+                    if (!target.isVehicle() && target.isPushable()) {
+                        target.push(d0, 0.0D, d1);
+                    }
+                }
+            }
+        }
+    }
+
+    public void onGrow() {
         this.setAge(this.getAge() + 1);
         this.growTick = 0;
     }
 
-    public int getMaxAge(){
+    @Override
+    public boolean hurt(DamageSource source, float amount) {
+        if(super.hurt(source, amount)){
+            if(this.getComponent() != null) {
+                this.getComponent().hurtSettings().forEach(settings -> {
+                    if (source.getEntity() != null && settings.targetFilter().match(this, source.getEntity())) {
+                        settings.effects().forEach(effect -> {
+                            effect.effectTo(this, source.getEntity());
+                        });
+                    } else {
+                        settings.effects().forEach(effect -> {
+                            effect.effectTo(this, this.blockPosition());
+                        });
+                    }
+                });
+            }
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void die(DamageSource source) {
+        super.die(source);
+        if(this.getComponent() != null) {
+            this.getComponent().dieSettings().forEach(settings -> {
+                if (source.getEntity() != null && settings.targetFilter().match(this, source.getEntity())) {
+                    settings.effects().forEach(effect -> {
+                        effect.effectTo(this, source.getEntity());
+                    });
+                } else {
+                    settings.effects().forEach(effect -> {
+                        effect.effectTo(this, this.blockPosition());
+                    });
+                }
+            });
+        }
+    }
+
+    public int getMaxAge() {
         return this.getComponent() == null ? 1 : this.getComponent().plantSettings().growSettings().getMaxAge();
     }
 
-    public boolean canGrow(){
+    public boolean canGrow() {
         return this.getAge() < this.getMaxAge();
     }
 
-    public int getGrowNeedTime(){
+    public int getGrowNeedTime() {
         return this.getComponent().plantSettings().growSettings().growDurations().get(this.getAge() - 1);
     }
 
@@ -275,7 +354,7 @@ public class PlantEntity extends TowerEntity {
         if (component == null) {
             PVZPlantComponent.CODEC.parse(NbtOps.INSTANCE, this.componentTag)
                     .resultOrPartial(msg -> {
-                        if(this.tickCount > 0) {
+                        if (this.tickCount > 0) {
                             OpenTD.log().error(msg);
                         }
                     })
@@ -287,43 +366,43 @@ public class PlantEntity extends TowerEntity {
         return component;
     }
 
-    public int getCurrentShootCD(){
-        if(this.getComponent() != null && this.getComponent().shootGoalSettings().isPresent()) {
+    public int getCurrentShootCD() {
+        if (this.getComponent() != null && this.getComponent().shootGoalSettings().isPresent()) {
             return this.getComponent().shootGoalSettings().get().coolDown();
         }
         return 1000000;
     }
 
-    public int getStartShootTick(){
-        if(this.getComponent() != null && this.getComponent().shootGoalSettings().isPresent()) {
+    public int getStartShootTick() {
+        if (this.getComponent() != null && this.getComponent().shootGoalSettings().isPresent()) {
             return this.getComponent().shootGoalSettings().get().startTick();
         }
         return 1000000;
     }
 
-    public int getCurrentGenCD(){
-        if(this.getComponent() != null && this.getComponent().genGoalSettings().isPresent()) {
+    public int getCurrentGenCD() {
+        if (this.getComponent() != null && this.getComponent().genGoalSettings().isPresent()) {
             return this.getComponent().genGoalSettings().get().coolDown();
         }
         return 1000000;
     }
 
-    public int getStartGenTick(){
-        if(this.getComponent() != null && this.getComponent().genGoalSettings().isPresent()) {
+    public int getStartGenTick() {
+        if (this.getComponent() != null && this.getComponent().genGoalSettings().isPresent()) {
             return this.getComponent().genGoalSettings().get().startTick();
         }
         return 1000000;
     }
 
     public List<PVZPlantComponent.ShootSettings> getShootSettings() {
-        if(this.getComponent() != null && this.getComponent().shootGoalSettings().isPresent()) {
+        if (this.getComponent() != null && this.getComponent().shootGoalSettings().isPresent()) {
             return this.getComponent().shootGoalSettings().get().shootSettings();
         }
         return Arrays.asList();
     }
 
     public List<PVZPlantComponent.GenSettings> getGenSettings() {
-        if(this.getComponent() != null && this.getComponent().genGoalSettings().isPresent()) {
+        if (this.getComponent() != null && this.getComponent().genGoalSettings().isPresent()) {
             return this.getComponent().genGoalSettings().get().genSettings();
         }
         return Arrays.asList();
@@ -357,7 +436,9 @@ public class PlantEntity extends TowerEntity {
         tag.putInt("ShootCount", this.shootCount);
         tag.putInt("GenTick", this.getGenTick());
         tag.putInt("PreGenTick", this.preGenTick);
-        if(this.genSettings != null){
+        tag.putInt("AttackTick", this.getAttackTick());
+        tag.putInt("PreAttackTick", this.preAttackTick);
+        if (this.genSettings != null) {
             PVZPlantComponent.GenSettings.CODEC.encodeStart(NbtOps.INSTANCE, this.genSettings)
                     .resultOrPartial(msg -> OpenTD.log().error(msg + " [Plant Gen]"))
                     .ifPresent(nbt -> tag.put("Production", nbt));
@@ -370,25 +451,31 @@ public class PlantEntity extends TowerEntity {
         if (tag.contains("ComponentTag")) {
             this.componentTag = tag.getCompound("ComponentTag");
         }
-        if(tag.contains("CreatureAge")){
+        if (tag.contains("CreatureAge")) {
             this.setAge(tag.getInt("CreatureAge"));
         }
-        if(tag.contains("CreatureGrowTick")){
+        if (tag.contains("CreatureGrowTick")) {
             this.growTick = tag.getInt("CreatureGrowTick");
         }
-        if(tag.contains("ShootTick")){
+        if (tag.contains("ShootTick")) {
             this.setShootTick(tag.getInt("ShootTick"));
         }
-        if(tag.contains("ShootCount")) {
+        if (tag.contains("ShootCount")) {
             this.shootCount = tag.getInt("ShootCount");
         }
-        if(tag.contains("GenTick")){
+        if (tag.contains("GenTick")) {
             this.setGenTick(tag.getInt("GenTick"));
         }
-        if(tag.contains("PreGenTick")){
+        if (tag.contains("PreGenTick")) {
             this.preGenTick = tag.getInt("PreGenTick");
         }
-        if(tag.contains("Production")){
+        if (tag.contains("AttackTick")) {
+            this.setAttackTick(tag.getInt("AttackTick"));
+        }
+        if (tag.contains("PreAttackTick")) {
+            this.preAttackTick = tag.getInt("PreAttackTick");
+        }
+        if (tag.contains("Production")) {
             PVZPlantComponent.GenSettings.CODEC.parse(NbtOps.INSTANCE, tag.get("Production"))
                     .resultOrPartial(msg -> OpenTD.log().error(msg + " [Plant Gen]"))
                     .ifPresent(settings -> this.genSettings = settings);
@@ -408,7 +495,7 @@ public class PlantEntity extends TowerEntity {
         return this.genSettings;
     }
 
-    public void setProduction(PVZPlantComponent.GenSettings settings){
+    public void setProduction(PVZPlantComponent.GenSettings settings) {
         this.genSettings = settings;
     }
 
@@ -435,5 +522,13 @@ public class PlantEntity extends TowerEntity {
 
     public int getGenTick() {
         return entityData.get(GEN_TICK);
+    }
+
+    public void setAttackTick(int tick) {
+        entityData.set(ATTACK_TICK, tick);
+    }
+
+    public int getAttackTick() {
+        return entityData.get(ATTACK_TICK);
     }
 }

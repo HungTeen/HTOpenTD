@@ -54,6 +54,7 @@ public class PlantGenGoal extends HTGoal {
         final int time = this.plantEntity.getGenTick();
         if(time >= this.plantEntity.getCurrentGenCD()){
             this.plantEntity.setGenTick(0);
+            this.chooseProduction();
         } else{
             if (time == this.plantEntity.getStartGenTick()) {
                 this.plantEntity.gen(this.plantEntity.getProduction());

@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "opentd:item/misc/mega_card",
+    "layer1": "opentd:screenshot/plant/pea_shooter"
+  }
+}

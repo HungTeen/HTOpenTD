@@ -20,7 +20,7 @@ import java.util.List;
 public class HTSummonRequirements {
 
     public static final HTSimpleRegistry<ISummonRequirementType<?>> REQUIREMENT_TYPES = HTRegistryManager.create(OpenTD.prefix("requirement_type"));
-    public static final HTCodecRegistry<ISummonRequirement> REQUIREMENTS = HTRegistryManager.create(ISummonRequirement.class, "tower_defence/requirements", HTSummonRequirements::getCodec);
+    public static final HTCodecRegistry<ISummonRequirement> REQUIREMENTS = HTRegistryManager.create(ISummonRequirement.class, "tower_defence/requirements", HTSummonRequirements::getCodec, true);
 
     /* Tower types */
 

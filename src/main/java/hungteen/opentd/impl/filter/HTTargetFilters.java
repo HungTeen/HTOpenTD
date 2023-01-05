@@ -18,7 +18,7 @@ import java.util.Arrays;
 public class HTTargetFilters {
 
     public static final HTSimpleRegistry<ITargetFilterType<?>> FILTER_TYPES = HTRegistryManager.create(OpenTD.prefix("target_filter_type"));
-    public static final HTCodecRegistry<ITargetFilter> FILTERS = HTRegistryManager.create(ITargetFilter.class, "tower_defence/target_filters", HTTargetFilters::getCodec);
+    public static final HTCodecRegistry<ITargetFilter> FILTERS = HTRegistryManager.create(ITargetFilter.class, "tower_defence/target_filters", HTTargetFilters::getCodec, true);
 
     /* Tower types */
 

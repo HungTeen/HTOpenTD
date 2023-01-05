@@ -6,11 +6,13 @@ import hungteen.opentd.OpenTD;
 import hungteen.opentd.api.interfaces.*;
 import hungteen.opentd.common.entity.OpenTDEntities;
 import hungteen.opentd.common.entity.PlantEntity;
+import hungteen.opentd.common.item.SummonTowerItem;
 import hungteen.opentd.impl.effect.HTEffectComponents;
 import hungteen.opentd.impl.filter.HTTargetFilters;
 import hungteen.opentd.impl.finder.HTTargetFinders;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
@@ -32,18 +34,28 @@ import java.util.Optional;
  * @create: 2022-12-15 10:40
  **/
 public record PVZPlantComponent(PlantSettings plantSettings, List<TargetSettings> targetSettings,
-                                Optional<ShootGoalSettings> shootGoalSettings, Optional<GenGoalSettings> genGoalSettings) implements ITowerComponent {
+                                Optional<ShootGoalSettings> shootGoalSettings,
+                                Optional<GenGoalSettings> genGoalSettings,
+                                List<EffectTargetSettings> hurtSettings,
+                                List<EffectTargetSettings> dieSettings) implements ITowerComponent {
 
     public static final Codec<PVZPlantComponent> CODEC = RecordCodecBuilder.<PVZPlantComponent>mapCodec(instance -> instance.group(
             PlantSettings.CODEC.fieldOf("plant_settings").forGetter(PVZPlantComponent::plantSettings),
             TargetSettings.CODEC.listOf().optionalFieldOf("target_settings", Arrays.asList()).forGetter(PVZPlantComponent::targetSettings),
             Codec.optionalField("shoot_goal", ShootGoalSettings.CODEC).forGetter(PVZPlantComponent::shootGoalSettings),
-            Codec.optionalField("gen_goal", GenGoalSettings.CODEC).forGetter(PVZPlantComponent::genGoalSettings)
+            Codec.optionalField("gen_goal", GenGoalSettings.CODEC).forGetter(PVZPlantComponent::genGoalSettings),
+            EffectTargetSettings.CODEC.listOf().optionalFieldOf("hurt_settings", Arrays.asList()).forGetter(PVZPlantComponent::hurtSettings),
+            EffectTargetSettings.CODEC.listOf().optionalFieldOf("die_settings", Arrays.asList()).forGetter(PVZPlantComponent::dieSettings)
     ).apply(instance, PVZPlantComponent::new)).codec();
 
     @Override
     public Entity createEntity(ServerLevel level, Player player, ItemStack stack, BlockPos pos) {
         ItemStack itemStack = stack.copy();
+        HTTowerComponents.getCodec().encodeStart(NbtOps.INSTANCE, SummonTowerItem.getTowerSettings(stack))
+                .resultOrPartial(msg -> OpenTD.log().error(msg + " [ Create Entity ]"))
+                .ifPresent(tag -> {
+                    itemStack.getOrCreateTag().put(PlantEntity.PLANT_SETTINGS, tag);
+                });
         itemStack.getOrCreateTag().putFloat(PlantEntity.YROT, player.getYRot());
         return OpenTDEntities.PLANT_ENTITY.get().spawn(level, itemStack, player, pos, MobSpawnType.SPAWN_EGG, false, false);
     }
@@ -56,12 +68,15 @@ public record PVZPlantComponent(PlantSettings plantSettings, List<TargetSettings
     public record RenderSettings(float width, float height, float scale, ResourceLocation modelLocation,
                                  ResourceLocation textureLocation, ResourceLocation animationLocation) {
 
-        public static final RenderSettings DEFAULT = new RenderSettings(
-                0.8F, 0.8F, 1F,
-                OpenTD.prefix("geo/pea_shooter.geo.json"),
-                OpenTD.prefix("textures/entity/pea_shooter.png"),
-                OpenTD.prefix("animations/pea_shooter.animation.json")
-        );
+        public static final RenderSettings DEFAULT = make(0.8F, 0.8F, 1F, "pea_shooter");
+
+        public static RenderSettings make(float width, float height, float scale, String name) {
+            return new RenderSettings(width, height, scale,
+                    OpenTD.prefix("geo/" + name + ".geo.json"),
+                    OpenTD.prefix("textures/entity/" + name + ".png"),
+                    OpenTD.prefix("animations/" + name + ".animation.json")
+            );
+        }
 
         public static final Codec<RenderSettings> CODEC = RecordCodecBuilder.<RenderSettings>mapCodec(instance -> instance.group(
                 Codec.floatRange(0, Float.MAX_VALUE).fieldOf("width").forGetter(RenderSettings::width),
@@ -116,7 +131,8 @@ public record PVZPlantComponent(PlantSettings plantSettings, List<TargetSettings
         ).apply(instance, ShootGoalSettings::new)).codec();
     }
 
-    public record ShootSettings(boolean plantFoodOnly, boolean isParabola, int shootTick, Vec3 offset, double verticalAngleLimit, double horizontalAngleOffset,
+    public record ShootSettings(boolean plantFoodOnly, boolean isParabola, int shootTick, Vec3 offset,
+                                double verticalAngleLimit, double horizontalAngleOffset,
                                 double pultHeight, BulletSettings bulletSettings) {
         public static final Codec<ShootSettings> CODEC = RecordCodecBuilder.<ShootSettings>mapCodec(instance -> instance.group(
                 Codec.BOOL.optionalFieldOf("plant_food_only", false).forGetter(ShootSettings::plantFoodOnly),
@@ -148,7 +164,8 @@ public record PVZPlantComponent(PlantSettings plantSettings, List<TargetSettings
         ).apply(instance, BulletSettings::new)).codec();
     }
 
-    public record GenGoalSettings(int coolDown, int startTick, int totalWeight, int emptyCD, List<GenSettings> genSettings) {
+    public record GenGoalSettings(int coolDown, int startTick, int totalWeight, int emptyCD,
+                                  List<GenSettings> genSettings) {
         public static final Codec<GenGoalSettings> CODEC = RecordCodecBuilder.<GenGoalSettings>mapCodec(instance -> instance.group(
                 Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("cool_down", 20).forGetter(GenGoalSettings::coolDown),
                 Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("start_tick", 10).forGetter(GenGoalSettings::startTick),
@@ -158,7 +175,8 @@ public record PVZPlantComponent(PlantSettings plantSettings, List<TargetSettings
         ).apply(instance, GenGoalSettings::new)).codec();
     }
 
-    public record GenSettings(boolean plantFoodOnly, int weight, int cooldown, int count, EntityType<?> entityType, CompoundTag nbt, Vec3 offset, double horizontalSpeed, double verticalSpeed) {
+    public record GenSettings(boolean plantFoodOnly, int weight, int cooldown, int count, EntityType<?> entityType,
+                              CompoundTag nbt, Vec3 offset, double horizontalSpeed, double verticalSpeed) {
 
         public static final Codec<GenSettings> CODEC = RecordCodecBuilder.<GenSettings>mapCodec(instance -> instance.group(
                 Codec.BOOL.optionalFieldOf("plant_food_only", false).forGetter(GenSettings::plantFoodOnly),
@@ -172,4 +190,20 @@ public record PVZPlantComponent(PlantSettings plantSettings, List<TargetSettings
                 Codec.DOUBLE.optionalFieldOf("vertical_speed", 0.3D).forGetter(GenSettings::verticalSpeed)
         ).apply(instance, GenSettings::new)).codec();
     }
+
+    public record EffectTargetSettings(ITargetFilter targetFilter, List<IEffectComponent> effects) {
+
+        public static final Codec<EffectTargetSettings> CODEC = RecordCodecBuilder.<EffectTargetSettings>mapCodec(instance -> instance.group(
+                HTTargetFilters.getCodec().fieldOf("filter").forGetter(EffectTargetSettings::targetFilter),
+                HTEffectComponents.getCodec().listOf().optionalFieldOf("effects", Arrays.asList()).forGetter(EffectTargetSettings::effects)
+        ).apply(instance, EffectTargetSettings::new)).codec();
+    }
+
+    public record EffectSettings(IEffectComponent effect) {
+
+        public static final Codec<EffectSettings> CODEC = RecordCodecBuilder.<EffectSettings>mapCodec(instance -> instance.group(
+                HTEffectComponents.getCodec().fieldOf("effect").forGetter(EffectSettings::effect)
+        ).apply(instance, EffectSettings::new)).codec();
+    }
+
 }

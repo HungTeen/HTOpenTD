@@ -6,7 +6,6 @@ import hungteen.opentd.impl.HTSummonItems;
 import hungteen.opentd.impl.tower.HTTowerComponents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
-import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -27,6 +26,10 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import org.jetbrains.annotations.Nullable;
+import software.bernie.geckolib3.core.IAnimatable;
+import software.bernie.geckolib3.core.manager.AnimationData;
+import software.bernie.geckolib3.core.manager.AnimationFactory;
+import software.bernie.geckolib3.util.GeckoLibUtil;
 
 import java.util.List;
 import java.util.Optional;
@@ -41,6 +44,7 @@ public class SummonTowerItem extends Item {
 
     private static final Predicate<Entity> ENTITY_PREDICATE = EntitySelector.NO_SPECTATORS.and(Entity::isPickable);
     private static final String SUMMON_TAG = "SummonEntry";
+
 
     public SummonTowerItem() {
         super(new Properties());
@@ -116,7 +120,7 @@ public class SummonTowerItem extends Item {
             });
         }
 
-        player.getCooldowns().addCooldown(this, getItemSettings(itemstack).cooldown());
+        player.getCooldowns().addCooldown(this, getItemSettings(itemstack).coolDown());
 
         player.awardStat(Stats.ITEM_USED.get(this));
         level.gameEvent(player, GameEvent.ENTITY_PLACE, entity.position());

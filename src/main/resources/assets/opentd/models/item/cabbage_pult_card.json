@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "opentd:item/white_card",
+    "layer1": "opentd:item/cabbage_pult"
+  }
+}

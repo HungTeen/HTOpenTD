@@ -13,6 +13,7 @@ import hungteen.opentd.impl.effect.SplashEffectComponent;
 import hungteen.opentd.impl.filter.OrTargetFilter;
 import hungteen.opentd.impl.filter.TypeTargetFilter;
 import hungteen.opentd.impl.finder.RangeFinder;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.phys.Vec3;
@@ -28,7 +29,7 @@ import java.util.Optional;
 public class HTTowerComponents {
 
     public static final HTSimpleRegistry<ITowerComponentType<?>> TOWER_TYPES = HTRegistryManager.create(OpenTD.prefix("tower_type"));
-    public static final HTCodecRegistry<ITowerComponent> TOWERS = HTRegistryManager.create(ITowerComponent.class, "tower_defence/tower_settings", HTTowerComponents::getCodec);
+    public static final HTCodecRegistry<ITowerComponent> TOWERS = HTRegistryManager.create(ITowerComponent.class, "tower_defence/tower_settings", HTTowerComponents::getCodec, true);
 
     /* Tower types */
 
@@ -51,19 +52,43 @@ public class HTTowerComponents {
                             30, 20, 4, Optional.of(SoundEvents.SNOW_GOLEM_SHOOT),
                             Arrays.asList(
                                     new PVZPlantComponent.ShootSettings(
-                                            false, 0, Vec3.ZERO, 0,
+                                            false, false, 0, Vec3.ZERO, 10, 15, 10,
                                             new PVZPlantComponent.BulletSettings(
                                                     new TypeTargetFilter(Arrays.asList(EntityType.CREEPER)),
                                                     Arrays.asList(
                                                             new DamageEffectComponent(5F),
                                                             new SplashEffectComponent(5, 5, true, 1F, new OrTargetFilter(Arrays.asList()))
                                                     ),
-                                                    1F, 1, 30, 0.0001F, 0.99999F, false,
+                                                    1F, 1, 30, 0.0001F, 0.99999F, false, false,
                                                     PVZPlantComponent.RenderSettings.DEFAULT
                                             )
                                     )
                             )
-                    ))
+                    )),
+                    Optional.empty()
+            )
+    );
+
+    public static final HTRegistryHolder<ITowerComponent> SUN_FLOWER = TOWERS.innerRegister(
+            OpenTD.prefix("sun_flower"), new PVZPlantComponent(
+                    new PVZPlantComponent.PlantSettings(
+                            PVZPlantComponent.GrowSettings.DEFAULT,
+                            false,
+                            PVZPlantComponent.RenderSettings.make(0.8F, 1F, 1F, "sun_flower")
+                    ),
+                    Arrays.asList(),
+                    Optional.empty(),
+                    Optional.of(
+                            new PVZPlantComponent.GenGoalSettings(
+                                    20, 10, 100, 100,
+                                    Arrays.asList(
+                                            new PVZPlantComponent.GenSettings(
+                                                    false, 100, 200, 1,
+                                                    EntityType.EXPERIENCE_ORB, new CompoundTag(), Vec3.ZERO, 0.25D, 0.3D
+                                            )
+                                    )
+                            )
+                    )
             )
     );
 
