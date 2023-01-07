@@ -33,19 +33,23 @@ import java.util.Optional;
  * @author: HungTeen
  * @create: 2022-12-15 10:40
  **/
-public record PVZPlantComponent(PlantSettings plantSettings, List<TargetSettings> targetSettings,
-                                Optional<ShootGoalSettings> shootGoalSettings,
-                                Optional<GenGoalSettings> genGoalSettings,
-                                List<EffectTargetSettings> hurtSettings,
-                                List<EffectTargetSettings> dieSettings) implements ITowerComponent {
+public record PVZPlantComponent(PlantSettings plantSetting, List<TargetSetting> targetSettings,
+                                Optional<ShootGoalSetting> shootGoalSetting,
+                                Optional<GenGoalSetting> genGoalSetting,
+                                Optional<AttackGoalSetting> attackGoalSetting,
+                                Optional<InstantEffectSetting> instantEffectSetting,
+                                List<EffectTargetSetting> hurtSettings,
+                                List<EffectTargetSetting> dieSettings) implements ITowerComponent {
 
     public static final Codec<PVZPlantComponent> CODEC = RecordCodecBuilder.<PVZPlantComponent>mapCodec(instance -> instance.group(
-            PlantSettings.CODEC.fieldOf("plant_settings").forGetter(PVZPlantComponent::plantSettings),
-            TargetSettings.CODEC.listOf().optionalFieldOf("target_settings", Arrays.asList()).forGetter(PVZPlantComponent::targetSettings),
-            Codec.optionalField("shoot_goal", ShootGoalSettings.CODEC).forGetter(PVZPlantComponent::shootGoalSettings),
-            Codec.optionalField("gen_goal", GenGoalSettings.CODEC).forGetter(PVZPlantComponent::genGoalSettings),
-            EffectTargetSettings.CODEC.listOf().optionalFieldOf("hurt_settings", Arrays.asList()).forGetter(PVZPlantComponent::hurtSettings),
-            EffectTargetSettings.CODEC.listOf().optionalFieldOf("die_settings", Arrays.asList()).forGetter(PVZPlantComponent::dieSettings)
+            PlantSettings.CODEC.fieldOf("plant_setting").forGetter(PVZPlantComponent::plantSetting),
+            TargetSetting.CODEC.listOf().optionalFieldOf("target_settings", Arrays.asList()).forGetter(PVZPlantComponent::targetSettings),
+            Codec.optionalField("shoot_goal", ShootGoalSetting.CODEC).forGetter(PVZPlantComponent::shootGoalSetting),
+            Codec.optionalField("gen_goal", GenGoalSetting.CODEC).forGetter(PVZPlantComponent::genGoalSetting),
+            Codec.optionalField("attack_goal", AttackGoalSetting.CODEC).forGetter(PVZPlantComponent::attackGoalSetting),
+            Codec.optionalField("instant_setting", InstantEffectSetting.CODEC).forGetter(PVZPlantComponent::instantEffectSetting),
+            EffectTargetSetting.CODEC.listOf().optionalFieldOf("hurt_settings", Arrays.asList()).forGetter(PVZPlantComponent::hurtSettings),
+            EffectTargetSetting.CODEC.listOf().optionalFieldOf("die_settings", Arrays.asList()).forGetter(PVZPlantComponent::dieSettings)
     ).apply(instance, PVZPlantComponent::new)).codec();
 
     @Override
@@ -81,28 +85,30 @@ public record PVZPlantComponent(PlantSettings plantSettings, List<TargetSettings
         public static final Codec<RenderSettings> CODEC = RecordCodecBuilder.<RenderSettings>mapCodec(instance -> instance.group(
                 Codec.floatRange(0, Float.MAX_VALUE).fieldOf("width").forGetter(RenderSettings::width),
                 Codec.floatRange(0, Float.MAX_VALUE).fieldOf("height").forGetter(RenderSettings::height),
-                Codec.floatRange(0, Float.MAX_VALUE).fieldOf("scale").forGetter(RenderSettings::scale),
+                Codec.floatRange(0, Float.MAX_VALUE).optionalFieldOf("scale", 1F).forGetter(RenderSettings::scale),
                 ResourceLocation.CODEC.fieldOf("model").forGetter(RenderSettings::modelLocation),
                 ResourceLocation.CODEC.fieldOf("texture").forGetter(RenderSettings::textureLocation),
                 ResourceLocation.CODEC.fieldOf("animation").forGetter(RenderSettings::animationLocation)
         ).apply(instance, RenderSettings::new)).codec();
     }
 
-    public record PlantSettings(GrowSettings growSettings, boolean changeDirection, RenderSettings renderSettings) {
+    public record PlantSettings(GrowSettings growSetting, boolean changeDirection, boolean pushable, RenderSettings renderSetting) {
 
         public static final Codec<PlantSettings> CODEC = RecordCodecBuilder.<PlantSettings>mapCodec(instance -> instance.group(
-                GrowSettings.CODEC.fieldOf("grow_settings").forGetter(PlantSettings::growSettings),
+                GrowSettings.CODEC.optionalFieldOf("grow_setting", GrowSettings.DEFAULT).forGetter(PlantSettings::growSetting),
                 Codec.BOOL.optionalFieldOf("change_direction", true).forGetter(PlantSettings::changeDirection),
-                RenderSettings.CODEC.fieldOf("render_settings").forGetter(PlantSettings::renderSettings)
+                Codec.BOOL.optionalFieldOf("pushable", false).forGetter(PlantSettings::pushable),
+                RenderSettings.CODEC.fieldOf("render_setting").forGetter(PlantSettings::renderSetting)
         ).apply(instance, PlantSettings::new)).codec();
     }
 
-    public record GrowSettings(List<Float> scales, List<Integer> growDurations) {
-        public static final GrowSettings DEFAULT = new GrowSettings(Arrays.asList(1F), Arrays.asList());
+    public record GrowSettings(List<Float> scales, List<Integer> growDurations, Optional<SoundEvent> growSound) {
+        public static final GrowSettings DEFAULT = new GrowSettings(Arrays.asList(1F), Arrays.asList(), Optional.empty());
 
         public static final Codec<GrowSettings> CODEC = RecordCodecBuilder.<GrowSettings>mapCodec(instance -> instance.group(
                 Codec.floatRange(0, Float.MAX_VALUE).listOf().fieldOf("scales").forGetter(GrowSettings::scales),
-                Codec.intRange(0, Integer.MAX_VALUE).listOf().fieldOf("grow_durations").forGetter(GrowSettings::growDurations)
+                Codec.intRange(0, Integer.MAX_VALUE).listOf().fieldOf("grow_durations").forGetter(GrowSettings::growDurations),
+                Codec.optionalField("grow_sound", SoundEvent.CODEC).forGetter(GrowSettings::growSound)
         ).apply(instance, GrowSettings::new)).codec();
 
         public int getMaxAge() {
@@ -110,25 +116,27 @@ public record PVZPlantComponent(PlantSettings plantSettings, List<TargetSettings
         }
     }
 
-    public record TargetSettings(int priority, int chance, ITargetFinder targetFinder) {
+    public record TargetSetting(int priority, float chance, ITargetFinder targetFinder) {
 
-        public static final Codec<TargetSettings> CODEC = RecordCodecBuilder.<TargetSettings>mapCodec(instance -> instance.group(
-                Codec.intRange(0, Integer.MAX_VALUE).fieldOf("priority").forGetter(TargetSettings::priority),
-                Codec.intRange(0, Integer.MAX_VALUE).fieldOf("chance").forGetter(TargetSettings::chance),
-                HTTargetFinders.getCodec().fieldOf("target_finder").forGetter(TargetSettings::targetFinder)
-        ).apply(instance, TargetSettings::new)).codec();
+        public static final Codec<TargetSetting> CODEC = RecordCodecBuilder.<TargetSetting>mapCodec(instance -> instance.group(
+                Codec.intRange(0, Integer.MAX_VALUE).fieldOf("priority").forGetter(TargetSetting::priority),
+                Codec.floatRange(0, 1).fieldOf("chance").forGetter(TargetSetting::chance),
+                HTTargetFinders.getCodec().fieldOf("target_finder").forGetter(TargetSetting::targetFinder)
+        ).apply(instance, TargetSetting::new)).codec();
 
     }
 
-    public record ShootGoalSettings(int coolDown, int startTick, int shootCount, Optional<SoundEvent> shootSound,
-                                    List<ShootSettings> shootSettings) {
-        public static final Codec<ShootGoalSettings> CODEC = RecordCodecBuilder.<ShootGoalSettings>mapCodec(instance -> instance.group(
-                Codec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("cool_down", 30).forGetter(ShootGoalSettings::coolDown),
-                Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("start_tick", 0).forGetter(ShootGoalSettings::startTick),
-                Codec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("shoot_count", 1).forGetter(ShootGoalSettings::shootCount),
-                Codec.optionalField("shoot_sound", SoundEvent.CODEC).forGetter(ShootGoalSettings::shootSound),
-                ShootSettings.CODEC.listOf().fieldOf("shoot_settings").forGetter(ShootGoalSettings::shootSettings)
-        ).apply(instance, ShootGoalSettings::new)).codec();
+    public record ShootGoalSetting(int duration, int coolDown, int startTick, int shootCount, boolean needRest, Optional<SoundEvent> shootSound,
+                                   List<ShootSettings> shootSettings) {
+        public static final Codec<ShootGoalSetting> CODEC = RecordCodecBuilder.<ShootGoalSetting>mapCodec(instance -> instance.group(
+                Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("duration", 0).forGetter(ShootGoalSetting::duration),
+                Codec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("cool_down", 30).forGetter(ShootGoalSetting::coolDown),
+                Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("start_tick", 20).forGetter(ShootGoalSetting::startTick),
+                Codec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("shoot_count", 1).forGetter(ShootGoalSetting::shootCount),
+                Codec.BOOL.optionalFieldOf("need_rest", false).forGetter(ShootGoalSetting::needRest),
+                Codec.optionalField("shoot_sound", SoundEvent.CODEC).forGetter(ShootGoalSetting::shootSound),
+                ShootSettings.CODEC.listOf().fieldOf("shoot_settings").forGetter(ShootGoalSetting::shootSettings)
+        ).apply(instance, ShootGoalSetting::new)).codec();
     }
 
     public record ShootSettings(boolean plantFoodOnly, boolean isParabola, int shootTick, Vec3 offset,
@@ -138,7 +146,7 @@ public record PVZPlantComponent(PlantSettings plantSettings, List<TargetSettings
                 Codec.BOOL.optionalFieldOf("plant_food_only", false).forGetter(ShootSettings::plantFoodOnly),
                 Codec.BOOL.optionalFieldOf("is_parabola", false).forGetter(ShootSettings::isParabola),
                 Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("shoot_tick", 0).forGetter(ShootSettings::shootTick),
-                Vec3.CODEC.optionalFieldOf("originOffset", Vec3.ZERO).forGetter(ShootSettings::offset),
+                Vec3.CODEC.optionalFieldOf("origin_offset", Vec3.ZERO).forGetter(ShootSettings::offset),
                 Codec.doubleRange(0, Double.MAX_VALUE).optionalFieldOf("vertical_angle_limit", 0D).forGetter(ShootSettings::verticalAngleLimit),
                 Codec.DOUBLE.optionalFieldOf("horizontal_angle_offset", 0D).forGetter(ShootSettings::horizontalAngleOffset),
                 Codec.doubleRange(0, Double.MAX_VALUE).optionalFieldOf("pult_height", 10D).forGetter(ShootSettings::pultHeight),
@@ -160,19 +168,21 @@ public record PVZPlantComponent(PlantSettings plantSettings, List<TargetSettings
                 Codec.floatRange(0, 1F).optionalFieldOf("slow_down", 0.99F).forGetter(BulletSettings::slowDown),
                 Codec.BOOL.optionalFieldOf("ignore_block", false).forGetter(BulletSettings::ignoreBlock),
                 Codec.BOOL.optionalFieldOf("lock_to_target", false).forGetter(BulletSettings::lockToTarget),
-                RenderSettings.CODEC.fieldOf("render_settings").forGetter(BulletSettings::renderSettings)
+                RenderSettings.CODEC.fieldOf("render_setting").forGetter(BulletSettings::renderSettings)
         ).apply(instance, BulletSettings::new)).codec();
     }
 
-    public record GenGoalSettings(int coolDown, int startTick, int totalWeight, int emptyCD,
-                                  List<GenSettings> genSettings) {
-        public static final Codec<GenGoalSettings> CODEC = RecordCodecBuilder.<GenGoalSettings>mapCodec(instance -> instance.group(
-                Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("cool_down", 20).forGetter(GenGoalSettings::coolDown),
-                Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("start_tick", 10).forGetter(GenGoalSettings::startTick),
-                Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("total_weight", 0).forGetter(GenGoalSettings::totalWeight),
-                Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("empty_cd", 100).forGetter(GenGoalSettings::emptyCD),
-                GenSettings.CODEC.listOf().fieldOf("productions").forGetter(GenGoalSettings::genSettings)
-        ).apply(instance, GenGoalSettings::new)).codec();
+    public record GenGoalSetting(int coolDown, int startTick, int totalWeight, int emptyCD, boolean needRest,
+                                 Optional<SoundEvent> genSound, List<GenSettings> genSettings) {
+        public static final Codec<GenGoalSetting> CODEC = RecordCodecBuilder.<GenGoalSetting>mapCodec(instance -> instance.group(
+                Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("cool_down", 20).forGetter(GenGoalSetting::coolDown),
+                Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("start_tick", 10).forGetter(GenGoalSetting::startTick),
+                Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("total_weight", 0).forGetter(GenGoalSetting::totalWeight),
+                Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("empty_cd", 100).forGetter(GenGoalSetting::emptyCD),
+                Codec.BOOL.optionalFieldOf("need_rest", false).forGetter(GenGoalSetting::needRest),
+                Codec.optionalField("gen_sound", SoundEvent.CODEC).forGetter(GenGoalSetting::genSound),
+                GenSettings.CODEC.listOf().fieldOf("productions").forGetter(GenGoalSetting::genSettings)
+        ).apply(instance, GenGoalSetting::new)).codec();
     }
 
     public record GenSettings(boolean plantFoodOnly, int weight, int cooldown, int count, EntityType<?> entityType,
@@ -191,19 +201,33 @@ public record PVZPlantComponent(PlantSettings plantSettings, List<TargetSettings
         ).apply(instance, GenSettings::new)).codec();
     }
 
-    public record EffectTargetSettings(ITargetFilter targetFilter, List<IEffectComponent> effects) {
-
-        public static final Codec<EffectTargetSettings> CODEC = RecordCodecBuilder.<EffectTargetSettings>mapCodec(instance -> instance.group(
-                HTTargetFilters.getCodec().fieldOf("filter").forGetter(EffectTargetSettings::targetFilter),
-                HTEffectComponents.getCodec().listOf().optionalFieldOf("effects", Arrays.asList()).forGetter(EffectTargetSettings::effects)
-        ).apply(instance, EffectTargetSettings::new)).codec();
+    public record AttackGoalSetting(int duration, int coolDown, int startTick, boolean needRest, double distance, Optional<SoundEvent> attackSound,
+                                    List<IEffectComponent> effects) {
+        public static final Codec<AttackGoalSetting> CODEC = RecordCodecBuilder.<AttackGoalSetting>mapCodec(instance -> instance.group(
+                Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("duration", 0).forGetter(AttackGoalSetting::duration),
+                Codec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("cool_down", 30).forGetter(AttackGoalSetting::coolDown),
+                Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("start_tick", 20).forGetter(AttackGoalSetting::startTick),
+                Codec.BOOL.optionalFieldOf("need_rest", false).forGetter(AttackGoalSetting::needRest),
+                Codec.doubleRange(0, Double.MAX_VALUE).optionalFieldOf("distance", 3D).forGetter(AttackGoalSetting::distance),
+                Codec.optionalField("attack_sound", SoundEvent.CODEC).forGetter(AttackGoalSetting::attackSound),
+                HTEffectComponents.getCodec().listOf().fieldOf("effects").forGetter(AttackGoalSetting::effects)
+        ).apply(instance, AttackGoalSetting::new)).codec();
     }
 
-    public record EffectSettings(IEffectComponent effect) {
+    public record InstantEffectSetting(int finalAge, Optional<SoundEvent> instantSound, List<IEffectComponent> effects) {
+        public static final Codec<InstantEffectSetting> CODEC = RecordCodecBuilder.<InstantEffectSetting>mapCodec(instance -> instance.group(
+                Codec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("final_age", 1).forGetter(InstantEffectSetting::finalAge),
+                Codec.optionalField("instant_sound", SoundEvent.CODEC).forGetter(InstantEffectSetting::instantSound),
+                HTEffectComponents.getCodec().listOf().fieldOf("effects").forGetter(InstantEffectSetting::effects)
+        ).apply(instance, InstantEffectSetting::new)).codec();
+    }
 
-        public static final Codec<EffectSettings> CODEC = RecordCodecBuilder.<EffectSettings>mapCodec(instance -> instance.group(
-                HTEffectComponents.getCodec().fieldOf("effect").forGetter(EffectSettings::effect)
-        ).apply(instance, EffectSettings::new)).codec();
+    public record EffectTargetSetting(ITargetFilter targetFilter, List<IEffectComponent> effects) {
+
+        public static final Codec<EffectTargetSetting> CODEC = RecordCodecBuilder.<EffectTargetSetting>mapCodec(instance -> instance.group(
+                HTTargetFilters.getCodec().fieldOf("filter").forGetter(EffectTargetSetting::targetFilter),
+                HTEffectComponents.getCodec().listOf().optionalFieldOf("effects", Arrays.asList()).forGetter(EffectTargetSetting::effects)
+        ).apply(instance, EffectTargetSetting::new)).codec();
     }
 
 }

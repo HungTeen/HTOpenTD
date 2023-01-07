@@ -28,7 +28,7 @@ public record RangeFinder(boolean checkSight, float width, float height, ITarget
             Codec.BOOL.optionalFieldOf("check_sight", true).forGetter(RangeFinder::checkSight),
             Codec.floatRange(0, Float.MAX_VALUE).fieldOf("width").forGetter(RangeFinder::width),
             Codec.floatRange(0, Float.MAX_VALUE).fieldOf("height").forGetter(RangeFinder::height),
-            HTTargetFilters.getCodec().fieldOf("target_filters").forGetter(RangeFinder::targetFilter)
+            HTTargetFilters.getCodec().fieldOf("target_filter").forGetter(RangeFinder::targetFilter)
     ).apply(instance, RangeFinder::new)).codec();
 
     @Override

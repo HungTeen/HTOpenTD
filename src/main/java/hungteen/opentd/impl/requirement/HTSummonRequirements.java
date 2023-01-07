@@ -22,11 +22,14 @@ public class HTSummonRequirements {
     public static final HTSimpleRegistry<ISummonRequirementType<?>> REQUIREMENT_TYPES = HTRegistryManager.create(OpenTD.prefix("requirement_type"));
     public static final HTCodecRegistry<ISummonRequirement> REQUIREMENTS = HTRegistryManager.create(ISummonRequirement.class, "tower_defence/requirements", HTSummonRequirements::getCodec, true);
 
-    /* Tower types */
+    /* Requirement types */
 
-    public static final ISummonRequirementType<ExperienceRequirement> EXPERIENCE_REQUIREMENT = new DefaultRequirement<>("experience_requirement",  ExperienceRequirement.CODEC);
+    public static final ISummonRequirementType<NoRequirement> NO_REQUIREMENT = new DefaultRequirement<>("no",  NoRequirement.CODEC);
 
-    /* Towers */
+    public static final ISummonRequirementType<ExperienceRequirement> EXPERIENCE_REQUIREMENT = new DefaultRequirement<>("experience",  ExperienceRequirement.CODEC);
+    public static final ISummonRequirementType<BlockRequirement> BLOCK_REQUIREMENT = new DefaultRequirement<>("block",  BlockRequirement.CODEC);
+
+    /* Requirement */
 
 //    public static final HTRegistryHolder<ISummonRequirement> DEFAULT = TowerMENTS.innerRegister(
 //            HTLib.prefix("default"), new CenterAreaTower(
@@ -38,7 +41,7 @@ public class HTSummonRequirements {
      * {@link OpenTD#OpenTD()}
      */
     public static void registerStuffs(){
-        Arrays.asList(EXPERIENCE_REQUIREMENT).forEach(HTSummonRequirements::registerTowerType);
+        Arrays.asList(NO_REQUIREMENT, EXPERIENCE_REQUIREMENT).forEach(HTSummonRequirements::registerTowerType);
     }
 
     public static void registerTowerType(ISummonRequirementType<?> type){

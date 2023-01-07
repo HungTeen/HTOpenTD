@@ -1,14 +1,12 @@
 package hungteen.opentd.common.entity;
 
 import hungteen.htlib.util.helper.EntityHelper;
-import hungteen.htlib.util.helper.MathHelper;
 import hungteen.htlib.util.helper.RandomHelper;
 import hungteen.opentd.OpenTD;
+import hungteen.opentd.common.entity.ai.PlantAttackGoal;
 import hungteen.opentd.common.entity.ai.PlantGenGoal;
 import hungteen.opentd.common.entity.ai.PlantShootGoal;
 import hungteen.opentd.common.entity.ai.PlantTargetGoal;
-import hungteen.opentd.impl.HTSummonItems;
-import hungteen.opentd.impl.tower.HTTowerComponents;
 import hungteen.opentd.impl.tower.PVZPlantComponent;
 import hungteen.opentd.util.EntityUtil;
 import net.minecraft.core.BlockPos;
@@ -17,11 +15,9 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.server.commands.SummonCommand;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.DifficultyInstance;
@@ -54,21 +50,27 @@ public class PlantEntity extends TowerEntity {
 
     public static final String PLANT_SETTINGS = "PlantSettings";
     public static final String YROT = "YRot";
+    public static final int GROW_ANIM_CD = 20;
     private static final EntityDataAccessor<Integer> AGE = SynchedEntityData.defineId(PlantEntity.class, EntityDataSerializers.INT);
 
     private static final EntityDataAccessor<Integer> SHOOT_TICK = SynchedEntityData.defineId(PlantEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> GEN_TICK = SynchedEntityData.defineId(PlantEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> ATTACK_TICK = SynchedEntityData.defineId(PlantEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Boolean> RESTING = SynchedEntityData.defineId(PlantEntity.class, EntityDataSerializers.BOOLEAN);
     private final AnimationFactory factory = GeckoLibUtil.createFactory(this);
     private CompoundTag componentTag = new CompoundTag();
     private PVZPlantComponent component;
     private PVZPlantComponent.GenSettings genSettings;
+    protected BlockPos stayPos;
     protected int growTick = 0;
+    public int preShootTick = 0;
     public int preGenTick = 0;
     public int preAttackTick = 0;
     protected int forcedAgeTimer;
     private boolean updated = false;
     protected int shootCount = 0;
+    public int growAnimTick = 0;
+    public int oldAge = 0;
 
     public PlantEntity(EntityType<? extends TowerEntity> entityType, Level level) {
         super(entityType, level);
@@ -77,10 +79,11 @@ public class PlantEntity extends TowerEntity {
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
-        entityData.define(AGE, 1);
+        entityData.define(AGE, 0);
         entityData.define(SHOOT_TICK, 0);
         entityData.define(GEN_TICK, 0);
         entityData.define(ATTACK_TICK, 0);
+        entityData.define(RESTING, false);
     }
 
     @Override
@@ -88,6 +91,7 @@ public class PlantEntity extends TowerEntity {
         super.onSyncedDataUpdated(dataAccessor);
         if (dataAccessor.equals(AGE)) {
             this.refreshDimensions();
+            this.growAnimTick = GROW_ANIM_CD;
         }
     }
 
@@ -113,8 +117,9 @@ public class PlantEntity extends TowerEntity {
             this.getComponent().targetSettings().forEach(targetSettings -> {
                 this.targetSelector.addGoal(targetSettings.priority(), new PlantTargetGoal(this, targetSettings));
             });
-            this.goalSelector.addGoal(1, new PlantShootGoal(this));
-            this.goalSelector.addGoal(1, new PlantGenGoal(this));
+            this.goalSelector.addGoal(2, new PlantShootGoal(this));
+            this.goalSelector.addGoal(2, new PlantGenGoal(this));
+            this.goalSelector.addGoal(1, new PlantAttackGoal(this));
         }
     }
 
@@ -145,17 +150,30 @@ public class PlantEntity extends TowerEntity {
             this.refreshDimensions();
         }
         if (this.level.isClientSide) {
+            // 长大的粒子效果。
             if (this.forcedAgeTimer > 0) {
                 if (this.forcedAgeTimer % 4 == 0) {
                     this.level.addParticle(ParticleTypes.HAPPY_VILLAGER, this.getRandomX(1.0D), this.getRandomY() + 0.5D, this.getRandomZ(1.0D), 0.0D, 0.0D, 0.0D);
                 }
                 --this.forcedAgeTimer;
             }
+            // 长大的缩放渐变动画。
+            if(this.oldAge != this.getAge()){
+                if(this.growAnimTick > 0){
+                    -- this.growAnimTick;
+                } else {
+                    this.oldAge = this.getAge();
+                }
+            } else if(this.growAnimTick != 0){
+                this.growAnimTick = 0;
+            }
         } else {
+            // 延迟更新植物的行为。
             if (!this.updated && this.getComponent() != null) {
                 this.updated = true;
                 this.registerGoals();
             }
+            // 植物生长。
             if (this.isAlive()) {
                 if (this.canGrow()) {
                     if (this.growTick >= this.getGrowNeedTime()) {
@@ -163,13 +181,17 @@ public class PlantEntity extends TowerEntity {
                     }
                     ++this.growTick;
                 }
+
             }
+            // 大招时。
             if (EntityUtil.inEnergetic(this)) {
                 this.getShootSettings().stream().filter(PVZPlantComponent.ShootSettings::plantFoodOnly).forEach(this::performShoot);
+                this.getGenSettings().stream().filter(PVZPlantComponent.GenSettings::plantFoodOnly).forEach(this::gen);
             }
+            // 处理植物射击行为的子弹。
             if (this.getTarget() != null) {
                 if (!this.getShootSettings().isEmpty() && this.shootCount > 0 && !EntityUtil.inEnergetic(this)) {
-                    final int count = this.getComponent().shootGoalSettings().get().shootCount();
+                    final int count = this.getComponent().shootGoalSetting().get().shootCount();
                     this.getShootSettings().stream().filter(l -> !l.plantFoodOnly() && l.shootTick() == count - this.shootCount).forEach(this::performShoot);
                     --this.shootCount;
                 }
@@ -183,8 +205,14 @@ public class PlantEntity extends TowerEntity {
             builder.addAnimation("shoot", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
         } else if(this.getGenTick() > 0){
             builder.addAnimation("gen", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
+        } else if(this.getAttackTick() > 0){
+            builder.addAnimation("attack", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
         } else {
-            builder.addAnimation("idle", ILoopType.EDefaultLoopTypes.LOOP);
+            if(this.isResting()){
+                builder.addAnimation("rest", ILoopType.EDefaultLoopTypes.LOOP);
+            } else{
+                builder.addAnimation("idle", ILoopType.EDefaultLoopTypes.LOOP);
+            }
         }
         event.getController().setAnimation(builder);
         return PlayState.CONTINUE;
@@ -192,13 +220,13 @@ public class PlantEntity extends TowerEntity {
 
     public void startShootAttack(LivingEntity target) {
         if (this.getComponent() != null) {
-            this.getComponent().shootGoalSettings().ifPresent(l -> this.shootCount = l.shootCount());
-            this.getComponent().shootGoalSettings().flatMap(PVZPlantComponent.ShootGoalSettings::shootSound).ifPresent(this::playSound);
+            this.getComponent().shootGoalSetting().ifPresent(l -> this.shootCount = l.shootCount());
+            this.getComponent().shootGoalSetting().flatMap(PVZPlantComponent.ShootGoalSetting::shootSound).ifPresent(this::playSound);
         }
     }
 
     /**
-     * shoot pea with offsets.
+     * attack pea with offsets.
      */
     public void performShoot(PVZPlantComponent.ShootSettings shootSettings) {
         final BulletEntity bullet = OpenTDEntities.BULLET_ENTITY.get().create(this.level);
@@ -218,7 +246,7 @@ public class PlantEntity extends TowerEntity {
     }
 
     public void gen(PVZPlantComponent.GenSettings genSettings) {
-        if (genSettings != null) {
+        if (genSettings != null && this.getComponent() != null && this.getComponent().genGoalSetting().isPresent()) {
             if (this.level instanceof ServerLevel serverlevel && Level.isInSpawnableBounds(this.blockPosition())) {
                 CompoundTag compoundtag = genSettings.nbt().copy();
                 compoundtag.putString("id", EntityHelper.getKey(genSettings.entityType()).toString());
@@ -235,8 +263,22 @@ public class PlantEntity extends TowerEntity {
                     final double dz = RandomHelper.floatRange(this.getRandom());
                     entity.setDeltaMovement(new Vec3(dx, 0, dz).scale(genSettings.horizontalSpeed()).add(0, genSettings.verticalSpeed(), 0));
                     serverlevel.tryAddFreshEntityWithPassengers(entity);
+                    this.getComponent().genGoalSetting().get().genSound().ifPresent(this::playSound);
                 }
             }
+        }
+    }
+
+    public void attack() {
+        if(this.getComponent() != null && this.getComponent().attackGoalSetting().isPresent()){
+            this.getComponent().attackGoalSetting().get().effects().forEach(effect -> {
+                if(this.getTarget() != null){
+                    effect.effectTo(this, this.getTarget());
+                } else{
+                    effect.effectTo(this, this.blockPosition());
+                }
+            });
+            this.getComponent().attackGoalSetting().get().attackSound().ifPresent(this::playSound);
         }
     }
 
@@ -260,9 +302,9 @@ public class PlantEntity extends TowerEntity {
                     d1 *= d3;
                     d0 *= (double) 0.05F;
                     d1 *= (double) 0.05F;
-//                    if (!this.isVehicle() && this.isPushable()) {
-//                        this.push(-d0, 0.0D, -d1);
-//                    }
+                    if (!this.isVehicle() && this.isPushable()) {
+                        this.push(-d0, 0.0D, -d1);
+                    }
                     //TODO Push Filter
                     if (!target.isVehicle() && target.isPushable()) {
                         target.push(d0, 0.0D, d1);
@@ -272,9 +314,28 @@ public class PlantEntity extends TowerEntity {
         }
     }
 
+    @Override
+    public void push(double xSpeed, double ySpeed, double zSpeed) {
+        if(this.getComponent() == null || this.getComponent().plantSetting().pushable()){
+            super.push(xSpeed, ySpeed, zSpeed);
+        }
+    }
+
     public void onGrow() {
         this.setAge(this.getAge() + 1);
         this.growTick = 0;
+        this.getGrowSettings().growSound().ifPresent(this::playSound);
+        if(this.getComponent() != null){
+            this.getComponent().instantEffectSetting().ifPresent(l -> {
+                if(this.getAge() >= l.finalAge() - 1){
+                    l.instantSound().ifPresent(this::playSound);
+                    l.effects().forEach(e -> {
+                        e.effectTo(this, this.blockPosition());
+                    });
+                    this.discard();
+                }
+            });
+        }
     }
 
     @Override
@@ -317,15 +378,15 @@ public class PlantEntity extends TowerEntity {
     }
 
     public int getMaxAge() {
-        return this.getComponent() == null ? 1 : this.getComponent().plantSettings().growSettings().getMaxAge();
+        return this.getComponent() == null ? 1 : this.getComponent().plantSetting().growSetting().getMaxAge();
     }
 
     public boolean canGrow() {
-        return this.getAge() < this.getMaxAge();
+        return this.getAge() < this.getMaxAge() - 1;
     }
 
     public int getGrowNeedTime() {
-        return this.getComponent().plantSettings().growSettings().growDurations().get(this.getAge() - 1);
+        return this.getComponent().plantSetting().growSetting().growDurations().get(this.getAge());
     }
 
     @Override
@@ -335,7 +396,7 @@ public class PlantEntity extends TowerEntity {
 
     @Override
     public boolean hasLineOfSight(Entity entity) {
-//        if(this.getComponent() != null && ! this.getComponent().plantSettings().changeDirection()){
+//        if(this.getComponent() != null && ! this.getComponent().plantSetting().changeDirection()){
 //            if(entity.level != this.level){
 //                return false;
 //            } else{
@@ -344,7 +405,7 @@ public class PlantEntity extends TowerEntity {
 //                    return false;
 //                }
 //                double cos = (Math.acos(vec.normalize().dot(this.getLookAngle().normalize())) + 180) % 180;
-//                return cos < this.getComponent().plantSettings().senseAngle();
+//                return cos < this.getComponent().plantSetting().senseAngle();
 //            }
 //        }
         return super.hasLineOfSight(entity);
@@ -367,43 +428,57 @@ public class PlantEntity extends TowerEntity {
     }
 
     public int getCurrentShootCD() {
-        if (this.getComponent() != null && this.getComponent().shootGoalSettings().isPresent()) {
-            return this.getComponent().shootGoalSettings().get().coolDown();
+        if (this.getComponent() != null && this.getComponent().shootGoalSetting().isPresent()) {
+            return this.getComponent().shootGoalSetting().get().coolDown();
         }
         return 1000000;
     }
 
     public int getStartShootTick() {
-        if (this.getComponent() != null && this.getComponent().shootGoalSettings().isPresent()) {
-            return this.getComponent().shootGoalSettings().get().startTick();
+        if (this.getComponent() != null && this.getComponent().shootGoalSetting().isPresent()) {
+            return this.getComponent().shootGoalSetting().get().startTick();
         }
         return 1000000;
     }
 
     public int getCurrentGenCD() {
-        if (this.getComponent() != null && this.getComponent().genGoalSettings().isPresent()) {
-            return this.getComponent().genGoalSettings().get().coolDown();
+        if (this.getComponent() != null && this.getComponent().genGoalSetting().isPresent()) {
+            return this.getComponent().genGoalSetting().get().coolDown();
         }
         return 1000000;
     }
 
     public int getStartGenTick() {
-        if (this.getComponent() != null && this.getComponent().genGoalSettings().isPresent()) {
-            return this.getComponent().genGoalSettings().get().startTick();
+        if (this.getComponent() != null && this.getComponent().genGoalSetting().isPresent()) {
+            return this.getComponent().genGoalSetting().get().startTick();
+        }
+        return 1000000;
+    }
+
+    public int getCurrentAttackCD() {
+        if (this.getComponent() != null && this.getComponent().attackGoalSetting().isPresent()) {
+            return this.getComponent().attackGoalSetting().get().coolDown();
+        }
+        return 1000000;
+    }
+
+    public int getStartAttackTick() {
+        if (this.getComponent() != null && this.getComponent().attackGoalSetting().isPresent()) {
+            return this.getComponent().attackGoalSetting().get().startTick();
         }
         return 1000000;
     }
 
     public List<PVZPlantComponent.ShootSettings> getShootSettings() {
-        if (this.getComponent() != null && this.getComponent().shootGoalSettings().isPresent()) {
-            return this.getComponent().shootGoalSettings().get().shootSettings();
+        if (this.getComponent() != null && this.getComponent().shootGoalSetting().isPresent()) {
+            return this.getComponent().shootGoalSetting().get().shootSettings();
         }
         return Arrays.asList();
     }
 
     public List<PVZPlantComponent.GenSettings> getGenSettings() {
-        if (this.getComponent() != null && this.getComponent().genGoalSettings().isPresent()) {
-            return this.getComponent().genGoalSettings().get().genSettings();
+        if (this.getComponent() != null && this.getComponent().genGoalSetting().isPresent()) {
+            return this.getComponent().genGoalSetting().get().genSettings();
         }
         return Arrays.asList();
     }
@@ -412,18 +487,20 @@ public class PlantEntity extends TowerEntity {
     public EntityDimensions getDimensions(Pose pose) {
         final float width = getRenderSettings().width();
         final float height = getRenderSettings().height();
-        final float scale = getGrowSettings().scales().get(this.getAge() - 1) * getRenderSettings().scale();
+        final float scale = getGrowSettings().scales().get(this.getAge()) * getRenderSettings().scale();
         return EntityDimensions.scalable(width * scale, height * scale);
     }
 
     @Override
     public void writeSpawnData(FriendlyByteBuf buffer) {
         buffer.writeNbt(this.componentTag);
+        buffer.writeInt(this.getAge());
     }
 
     @Override
     public void readSpawnData(FriendlyByteBuf additionalData) {
         this.componentTag = additionalData.readNbt();
+        this.oldAge = additionalData.readInt();
     }
 
     @Override
@@ -433,11 +510,16 @@ public class PlantEntity extends TowerEntity {
         tag.putInt("CreatureAge", this.getAge());
         tag.putInt("CreatureGrowTick", this.growTick);
         tag.putInt("ShootTick", this.getShootTick());
+        tag.putInt("PreShootTick", this.preShootTick);
         tag.putInt("ShootCount", this.shootCount);
         tag.putInt("GenTick", this.getGenTick());
         tag.putInt("PreGenTick", this.preGenTick);
         tag.putInt("AttackTick", this.getAttackTick());
         tag.putInt("PreAttackTick", this.preAttackTick);
+        tag.putBoolean("Resting", this.isResting());
+        if(this.stayPos != null){
+            tag.putLong("StayPos", this.stayPos.asLong());
+        }
         if (this.genSettings != null) {
             PVZPlantComponent.GenSettings.CODEC.encodeStart(NbtOps.INSTANCE, this.genSettings)
                     .resultOrPartial(msg -> OpenTD.log().error(msg + " [Plant Gen]"))
@@ -460,6 +542,9 @@ public class PlantEntity extends TowerEntity {
         if (tag.contains("ShootTick")) {
             this.setShootTick(tag.getInt("ShootTick"));
         }
+        if (tag.contains("PreShootTick")) {
+            this.preShootTick = tag.getInt("PreShootTick");
+        }
         if (tag.contains("ShootCount")) {
             this.shootCount = tag.getInt("ShootCount");
         }
@@ -475,6 +560,12 @@ public class PlantEntity extends TowerEntity {
         if (tag.contains("PreAttackTick")) {
             this.preAttackTick = tag.getInt("PreAttackTick");
         }
+        if(tag.contains("Resting")){
+            this.setResting(tag.getBoolean("Resting"));
+        }
+        if(tag.contains("StayPos")){
+            this.stayPos = BlockPos.of(tag.getLong("StayPos"));
+        }
         if (tag.contains("Production")) {
             PVZPlantComponent.GenSettings.CODEC.parse(NbtOps.INSTANCE, tag.get("Production"))
                     .resultOrPartial(msg -> OpenTD.log().error(msg + " [Plant Gen]"))
@@ -483,11 +574,11 @@ public class PlantEntity extends TowerEntity {
     }
 
     public PVZPlantComponent.GrowSettings getGrowSettings() {
-        return this.getComponent() == null ? PVZPlantComponent.GrowSettings.DEFAULT : this.getComponent().plantSettings().growSettings();
+        return this.getComponent() == null ? PVZPlantComponent.GrowSettings.DEFAULT : this.getComponent().plantSetting().growSetting();
     }
 
     public PVZPlantComponent.RenderSettings getRenderSettings() {
-        return this.getComponent() == null ? PVZPlantComponent.RenderSettings.DEFAULT : this.getComponent().plantSettings().renderSettings();
+        return this.getComponent() == null ? PVZPlantComponent.RenderSettings.DEFAULT : this.getComponent().plantSetting().renderSetting();
     }
 
     @Nullable
@@ -530,5 +621,13 @@ public class PlantEntity extends TowerEntity {
 
     public int getAttackTick() {
         return entityData.get(ATTACK_TICK);
+    }
+
+    public void setResting(boolean resting) {
+        entityData.set(RESTING, resting);
+    }
+
+    public boolean isResting() {
+        return entityData.get(RESTING);
     }
 }

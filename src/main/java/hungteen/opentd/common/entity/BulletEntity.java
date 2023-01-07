@@ -239,7 +239,7 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
 
 
     /**
-     * shoot bullet such as pea or spore
+     * attack bullet such as pea or spore
      */
     public void shootToTarget(Mob owner, PVZPlantComponent.ShootSettings shootSettings, Entity target, double dx, double dy, double dz) {
         this.lockTarget = Optional.ofNullable(target);

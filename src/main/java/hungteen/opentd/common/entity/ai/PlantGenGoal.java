@@ -3,7 +3,6 @@ package hungteen.opentd.common.entity.ai;
 import hungteen.htlib.util.WeightList;
 import hungteen.opentd.common.entity.PlantEntity;
 import hungteen.opentd.impl.tower.PVZPlantComponent;
-import hungteen.opentd.util.EntityUtil;
 
 import java.util.stream.Collectors;
 
@@ -22,12 +21,15 @@ public class PlantGenGoal extends HTGoal {
 
     @Override
     public boolean canUse() {
+        if (this.plantEntity.getComponent() == null || this.plantEntity.getGenSettings().isEmpty()) {
+            return false;
+        }
         return true;
     }
 
     @Override
     public boolean canContinueToUse() {
-        return true;
+        return canUse();
     }
 
     @Override
@@ -36,9 +38,6 @@ public class PlantGenGoal extends HTGoal {
 
     @Override
     public void tick() {
-        if (this.plantEntity.getComponent() == null || this.plantEntity.getGenSettings().isEmpty()) {
-            return;
-        }
         if (this.plantEntity.preGenTick <= 0) {
             if (this.plantEntity.getProduction() != null) {
                 this.produce();
@@ -47,6 +46,9 @@ public class PlantGenGoal extends HTGoal {
             }
         } else {
             --this.plantEntity.preGenTick;
+        }
+        if(this.plantEntity.getComponent().genGoalSetting().get().needRest()){
+            this.plantEntity.setResting(this.plantEntity.preGenTick > 0);
         }
     }
 
@@ -64,7 +66,7 @@ public class PlantGenGoal extends HTGoal {
     }
 
     protected void chooseProduction(){
-        final int weight = this.plantEntity.getComponent().genGoalSettings().get().totalWeight();
+        final int weight = this.plantEntity.getComponent().genGoalSetting().get().totalWeight();
         final int totalWeight = this.plantEntity.getGenSettings().stream().filter(l -> !l.plantFoodOnly()).map(PVZPlantComponent.GenSettings::weight).reduce(0, Integer::sum);
         WeightList<PVZPlantComponent.GenSettings> list = new WeightList<>(this.plantEntity.getGenSettings().stream().filter(l -> !l.plantFoodOnly()).collect(Collectors.toList()), PVZPlantComponent.GenSettings::weight);
         list.setTotalWeight(Math.max(weight, totalWeight));
@@ -72,7 +74,7 @@ public class PlantGenGoal extends HTGoal {
         if(this.plantEntity.getProduction() != null){
             this.plantEntity.preGenTick = this.plantEntity.getProduction().cooldown();
         } else{
-            this.plantEntity.preGenTick = this.plantEntity.getComponent().genGoalSettings().get().emptyCD();
+            this.plantEntity.preGenTick = this.plantEntity.getComponent().genGoalSetting().get().emptyCD();
         }
     }
 }

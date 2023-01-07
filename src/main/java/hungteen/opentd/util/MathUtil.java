@@ -24,6 +24,14 @@ public class MathUtil {
         return new Vec3(x / horizontalLength * xz, y, z / horizontalLength * xz);
     }
 
+    public static double smooth(double from, double to, int tick, int cd){
+        return smooth(from, to, cd == 0 ? 1F : tick * 1F / cd);
+    }
+
+    public static double smooth(double from, double to, double percent){
+        return from + (to - from) * percent;
+    }
+
     /**
      * get expand collide box.
      */

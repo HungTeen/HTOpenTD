@@ -2,15 +2,18 @@ package hungteen.opentd;
 
 import com.mojang.logging.LogUtils;
 import hungteen.htlib.HTLib;
+import hungteen.htlib.data.HTTestGen;
 import hungteen.opentd.common.effect.OpenTDEffects;
 import hungteen.opentd.common.entity.OpenTDEntities;
 import hungteen.opentd.common.item.OpenTDItems;
+import hungteen.opentd.data.OpenTDTestGen;
 import hungteen.opentd.impl.effect.HTEffectComponents;
 import hungteen.opentd.impl.finder.HTTargetFinders;
 import hungteen.opentd.impl.requirement.HTSummonRequirements;
 import hungteen.opentd.impl.filter.HTTargetFilters;
 import hungteen.opentd.impl.tower.HTTowerComponents;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
@@ -33,6 +36,9 @@ public class OpenTD {
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
         modBus.addListener(EventPriority.NORMAL, OpenTD::setUp);
         modBus.addListener(EventPriority.NORMAL, OpenTDEntities::addEntityAttributes);
+        modBus.addListener(EventPriority.NORMAL, false, GatherDataEvent.class, (event) -> {
+            event.getGenerator().addProvider(event.includeServer(), new OpenTDTestGen(event.getGenerator()));
+        });
         OpenTDItems.register(modBus);
         OpenTDEntities.register(modBus);
         OpenTDEffects.register(modBus);

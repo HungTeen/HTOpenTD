@@ -41,31 +41,35 @@ public class HTTowerComponents {
             OpenTD.prefix("pea_shooter"), new PVZPlantComponent(
                     new PVZPlantComponent.PlantSettings(
                             PVZPlantComponent.GrowSettings.DEFAULT,
-                            true,
+                            true, false,
                             PVZPlantComponent.RenderSettings.DEFAULT
                     ),
-                    Arrays.asList(new PVZPlantComponent.TargetSettings(
-                            1, 10,
+                    Arrays.asList(new PVZPlantComponent.TargetSetting(
+                            1, 0.2F,
                             new RangeFinder(true, 40, 40, new TypeTargetFilter(Arrays.asList(EntityType.CREEPER)))
                     )),
-                    Optional.of(new PVZPlantComponent.ShootGoalSettings(
-                            30, 20, 4, Optional.of(SoundEvents.SNOW_GOLEM_SHOOT),
+                    Optional.of(new PVZPlantComponent.ShootGoalSetting(
+                            0, 20, 10, 4, false, Optional.of(SoundEvents.SNOW_GOLEM_SHOOT),
                             Arrays.asList(
                                     new PVZPlantComponent.ShootSettings(
-                                            false, false, 0, Vec3.ZERO, 10, 15, 10,
+                                            false, false, 0, Vec3.ZERO, 10, 0, 10,
                                             new PVZPlantComponent.BulletSettings(
                                                     new TypeTargetFilter(Arrays.asList(EntityType.CREEPER)),
                                                     Arrays.asList(
                                                             new DamageEffectComponent(5F),
-                                                            new SplashEffectComponent(5, 5, true, 1F, new OrTargetFilter(Arrays.asList()))
+                                                            new SplashEffectComponent(5, 5, true, new OrTargetFilter(Arrays.asList()), Arrays.asList(new DamageEffectComponent(2F)))
                                                     ),
                                                     1F, 1, 30, 0.0001F, 0.99999F, false, false,
-                                                    PVZPlantComponent.RenderSettings.DEFAULT
+                                                    PVZPlantComponent.RenderSettings.make(0.5F, 0.5F, 0.2F, "pea_shooter")
                                             )
                                     )
                             )
                     )),
-                    Optional.empty()
+                    Optional.empty(),
+                    Optional.empty(),
+                    Optional.empty(),
+                    Arrays.asList(),
+                    Arrays.asList()
             )
     );
 
@@ -73,14 +77,14 @@ public class HTTowerComponents {
             OpenTD.prefix("sun_flower"), new PVZPlantComponent(
                     new PVZPlantComponent.PlantSettings(
                             PVZPlantComponent.GrowSettings.DEFAULT,
-                            false,
+                            false, false,
                             PVZPlantComponent.RenderSettings.make(0.8F, 1F, 1F, "sun_flower")
                     ),
                     Arrays.asList(),
                     Optional.empty(),
                     Optional.of(
-                            new PVZPlantComponent.GenGoalSettings(
-                                    20, 10, 100, 100,
+                            new PVZPlantComponent.GenGoalSetting(
+                                    20, 10, 100, 100, false, Optional.of(SoundEvents.PLAYER_LEVELUP),
                                     Arrays.asList(
                                             new PVZPlantComponent.GenSettings(
                                                     false, 100, 200, 1,
@@ -88,7 +92,11 @@ public class HTTowerComponents {
                                             )
                                     )
                             )
-                    )
+                    ),
+                    Optional.empty(),
+                    Optional.empty(),
+                    Arrays.asList(),
+                    Arrays.asList()
             )
     );
 

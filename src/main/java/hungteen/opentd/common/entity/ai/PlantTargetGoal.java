@@ -5,11 +5,9 @@ import hungteen.opentd.common.entity.PlantEntity;
 import hungteen.opentd.impl.tower.PVZPlantComponent;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
-import net.minecraft.world.phys.AABB;
 
 import java.util.EnumSet;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @program: HTOpenTD
@@ -19,10 +17,10 @@ import java.util.stream.Collectors;
 public class PlantTargetGoal extends Goal {
 
     protected final PlantEntity plantEntity;
-    private final PVZPlantComponent.TargetSettings targetSettings;
+    private final PVZPlantComponent.TargetSetting targetSettings;
     protected LivingEntity targetMob;
 
-    public PlantTargetGoal(PlantEntity towerEntity, PVZPlantComponent.TargetSettings targetSettings) {
+    public PlantTargetGoal(PlantEntity towerEntity, PVZPlantComponent.TargetSetting targetSettings) {
         this.plantEntity = towerEntity;
         this.targetSettings = targetSettings;
         this.setFlags(EnumSet.of(Goal.Flag.TARGET));
@@ -30,7 +28,7 @@ public class PlantTargetGoal extends Goal {
 
     @Override
     public boolean canUse() {
-        if (this.targetSettings.chance() > 0 && this.plantEntity.getRandom().nextInt(this.targetSettings.chance()) != 0) {
+        if (this.plantEntity.getRandom().nextFloat() < this.targetSettings.chance()) {
             return false;
         }
         List<LivingEntity> targets = this.targetSettings.targetFinder().getLivings(this.plantEntity.level, this.plantEntity);
