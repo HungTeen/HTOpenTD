@@ -181,7 +181,26 @@ public class PlantEntity extends TowerEntity {
                     }
                     ++this.growTick;
                 }
-
+            }
+            // 距离灰烬植物。
+            if (this.getComponent() != null && this.getTarget() != null) {
+                this.getComponent().instantEffectSetting().filter(PVZPlantComponent.InstantEffectSetting::needClose).ifPresent(l -> {
+                    if(l.targetFilter().match(this, this.getTarget()) && this.distanceTo(this.getTarget()) < l.closeRange()){
+                        l.effects().forEach(e -> e.effectTo(this, this.getTarget()));
+                    }
+                });
+            }
+            // 范围作用植物。
+            if( this.getComponent() != null){
+                this.getComponent().constantAffectSettings().forEach(setting -> {
+                    if(this.tickCount % setting.cd() == 0){
+                        setting.targetFinder().getTargets(this.level, this).forEach(target -> {
+                            setting.effectSettings().stream().filter(e -> e.targetFilter().match(this, target)).forEach(e -> {
+                                e.effects().forEach(l -> l.effectTo(this, target));
+                            });
+                        });
+                    }
+                });
             }
             // 大招时。
             if (EntityUtil.inEnergetic(this)) {

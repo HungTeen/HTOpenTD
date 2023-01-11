@@ -5,6 +5,7 @@ import hungteen.htlib.common.entity.HTEntities;
 import hungteen.opentd.client.model.item.SummonTowerModel;
 import hungteen.opentd.client.render.entity.BulletEntityRender;
 import hungteen.opentd.client.render.entity.PlantEntityRender;
+import hungteen.opentd.client.render.item.CoolDownDecorator;
 import hungteen.opentd.common.entity.OpenTDEntities;
 import hungteen.opentd.common.item.OpenTDItems;
 import hungteen.opentd.common.item.SummonTowerItem;
@@ -16,6 +17,7 @@ import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.ModelEvent;
+import net.minecraftforge.client.event.RegisterItemDecorationsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -49,6 +51,11 @@ public class ClientHandler {
                 .map(HTItemSettings.ItemSettings::model)
                 .map(model -> new ModelResourceLocation(model, "inventory"))
                 .forEach(event::register);
+    }
+
+    @SubscribeEvent
+    public static void registerItemRender(RegisterItemDecorationsEvent event) {
+        event.register(OpenTDItems.SUMMON_TOWER_ITEM.get(), new CoolDownDecorator());
     }
 
 }

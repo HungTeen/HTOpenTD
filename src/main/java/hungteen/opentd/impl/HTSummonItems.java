@@ -7,18 +7,21 @@ import hungteen.htlib.common.registry.HTRegistryHolder;
 import hungteen.htlib.common.registry.HTRegistryManager;
 import hungteen.opentd.OpenTD;
 import hungteen.opentd.api.interfaces.ITowerComponent;
+import hungteen.opentd.impl.finder.HTTargetFinders;
 import hungteen.opentd.impl.tower.HTTowerComponents;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoader;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
 import java.awt.print.Book;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -41,6 +44,11 @@ public class HTSummonItems {
             new SummonEntry(HTItemSettings.SUN_FLOWER.getValue(), HTTowerComponents.SUN_FLOWER.getValue())
     );
 
+    /**
+     * {@link OpenTD#setUp(FMLCommonSetupEvent)} ()}
+     */
+    public static void registerStuffs(){
+    }
 
     public record SummonEntry(HTItemSettings.ItemSettings itemSettings, ITowerComponent towerSettings){
 

@@ -9,9 +9,11 @@ import hungteen.opentd.OpenTD;
 import hungteen.opentd.api.interfaces.ISummonRequirement;
 import hungteen.opentd.impl.requirement.HTSummonRequirements;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @program: HTOpenTD
@@ -36,6 +38,12 @@ public class HTItemSettings {
             OpenTD.prefix("sun_flower"),
             new Builder().model(OpenTD.prefix("sun_flower_card")).card().build()
     );
+
+    /**
+     * {@link OpenTD#setUp(FMLCommonSetupEvent)} ()}
+     */
+    public static void registerStuffs(){
+    }
 
     public static class Builder {
         private ResourceLocation model = OpenTD.prefix("pea_shooter_card");
@@ -80,12 +88,13 @@ public class HTItemSettings {
         }
 
         public ItemSettings build(){
-            return new ItemSettings(model, maxStackSize, maxDamage, coolDown, textComponents, requirements);
+            return new ItemSettings(Optional.empty(), model, maxStackSize, maxDamage, coolDown, textComponents, requirements);
         }
     }
 
-    public record ItemSettings(ResourceLocation model, int maxStackSize, int maxDamage, int coolDown, List<String> textComponents, List<ISummonRequirement> requirements) {
+    public record ItemSettings(Optional<String> name, ResourceLocation model, int maxStackSize, int maxDamage, int coolDown, List<String> textComponents, List<ISummonRequirement> requirements) {
         public static final Codec<ItemSettings> CODEC = RecordCodecBuilder.<ItemSettings>mapCodec(instance -> instance.group(
+                Codec.optionalField("name", Codec.STRING).forGetter(ItemSettings::name),
                 ResourceLocation.CODEC.fieldOf("model").forGetter(ItemSettings::model),
                 Codec.intRange(0, 1023).optionalFieldOf("max_stack_size", 1).forGetter(ItemSettings::maxStackSize),
                 Codec.intRange(0, 65535).optionalFieldOf("max_damage", 0).forGetter(ItemSettings::maxDamage),

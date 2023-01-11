@@ -4,6 +4,7 @@ import hungteen.opentd.api.interfaces.ITowerComponent;
 import hungteen.opentd.impl.HTItemSettings;
 import hungteen.opentd.impl.HTSummonItems;
 import hungteen.opentd.impl.tower.HTTowerComponents;
+import hungteen.opentd.util.PlayerUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
@@ -57,6 +58,8 @@ public class SummonTowerItem extends Item {
             return InteractionResultHolder.pass(itemStack);
         } else if (!(level instanceof ServerLevel)) {
             return InteractionResultHolder.success(itemStack);
+        } else if(PlayerUtil.isOnCooldown(player, itemStack)){
+            return InteractionResultHolder.fail(itemStack);
         } else if(hitResult.getType() == HitResult.Type.BLOCK){
             Vec3 vec3 = player.getViewVector(1.0F);
             final double scale = 5.0D;
@@ -99,7 +102,7 @@ public class SummonTowerItem extends Item {
     public static void use(PlayerInteractEvent.EntityInteractSpecific event){
         if (event.getLevel() instanceof ServerLevel
                 && event.getItemStack().getItem() instanceof SummonTowerItem
-                && ! event.getEntity().getCooldowns().isOnCooldown(event.getItemStack().getItem())
+                && ! PlayerUtil.isOnCooldown(event.getEntity(), event.getItemStack())
                 && Level.isInSpawnableBounds(event.getTarget().blockPosition())
                 && ((SummonTowerItem) event.getItemStack().getItem()).canPlace(event.getLevel(), event.getEntity(), event.getItemStack(), event.getTarget())) {
             Entity entity = getTowerSettings(event.getItemStack()).createEntity((ServerLevel) event.getLevel(), event.getEntity(), event.getItemStack(), event.getTarget().blockPosition());
@@ -120,7 +123,7 @@ public class SummonTowerItem extends Item {
             });
         }
 
-        player.getCooldowns().addCooldown(this, getItemSettings(itemstack).coolDown());
+        PlayerUtil.addCooldown(player, itemstack, getItemSettings(itemstack).coolDown());
 
         player.awardStat(Stats.ITEM_USED.get(this));
         level.gameEvent(player, GameEvent.ENTITY_PLACE, entity.position());
@@ -155,6 +158,11 @@ public class SummonTowerItem extends Item {
     }
 
     @Override
+    public String getDescriptionId(ItemStack itemStack) {
+        return getItemSettings(itemStack).name().orElse(super.getDescriptionId(itemStack));
+    }
+
+    @Override
     public int getMaxStackSize(ItemStack stack) {
         return getItemSettings(stack).maxStackSize();
     }
@@ -175,6 +183,10 @@ public class SummonTowerItem extends Item {
 
     public static Optional<HTSummonItems.SummonEntry> get(ItemStack stack) {
         return HTSummonItems.SUMMON_ITEMS.getValue(stack.getOrCreateTag().getString(SUMMON_TAG));
+    }
+
+    public static Optional<ResourceLocation> getId(ItemStack stack) {
+        return Optional.ofNullable(stack.getOrCreateTag().contains(SUMMON_TAG) ? new ResourceLocation(stack.getOrCreateTag().getString(SUMMON_TAG)) : null);
     }
 
     public static void set(ItemStack stack, ResourceLocation entry) {

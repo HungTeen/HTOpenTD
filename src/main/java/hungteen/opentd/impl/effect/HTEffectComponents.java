@@ -27,6 +27,7 @@ public class HTEffectComponents {
     public static final IEffectComponentType<SplashEffectComponent> SPLASH_EFFECT = new DefaultEffect<>("splash",  SplashEffectComponent.CODEC);
     public static final IEffectComponentType<PotionEffectComponent> POTION_EFFECT = new DefaultEffect<>("potion",  PotionEffectComponent.CODEC);
     public static final IEffectComponentType<ExplosionEffectComponent> EXPLOSION_EFFECT = new DefaultEffect<>("explosion",  ExplosionEffectComponent.CODEC);
+    public static final IEffectComponentType<AttractEffectComponent> ATTRACT_EFFECT = new DefaultEffect<>("attract",  AttractEffectComponent.CODEC);
 
     /* Effects */
 

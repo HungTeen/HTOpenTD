@@ -38,7 +38,7 @@ public class HTTowerComponents {
     /* Towers */
 
     public static final HTRegistryHolder<ITowerComponent> PEA_SHOOTER = TOWERS.innerRegister(
-            OpenTD.prefix("pea_shooter"), new PVZPlantComponent(
+            OpenTD.prefix("pea_shooter_test"), new PVZPlantComponent(
                     new PVZPlantComponent.PlantSettings(
                             PVZPlantComponent.GrowSettings.DEFAULT,
                             true, false,
@@ -69,12 +69,13 @@ public class HTTowerComponents {
                     Optional.empty(),
                     Optional.empty(),
                     Arrays.asList(),
+                    Arrays.asList(),
                     Arrays.asList()
             )
     );
 
     public static final HTRegistryHolder<ITowerComponent> SUN_FLOWER = TOWERS.innerRegister(
-            OpenTD.prefix("sun_flower"), new PVZPlantComponent(
+            OpenTD.prefix("sun_flower_test"), new PVZPlantComponent(
                     new PVZPlantComponent.PlantSettings(
                             PVZPlantComponent.GrowSettings.DEFAULT,
                             false, false,
@@ -95,6 +96,7 @@ public class HTTowerComponents {
                     ),
                     Optional.empty(),
                     Optional.empty(),
+                    Arrays.asList(),
                     Arrays.asList(),
                     Arrays.asList()
             )
