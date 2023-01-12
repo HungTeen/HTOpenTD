@@ -1,6 +1,8 @@
 package hungteen.opentd.common.entity;
 
+import hungteen.htlib.common.network.SpawnParticlePacket;
 import hungteen.htlib.util.helper.EntityHelper;
+import hungteen.htlib.util.helper.ParticleHelper;
 import hungteen.opentd.OpenTD;
 import hungteen.opentd.api.interfaces.IEffectComponent;
 import hungteen.opentd.impl.tower.PVZPlantComponent;
@@ -33,6 +35,7 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.entity.IEntityAdditionalSpawnData;
 import net.minecraftforge.network.NetworkHooks;
+import net.minecraftforge.registries.ForgeRegistries;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
@@ -164,7 +167,7 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
         }
 
         if (this.getTrailParticle() != null) {
-            this.level.addParticle(this.getTrailParticle(), d2, d0 + 0.5D, d1, 0.0D, 0.0D, 0.0D);
+            this.getTrailParticle().spawn(this.level, new Vec3(d2, d0 + 0.5D, d1), this.random);
         }
 
         this.setPos(d2, d0, d1);
@@ -219,21 +222,24 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
     public void handleEntityEvent(byte id) {
         if (id == 3) {//die event.
             if (this.getHitParticle() != null) {
-                for (int i = 0; i < 8; ++i) {
-                    final float offsetX = this.random.nextFloat() * 0.4F;
-                    this.level.addParticle(this.getHitParticle(), this.getX() + offsetX, this.getY() + offsetX, this.getZ() + offsetX, 0.0D, 0.0D, 0.0D);
-                }
+                this.getHitParticle().spawn(this.level, this.position(), this.random);
             }
         }
     }
 
     @Nullable
-    protected ParticleOptions getHitParticle() {
+    protected PVZPlantComponent.ParticleSetting getHitParticle() {
+        if(getSettings() != null && getSettings().hitParticle().isPresent()) {
+            return getSettings().hitParticle().get();
+        };
         return null;
     }
 
     @Nullable
-    protected ParticleOptions getTrailParticle() {
+    protected PVZPlantComponent.ParticleSetting getTrailParticle() {
+        if(getSettings() != null && getSettings().trailParticle().isPresent()) {
+            return getSettings().trailParticle().get();
+        };
         return null;
     }
 

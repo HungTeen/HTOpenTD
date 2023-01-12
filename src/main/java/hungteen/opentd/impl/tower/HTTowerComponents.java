@@ -13,6 +13,7 @@ import hungteen.opentd.impl.effect.SplashEffectComponent;
 import hungteen.opentd.impl.filter.OrTargetFilter;
 import hungteen.opentd.impl.filter.TypeTargetFilter;
 import hungteen.opentd.impl.finder.RangeFinder;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.EntityType;
@@ -40,6 +41,7 @@ public class HTTowerComponents {
     public static final HTRegistryHolder<ITowerComponent> PEA_SHOOTER = TOWERS.innerRegister(
             OpenTD.prefix("pea_shooter_test"), new PVZPlantComponent(
                     new PVZPlantComponent.PlantSettings(
+                            new CompoundTag(),
                             PVZPlantComponent.GrowSettings.DEFAULT,
                             true, false,
                             PVZPlantComponent.RenderSettings.DEFAULT
@@ -60,7 +62,13 @@ public class HTTowerComponents {
                                                             new SplashEffectComponent(5, 5, true, new OrTargetFilter(Arrays.asList()), Arrays.asList(new DamageEffectComponent(2F)))
                                                     ),
                                                     1F, 1, 30, 0.0001F, 0.99999F, false, false,
-                                                    PVZPlantComponent.RenderSettings.make(0.5F, 0.5F, 0.2F, "pea_shooter")
+                                                    PVZPlantComponent.RenderSettings.make(0.5F, 0.5F, 0.2F, "pea_shooter"),
+                                                    Optional.empty(),
+                                                    Optional.of(
+                                                            new PVZPlantComponent.ParticleSetting(
+                                                                    ParticleTypes.FLAME, 10, true, new Vec3(1, 1, 1), new Vec3(0.1, 0.1, 0.1)
+                                                            )
+                                                    )
                                             )
                                     )
                             )
@@ -77,6 +85,7 @@ public class HTTowerComponents {
     public static final HTRegistryHolder<ITowerComponent> SUN_FLOWER = TOWERS.innerRegister(
             OpenTD.prefix("sun_flower_test"), new PVZPlantComponent(
                     new PVZPlantComponent.PlantSettings(
+                            new CompoundTag(),
                             PVZPlantComponent.GrowSettings.DEFAULT,
                             false, false,
                             PVZPlantComponent.RenderSettings.make(0.8F, 1F, 1F, "sun_flower")

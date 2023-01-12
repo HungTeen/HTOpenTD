@@ -1,17 +1,13 @@
 package hungteen.opentd.client;
 
-import hungteen.htlib.client.render.entity.HTBoatRender;
-import hungteen.htlib.common.entity.HTEntities;
 import hungteen.opentd.client.model.item.SummonTowerModel;
 import hungteen.opentd.client.render.entity.BulletEntityRender;
 import hungteen.opentd.client.render.entity.PlantEntityRender;
 import hungteen.opentd.client.render.item.CoolDownDecorator;
 import hungteen.opentd.common.entity.OpenTDEntities;
 import hungteen.opentd.common.item.OpenTDItems;
-import hungteen.opentd.common.item.SummonTowerItem;
 import hungteen.opentd.impl.HTItemSettings;
 import hungteen.opentd.impl.HTSummonItems;
-import net.minecraft.client.model.BookModel;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
@@ -48,7 +44,7 @@ public class ClientHandler {
     public static void bakeModel(ModelEvent.RegisterAdditional event) {
         HTSummonItems.SUMMON_ITEMS.getValues().stream()
                 .map(HTSummonItems.SummonEntry::itemSettings)
-                .map(HTItemSettings.ItemSettings::model)
+                .map(HTItemSettings.ItemSetting::model)
                 .map(model -> new ModelResourceLocation(model, "inventory"))
                 .forEach(event::register);
     }

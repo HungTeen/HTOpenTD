@@ -20,7 +20,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.awt.print.Book;
 import java.util.Collections;
 import java.util.List;
 
@@ -41,7 +40,7 @@ public class SummonTowerModel implements BakedModel {
             @Override
             public BakedModel resolve(@NotNull BakedModel original, @NotNull ItemStack stack,
                                       @Nullable ClientLevel world, @Nullable LivingEntity entity, int seed) {
-                HTItemSettings.ItemSettings itemSettings = SummonTowerItem.getItemSettings(stack);
+                HTItemSettings.ItemSetting itemSettings = SummonTowerItem.getItemSettings(stack);
                 if (itemSettings != null) {
                     ModelResourceLocation modelPath = new ModelResourceLocation(itemSettings.model(), "inventory");
                     return Minecraft.getInstance().getModelManager().getModel(modelPath);

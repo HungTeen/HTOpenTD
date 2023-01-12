@@ -2,6 +2,11 @@
 
 # HungTeen's Open Tower Defence
 
+### Features
+Custom Tower <br>
+Custom Behavior (Shoot, Gen, Effect...) <br>
+Custom Model (Animation, Texture...) <br>
+
 ### Current Progress
 
 OpenTD for 1.19.2: Developing.

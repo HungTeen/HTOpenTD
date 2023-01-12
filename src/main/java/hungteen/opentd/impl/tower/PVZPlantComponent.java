@@ -2,6 +2,8 @@ package hungteen.opentd.impl.tower;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import hungteen.htlib.util.helper.ParticleHelper;
+import hungteen.htlib.util.helper.RandomHelper;
 import hungteen.opentd.OpenTD;
 import hungteen.opentd.api.interfaces.*;
 import hungteen.opentd.common.entity.OpenTDEntities;
@@ -11,22 +13,30 @@ import hungteen.opentd.impl.effect.HTEffectComponents;
 import hungteen.opentd.impl.filter.HTTargetFilters;
 import hungteen.opentd.impl.finder.HTTargetFinders;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 /**
  * @program: HTOpenTD
@@ -56,12 +66,16 @@ public record PVZPlantComponent(PlantSettings plantSetting, List<TargetSetting> 
 
     @Override
     public Entity createEntity(ServerLevel level, Player player, ItemStack stack, BlockPos pos) {
-        ItemStack itemStack = stack.copy();
-        HTTowerComponents.getCodec().encodeStart(NbtOps.INSTANCE, SummonTowerItem.getTowerSettings(stack))
+        final ItemStack itemStack = stack.copy();
+        final ITowerComponent towerComponent = SummonTowerItem.getTowerSettings(stack);
+        HTTowerComponents.getCodec().encodeStart(NbtOps.INSTANCE, towerComponent)
                 .resultOrPartial(msg -> OpenTD.log().error(msg + " [ Create Entity ]"))
                 .ifPresent(tag -> {
                     itemStack.getOrCreateTag().put(PlantEntity.PLANT_SETTINGS, tag);
                 });
+        if(towerComponent instanceof PVZPlantComponent){
+            itemStack.getOrCreateTag().put(SummonTowerItem.ENTITY_TAG, ((PVZPlantComponent) towerComponent).plantSetting().extraNBT());
+        }
         itemStack.getOrCreateTag().putFloat(PlantEntity.YROT, player.getYRot());
         return OpenTDEntities.PLANT_ENTITY.get().spawn(level, itemStack, player, pos, MobSpawnType.SPAWN_EGG, false, false);
     }
@@ -94,9 +108,10 @@ public record PVZPlantComponent(PlantSettings plantSetting, List<TargetSetting> 
         ).apply(instance, RenderSettings::new)).codec();
     }
 
-    public record PlantSettings(GrowSettings growSetting, boolean changeDirection, boolean pushable, RenderSettings renderSetting) {
+    public record PlantSettings(CompoundTag extraNBT, GrowSettings growSetting, boolean changeDirection, boolean pushable, RenderSettings renderSetting) {
 
         public static final Codec<PlantSettings> CODEC = RecordCodecBuilder.<PlantSettings>mapCodec(instance -> instance.group(
+                CompoundTag.CODEC.optionalFieldOf("extra_nbt", new CompoundTag()).forGetter(PlantSettings::extraNBT),
                 GrowSettings.CODEC.optionalFieldOf("grow_setting", GrowSettings.DEFAULT).forGetter(PlantSettings::growSetting),
                 Codec.BOOL.optionalFieldOf("change_direction", true).forGetter(PlantSettings::changeDirection),
                 Codec.BOOL.optionalFieldOf("pushable", false).forGetter(PlantSettings::pushable),
@@ -158,7 +173,7 @@ public record PVZPlantComponent(PlantSettings plantSetting, List<TargetSetting> 
 
     public record BulletSettings(ITargetFilter targetFilter, List<IEffectComponent> effects, float bulletSpeed,
                                  int maxHitCount, int maxExistTick, float gravity, float slowDown, boolean ignoreBlock,
-                                 boolean lockToTarget, RenderSettings renderSettings) {
+                                 boolean lockToTarget, RenderSettings renderSettings, Optional<ParticleSetting> hitParticle, Optional<ParticleSetting> trailParticle) {
 
         public static final Codec<BulletSettings> CODEC = RecordCodecBuilder.<BulletSettings>mapCodec(instance -> instance.group(
                 HTTargetFilters.getCodec().fieldOf("target_filter").forGetter(BulletSettings::targetFilter),
@@ -170,7 +185,9 @@ public record PVZPlantComponent(PlantSettings plantSetting, List<TargetSetting> 
                 Codec.floatRange(0, 1F).optionalFieldOf("slow_down", 0.99F).forGetter(BulletSettings::slowDown),
                 Codec.BOOL.optionalFieldOf("ignore_block", false).forGetter(BulletSettings::ignoreBlock),
                 Codec.BOOL.optionalFieldOf("lock_to_target", false).forGetter(BulletSettings::lockToTarget),
-                RenderSettings.CODEC.fieldOf("render_setting").forGetter(BulletSettings::renderSettings)
+                RenderSettings.CODEC.fieldOf("render_setting").forGetter(BulletSettings::renderSettings),
+                Codec.optionalField("hit_particle", ParticleSetting.CODEC).forGetter(BulletSettings::hitParticle),
+                Codec.optionalField("trail_particle", ParticleSetting.CODEC).forGetter(BulletSettings::trailParticle)
         ).apply(instance, BulletSettings::new)).codec();
     }
 
@@ -242,6 +259,38 @@ public record PVZPlantComponent(PlantSettings plantSetting, List<TargetSetting> 
                 HTTargetFilters.getCodec().fieldOf("filter").forGetter(EffectTargetSetting::targetFilter),
                 HTEffectComponents.getCodec().listOf().optionalFieldOf("effects", Arrays.asList()).forGetter(EffectTargetSetting::effects)
         ).apply(instance, EffectTargetSetting::new)).codec();
+    }
+
+    public record ParticleSetting(ParticleType<?> particleType, int amount, boolean isRandom, Vec3 offset, Vec3 speed) {
+
+        public static final Codec<ParticleSetting> CODEC = RecordCodecBuilder.<ParticleSetting>mapCodec(instance -> instance.group(
+                ForgeRegistries.PARTICLE_TYPES.getCodec().fieldOf("particle_type").forGetter(ParticleSetting::particleType),
+                Codec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("amount", 1).forGetter(ParticleSetting::amount),
+                Codec.BOOL.optionalFieldOf("is_random", true).forGetter(ParticleSetting::isRandom),
+                Vec3.CODEC.optionalFieldOf("offset", Vec3.ZERO).forGetter(ParticleSetting::offset),
+                Vec3.CODEC.optionalFieldOf("speed", Vec3.ZERO).forGetter(ParticleSetting::speed)
+        ).apply(instance, ParticleSetting::new)).codec();
+
+        public Optional<ParticleOptions> getType(){
+            if(particleType() instanceof SimpleParticleType){
+                return Optional.of((SimpleParticleType) particleType());
+            }
+            return Optional.empty();
+        }
+
+        public void spawn(Level level, Vec3 center, RandomSource rand){
+            if(this.getType().isPresent()){
+                for(int i = 0; i < amount(); ++ i){
+                    Vec3 pos = center;
+                    Vec3 speed = speed();
+                    if(isRandom()){
+                        pos = center.add(RandomHelper.doubleRange(rand, offset().x()), RandomHelper.doubleRange(rand, offset().y()), RandomHelper.doubleRange(rand, offset().z()));
+                        speed = new Vec3(RandomHelper.doubleRange(rand, speed().x()), RandomHelper.doubleRange(rand, speed().y()), RandomHelper.doubleRange(rand, speed().z()));
+                    }
+                    ParticleHelper.spawnParticles(level, getType().get(), pos, speed.x(), speed.y(), speed.z());
+                }
+            }
+        }
     }
 
 }

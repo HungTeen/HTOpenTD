@@ -7,23 +7,8 @@ import hungteen.htlib.common.registry.HTRegistryHolder;
 import hungteen.htlib.common.registry.HTRegistryManager;
 import hungteen.opentd.OpenTD;
 import hungteen.opentd.api.interfaces.ITowerComponent;
-import hungteen.opentd.impl.finder.HTTargetFinders;
 import hungteen.opentd.impl.tower.HTTowerComponents;
-import net.minecraft.ResourceLocationException;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.common.ForgeMod;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.ModLoader;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-
-import java.awt.print.Book;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
 
 /**
  * @program: HTOpenTD
@@ -50,10 +35,10 @@ public class HTSummonItems {
     public static void registerStuffs(){
     }
 
-    public record SummonEntry(HTItemSettings.ItemSettings itemSettings, ITowerComponent towerSettings){
+    public record SummonEntry(HTItemSettings.ItemSetting itemSettings, ITowerComponent towerSettings){
 
         public static final Codec<SummonEntry> CODEC = RecordCodecBuilder.<SummonEntry>mapCodec(instance -> instance.group(
-                HTItemSettings.ItemSettings.CODEC.fieldOf("item_settings").forGetter(SummonEntry::itemSettings),
+                HTItemSettings.ItemSetting.CODEC.fieldOf("item_settings").forGetter(SummonEntry::itemSettings),
                 HTTowerComponents.getCodec().fieldOf("tower_settings").forGetter(SummonEntry::towerSettings)
         ).apply(instance, SummonEntry::new)).codec();
     }

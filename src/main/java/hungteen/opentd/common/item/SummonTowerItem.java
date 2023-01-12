@@ -27,10 +27,6 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.manager.AnimationData;
-import software.bernie.geckolib3.core.manager.AnimationFactory;
-import software.bernie.geckolib3.util.GeckoLibUtil;
 
 import java.util.List;
 import java.util.Optional;
@@ -45,6 +41,7 @@ public class SummonTowerItem extends Item {
 
     private static final Predicate<Entity> ENTITY_PREDICATE = EntitySelector.NO_SPECTATORS.and(Entity::isPickable);
     private static final String SUMMON_TAG = "SummonEntry";
+    public static final String ENTITY_TAG = "EntityTag";
 
 
     public SummonTowerItem() {
@@ -122,6 +119,10 @@ public class SummonTowerItem extends Item {
                 player.broadcastBreakEvent(hand);
             });
         }
+//        final CompoundTag tmp = entity.saveWithoutId(new CompoundTag());
+//        CompoundTag.CODEC.encodeStart(JsonOps.INSTANCE, tmp)
+//                .resultOrPartial(msg -> OpenTD.log().error(msg))
+//                        .ifPresent(System.out::println);
 
         PlayerUtil.addCooldown(player, itemstack, getItemSettings(itemstack).coolDown());
 
@@ -172,7 +173,7 @@ public class SummonTowerItem extends Item {
         return getItemSettings(stack).maxDamage();
     }
 
-    public static HTItemSettings.ItemSettings getItemSettings(ItemStack stack) {
+    public static HTItemSettings.ItemSetting getItemSettings(ItemStack stack) {
         return get(stack).map(HTSummonItems.SummonEntry::itemSettings).orElse(HTItemSettings.DEFAULT.getValue());
     }
 
