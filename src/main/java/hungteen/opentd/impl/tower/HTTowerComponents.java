@@ -11,11 +11,13 @@ import hungteen.opentd.api.interfaces.ITowerComponentType;
 import hungteen.opentd.impl.effect.DamageEffectComponent;
 import hungteen.opentd.impl.effect.SplashEffectComponent;
 import hungteen.opentd.impl.filter.OrTargetFilter;
+import hungteen.opentd.impl.filter.TagTargetFilter;
 import hungteen.opentd.impl.filter.TypeTargetFilter;
 import hungteen.opentd.impl.finder.RangeFinder;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.phys.Vec3;
 
@@ -47,8 +49,45 @@ public class HTTowerComponents {
                             PVZPlantComponent.RenderSettings.DEFAULT
                     ),
                     Arrays.asList(new PVZPlantComponent.TargetSetting(
-                            1, 0.2F,
-                            new RangeFinder(true, 40, 40, new TypeTargetFilter(Arrays.asList(EntityType.CREEPER)))
+                            1, 0.2F, true, 10000,
+                            new RangeFinder(true, 40, 40,
+                                    new OrTargetFilter(
+                                            Arrays.asList(
+                                                    new TypeTargetFilter(Arrays.asList(
+                                                            EntityType.CREEPER,
+                                                            EntityType.LLAMA,
+                                                            EntityType.PANDA,
+                                                            EntityType.BEE,
+                                                            EntityType.SKELETON,
+                                                            EntityType.PIG,
+                                                            EntityType.CHICKEN,
+                                                            EntityType.TRADER_LLAMA,
+                                                            EntityType.VILLAGER,
+                                                            EntityType.AXOLOTL,
+                                                            EntityType.BAT,
+                                                            EntityType.TURTLE,
+                                                            EntityType.VEX,
+                                                            EntityType.TROPICAL_FISH,
+                                                            EntityType.ARMOR_STAND,
+                                                            EntityType.SPIDER,
+                                                            EntityType.MAGMA_CUBE
+                                                    )),
+                                                    new TypeTargetFilter(Arrays.asList(
+                                                            EntityType.WITHER,
+                                                            EntityType.WITCH,
+                                                            EntityType.ALLAY,
+                                                            EntityType.ENDER_DRAGON,
+                                                            EntityType.ENDERMAN,
+                                                            EntityType.ENDERMITE,
+                                                            EntityType.ZOMBIE_VILLAGER,
+                                                            EntityType.VINDICATOR
+                                                    )),
+                                                    new TagTargetFilter(
+                                                            EntityTypeTags.SKELETONS
+                                                    )
+                                            )
+                                    )
+                            )
                     )),
                     Optional.of(new PVZPlantComponent.ShootGoalSetting(
                             0, 20, 10, 4, false, Optional.of(SoundEvents.SNOW_GOLEM_SHOOT),
@@ -61,12 +100,12 @@ public class HTTowerComponents {
                                                             new DamageEffectComponent(5F),
                                                             new SplashEffectComponent(5, 5, true, new OrTargetFilter(Arrays.asList()), Arrays.asList(new DamageEffectComponent(2F)))
                                                     ),
-                                                    1F, 1, 30, 0.0001F, 0.99999F, false, false,
-                                                    PVZPlantComponent.RenderSettings.make(0.5F, 0.5F, 0.2F, "pea_shooter"),
+                                                    0.1F, 1, 300, 0.0001F, 0.99999F, false, false,
+                                                    PVZPlantComponent.RenderSettings.make(0.5F, 0.5F, 0.6F, "pea_shooter"),
                                                     Optional.empty(),
                                                     Optional.of(
                                                             new PVZPlantComponent.ParticleSetting(
-                                                                    ParticleTypes.FLAME, 10, true, new Vec3(1, 1, 1), new Vec3(0.1, 0.1, 0.1)
+                                                                    ParticleTypes.FLAME, 1, true, new Vec3(1, 1, 1), new Vec3(0.1, 0.1, 0.1)
                                                             )
                                                     )
                                             )

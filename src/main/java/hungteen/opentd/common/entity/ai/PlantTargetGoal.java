@@ -1,6 +1,9 @@
 package hungteen.opentd.common.entity.ai;
 
+import hungteen.htlib.util.algorithm.SortHelper;
 import hungteen.htlib.util.helper.EntityHelper;
+import hungteen.htlib.util.helper.MathHelper;
+import hungteen.htlib.util.helper.RandomHelper;
 import hungteen.opentd.common.entity.PlantEntity;
 import hungteen.opentd.impl.tower.PVZPlantComponent;
 import net.minecraft.world.entity.LivingEntity;
@@ -18,11 +21,15 @@ public class PlantTargetGoal extends Goal {
 
     protected final PlantEntity plantEntity;
     private final PVZPlantComponent.TargetSetting targetSettings;
+    protected final SortHelper.EntitySorter sorter;
     protected LivingEntity targetMob;
+    private long refreshTick = 0;
+
 
     public PlantTargetGoal(PlantEntity towerEntity, PVZPlantComponent.TargetSetting targetSettings) {
         this.plantEntity = towerEntity;
         this.targetSettings = targetSettings;
+        this.sorter = new SortHelper.EntitySorter(towerEntity);
         this.setFlags(EnumSet.of(Goal.Flag.TARGET));
     }
 
@@ -35,6 +42,7 @@ public class PlantTargetGoal extends Goal {
         final LivingEntity target = this.chooseTarget(targets);
         if (target != null) {
             this.targetMob = target;
+            this.refreshTick = this.targetMob.level.getGameTime() + this.targetSettings.refreshCD();
             return true;
         }
         return false;
@@ -62,6 +70,9 @@ public class PlantTargetGoal extends Goal {
         }
         //already out range.
         if (this.targetSettings.targetFinder().stillValid(this.plantEntity.level, this.plantEntity, entity)) {
+            if(this.refreshTick < this.plantEntity.level.getGameTime()){
+                return false;
+            }
             this.plantEntity.setTarget(entity);
             return true;
         }
@@ -74,7 +85,16 @@ public class PlantTargetGoal extends Goal {
     }
 
     protected LivingEntity chooseTarget(List<LivingEntity> list) {
-        return list.isEmpty() ? null : list.get(0);
+        if(this.targetSettings.closest()){
+            list.sort(this.sorter);
+            return list.isEmpty() ? null : list.get(0);
+        } else{
+            if(list.size() > 0){
+                final int pos = this.plantEntity.getRandom().nextInt(list.size());
+                return list.get(pos);
+            }
+        }
+        return null;
     }
 
 }

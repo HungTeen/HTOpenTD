@@ -255,7 +255,7 @@ public class PlantEntity extends TowerEntity {
             final double deltaX = shootSettings.offset().x * vec.x - shootSettings.offset().z * vec.z;
             final double deltaZ = shootSettings.offset().x * vec.z + shootSettings.offset().z * vec.x;
             bullet.setPos(this.getX() + deltaX, this.getY() + deltaY, this.getZ() + deltaZ);
-            if (this.getTarget() != null) {
+            if (this.getTarget() != null && shootSettings.bulletSettings().lockToTarget()) {
                 bullet.shootToTarget(this, shootSettings, this.getTarget(), this.getTarget().getX() - bullet.getX(), this.getTarget().getY() + this.getTarget().getBbHeight() - bullet.getY(), this.getTarget().getZ() - bullet.getZ());
             } else {
                 bullet.shootTo(this, shootSettings, vec);

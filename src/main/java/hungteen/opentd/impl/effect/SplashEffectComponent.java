@@ -2,6 +2,7 @@ package hungteen.opentd.impl.effect;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import hungteen.htlib.util.helper.EntityHelper;
 import hungteen.opentd.api.interfaces.IEffectComponent;
 import hungteen.opentd.api.interfaces.IEffectComponentType;
 import hungteen.opentd.api.interfaces.ITargetFilter;
@@ -39,7 +40,7 @@ public record SplashEffectComponent(double radius, double height, boolean isCirc
     }
 
     private void effect(Entity attacker){
-        EntityUtil.getPredicateEntities(attacker, EntityUtil.getEntityAABB(attacker, radius(), height()), Entity.class, l -> {
+        EntityHelper.getPredicateEntities(attacker, EntityHelper.getEntityAABB(attacker, radius(), height()), Entity.class, l -> {
             return filter().match(attacker, l);
         }).forEach(target -> {
             effects().forEach(effect -> effect.effectTo(attacker, target));

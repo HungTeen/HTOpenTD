@@ -178,7 +178,6 @@ public class SummonTowerItem extends Item {
     }
 
     public static ITowerComponent getTowerSettings(ItemStack stack) {
-        //TODO default.
         return get(stack).map(HTSummonItems.SummonEntry::towerSettings).orElse(HTTowerComponents.PEA_SHOOTER.getValue());
     }
 

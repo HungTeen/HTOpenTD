@@ -2,12 +2,14 @@ package hungteen.opentd.client.render.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Vector3f;
 import hungteen.opentd.client.model.entity.BulletEntityModel;
 import hungteen.opentd.common.entity.BulletEntity;
 import hungteen.opentd.common.entity.PlantEntity;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib3.geo.render.built.GeoModel;
 import software.bernie.geckolib3.renderers.geo.GeoProjectilesRenderer;
@@ -37,7 +39,12 @@ public class BulletEntityRender extends GeoProjectilesRenderer<BulletEntity> {
     @Override
     public void render(BulletEntity animatable, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
         if (animatable.getSettings() != null) {
+            poseStack.pushPose();
+            poseStack.mulPose(Vector3f.YP.rotationDegrees(- Mth.lerp(partialTick, animatable.yRotO, animatable.getYRot()) - 90.0F));
+            poseStack.mulPose(Vector3f.ZP.rotationDegrees(- Mth.lerp(partialTick, animatable.xRotO, animatable.getXRot())));
+            poseStack.mulPose(Vector3f.YP.rotationDegrees(- Mth.lerp(partialTick, animatable.yRotO, animatable.getYRot()) + 180.0F));
             super.render(animatable, entityYaw, partialTick, poseStack, bufferSource, packedLight);
+            poseStack.popPose();
         }
     }
 }

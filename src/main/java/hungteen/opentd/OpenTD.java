@@ -16,6 +16,7 @@ import hungteen.opentd.impl.finder.HTTargetFinders;
 import hungteen.opentd.impl.requirement.HTSummonRequirements;
 import hungteen.opentd.impl.filter.HTTargetFilters;
 import hungteen.opentd.impl.tower.HTTowerComponents;
+import net.minecraft.advancements.Advancement;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.common.MinecraftForge;

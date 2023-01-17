@@ -28,6 +28,7 @@ public class HTEffectComponents {
     public static final IEffectComponentType<PotionEffectComponent> POTION_EFFECT = new DefaultEffect<>("potion",  PotionEffectComponent.CODEC);
     public static final IEffectComponentType<ExplosionEffectComponent> EXPLOSION_EFFECT = new DefaultEffect<>("explosion",  ExplosionEffectComponent.CODEC);
     public static final IEffectComponentType<AttractEffectComponent> ATTRACT_EFFECT = new DefaultEffect<>("attract",  AttractEffectComponent.CODEC);
+    public static final IEffectComponentType<RandomEffectComponent> RANDOM_EFFECT = new DefaultEffect<>("random",  RandomEffectComponent.CODEC);
 
     /* Effects */
 
@@ -35,7 +36,7 @@ public class HTEffectComponents {
      * {@link OpenTD#OpenTD()}
      */
     public static void registerStuffs(){
-        Arrays.asList(DAMAGE_EFFECT, SPLASH_EFFECT, POTION_EFFECT, EXPLOSION_EFFECT).forEach(HTEffectComponents::registerEffectType);
+        Arrays.asList(DAMAGE_EFFECT, SPLASH_EFFECT, POTION_EFFECT, EXPLOSION_EFFECT, ATTRACT_EFFECT, RANDOM_EFFECT).forEach(HTEffectComponents::registerEffectType);
     }
 
     public static void registerEffectType(IEffectComponentType<?> type){

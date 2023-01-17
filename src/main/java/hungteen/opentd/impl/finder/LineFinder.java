@@ -2,14 +2,14 @@ package hungteen.opentd.impl.finder;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import hungteen.htlib.util.helper.EntityHelper;
+import hungteen.htlib.util.helper.MathHelper;
 import hungteen.opentd.api.interfaces.ITargetFilter;
 import hungteen.opentd.api.interfaces.ITargetFinder;
 import hungteen.opentd.api.interfaces.ITargetFinderType;
 import hungteen.opentd.impl.filter.HTTargetFilters;
 import hungteen.opentd.util.EntityUtil;
-import hungteen.opentd.util.MathUtil;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -34,8 +34,8 @@ public record LineFinder(float horizontalDegree, float verticalDegree, float len
 
     @Override
     public List<Entity> getTargets(Level level, Entity entity) {
-        final Vec3 direction = MathUtil.rotate(entity.getViewVector(1F), horizontalDegree(), verticalDegree());
-        final EntityHitResult entityRay = EntityUtil.rayTraceEntities(level, entity, direction, length, (target) -> {
+        final Vec3 direction = MathHelper.rotate(entity.getViewVector(1F), horizontalDegree(), verticalDegree());
+        final EntityHitResult entityRay = EntityHelper.rayTraceEntities(level, entity, direction, length, (target) -> {
             return this.targetFilter().match(entity, target);
         });
         if(entityRay != null && entityRay.getType() == HitResult.Type.ENTITY) {

@@ -133,11 +133,13 @@ public record PVZPlantComponent(PlantSettings plantSetting, List<TargetSetting> 
         }
     }
 
-    public record TargetSetting(int priority, float chance, ITargetFinder targetFinder) {
+    public record TargetSetting(int priority, float chance, boolean closest, int refreshCD, ITargetFinder targetFinder) {
 
         public static final Codec<TargetSetting> CODEC = RecordCodecBuilder.<TargetSetting>mapCodec(instance -> instance.group(
                 Codec.intRange(0, Integer.MAX_VALUE).fieldOf("priority").forGetter(TargetSetting::priority),
                 Codec.floatRange(0, 1).fieldOf("chance").forGetter(TargetSetting::chance),
+                Codec.BOOL.optionalFieldOf("closest", true).forGetter(TargetSetting::closest),
+                Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("refresh_cd", 1000).forGetter(TargetSetting::refreshCD),
                 HTTargetFinders.getCodec().fieldOf("target_finder").forGetter(TargetSetting::targetFinder)
         ).apply(instance, TargetSetting::new)).codec();
 
@@ -249,7 +251,7 @@ public record PVZPlantComponent(PlantSettings plantSetting, List<TargetSetting> 
         public static final Codec<ConstantAffectSetting> CODEC = RecordCodecBuilder.<ConstantAffectSetting>mapCodec(instance -> instance.group(
                 Codec.intRange(1, Integer.MAX_VALUE).fieldOf("cd").forGetter(ConstantAffectSetting::cd),
                 HTTargetFinders.getCodec().fieldOf("target_finder").forGetter(ConstantAffectSetting::targetFinder),
-                EffectTargetSetting.CODEC.listOf().optionalFieldOf("effects", Arrays.asList()).forGetter(ConstantAffectSetting::effectSettings)
+                EffectTargetSetting.CODEC.listOf().optionalFieldOf("effect_settings", Arrays.asList()).forGetter(ConstantAffectSetting::effectSettings)
         ).apply(instance, ConstantAffectSetting::new)).codec();
     }
 

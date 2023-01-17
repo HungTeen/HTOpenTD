@@ -1,4 +1,4 @@
-[![](http://cf.way2muchnoise.eu/full_411396_downloads.svg)](https://www.curseforge.com/minecraft/mc-mods/hungteens-plants-vs-zombies-mod)
+[![](http://cf.way2muchnoise.eu/full_807555_downloads.svg)](https://www.curseforge.com/minecraft/mc-mods/open-tower-defence)
 
 # HungTeen's Open Tower Defence
 

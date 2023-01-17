@@ -2,9 +2,9 @@ package hungteen.opentd.client.render.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import hungteen.htlib.util.helper.MathHelper;
 import hungteen.opentd.client.model.entity.PlantEntityModel;
 import hungteen.opentd.common.entity.PlantEntity;
-import hungteen.opentd.util.MathUtil;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -31,7 +31,7 @@ public class PlantEntityRender extends GeoEntityRenderer<PlantEntity> {
             if(animatable.oldAge != animatable.getAge()){
                 final float oldScale = animatable.getGrowSettings().scales().get(animatable.oldAge);
                 final float newScale = animatable.getGrowSettings().scales().get(animatable.getAge());
-                tmp = MathUtil.smooth(oldScale, newScale, PlantEntity.GROW_ANIM_CD - animatable.growAnimTick, PlantEntity.GROW_ANIM_CD);
+                tmp = MathHelper.smooth(oldScale, newScale, PlantEntity.GROW_ANIM_CD - animatable.growAnimTick, PlantEntity.GROW_ANIM_CD);
             } else{
                 tmp = animatable.getGrowSettings().scales().get(animatable.getAge());
             }

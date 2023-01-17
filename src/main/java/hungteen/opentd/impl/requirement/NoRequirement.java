@@ -42,4 +42,5 @@ public class NoRequirement implements ISummonRequirement {
     public ISummonRequirementType<?> getType() {
         return HTSummonRequirements.NO_REQUIREMENT;
     }
+
 }

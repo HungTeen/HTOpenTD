@@ -1,25 +1,20 @@
 package hungteen.opentd.common.entity;
 
-import hungteen.htlib.common.network.SpawnParticlePacket;
 import hungteen.htlib.util.helper.EntityHelper;
-import hungteen.htlib.util.helper.ParticleHelper;
+import hungteen.htlib.util.helper.MathHelper;
 import hungteen.opentd.OpenTD;
 import hungteen.opentd.api.interfaces.IEffectComponent;
 import hungteen.opentd.impl.tower.PVZPlantComponent;
-import hungteen.opentd.util.MathUtil;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.util.Mth;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
@@ -35,8 +30,12 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.entity.IEntityAdditionalSpawnData;
 import net.minecraftforge.network.NetworkHooks;
-import net.minecraftforge.registries.ForgeRegistries;
 import software.bernie.geckolib3.core.IAnimatable;
+import software.bernie.geckolib3.core.PlayState;
+import software.bernie.geckolib3.core.builder.AnimationBuilder;
+import software.bernie.geckolib3.core.builder.ILoopType;
+import software.bernie.geckolib3.core.controller.AnimationController;
+import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 import software.bernie.geckolib3.util.GeckoLibUtil;
@@ -88,38 +87,39 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
             }
             return;
         }
-        //reach alive time limit.
+        // reach alive time limit.
         if (!level.isClientSide) {
             if (this.tickCount >= this.getMaxLiveTick()) {
                 this.discard();
             }
-            if (this.getSettings().lockToTarget() && this.lockTarget.isPresent() && EntityHelper.isEntityValid(lockTarget.get())) {
-                if (this.isParabola) {
-                    final Entity target = this.lockTarget.get();
-                    final Vec3 speed = this.getDeltaMovement();
-                    final double g = this.getGravity();
-                    final double t1 = speed.y / g;
-                    final double height = speed.y * speed.y / 2 / g;
-                    final double downHeight = this.getY() + height - target.getY() - target.getBbHeight();
-                    if (downHeight < 0) {
-                        return;
-                    }
-                    final double t2 = Math.sqrt(2 * downHeight / g);
-                    final double dx = target.getX() + target.getDeltaMovement().x() * (t1 + t2) - this.getX();
-                    final double dz = target.getZ() + target.getDeltaMovement().z() * (t1 + t2) - this.getZ();
-                    final double dxz = Math.sqrt(dx * dx + dz * dz);
-                    final double vxz = dxz / (t1 + t2);
-                    if (dxz == 0) {
-                        this.setDeltaMovement(0, speed.y, 0);
-                    } else {
-                        this.setDeltaMovement(vxz * dx / dxz, speed.y, vxz * dz / dxz);
-                    }
-                } else{
-                    //TODO 直线跟踪？
+        }
+        // lock to target.
+        if (this.getSettings().lockToTarget() && this.lockTarget.isPresent() && EntityHelper.isEntityValid(lockTarget.get())) {
+            if (this.isParabola) {
+                final Entity target = this.lockTarget.get();
+                final Vec3 speed = this.getDeltaMovement();
+                final double g = this.getGravity();
+                final double t1 = speed.y / g;
+                final double height = speed.y * speed.y / 2 / g;
+                final double downHeight = this.getY() + height - target.getY() - target.getBbHeight();
+                if (downHeight < 0) {
+                    return;
                 }
+                final double t2 = Math.sqrt(2 * downHeight / g);
+                final double dx = target.getX() + target.getDeltaMovement().x() * (t1 + t2) - this.getX();
+                final double dz = target.getZ() + target.getDeltaMovement().z() * (t1 + t2) - this.getZ();
+                final double dxz = Math.sqrt(dx * dx + dz * dz);
+                final double vxz = dxz / (t1 + t2);
+                if (dxz == 0) {
+                    this.setDeltaMovement(0, speed.y, 0);
+                } else {
+                    this.setDeltaMovement(vxz * dx / dxz, speed.y, vxz * dz / dxz);
+                }
+            } else{
+                //TODO 直线跟踪？
             }
         }
-        //on hit.
+        // on hit.
         HitResult hitresult = ProjectileUtil.getHitResult(this, this::canHitEntity);
         boolean flag = false;
         if (hitresult.getType() == HitResult.Type.BLOCK) {
@@ -144,15 +144,20 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
         //move.
         this.checkInsideBlocks();
         Vec3 vec3 = this.getDeltaMovement();
+        if (this.xRotO == 0.0F && this.yRotO == 0.0F) {
+            double d0 = vec3.horizontalDistance();
+            this.setYRot((float)(Mth.atan2(vec3.x, vec3.z) * (double)(180F / (float)Math.PI)));
+            this.setXRot((float)(Mth.atan2(vec3.y, d0) * (double)(180F / (float)Math.PI)));
+            this.yRotO = this.getYRot();
+            this.xRotO = this.getXRot();
+        }
         double d2 = this.getX() + vec3.x;
         double d0 = this.getY() + vec3.y;
         double d1 = this.getZ() + vec3.z;
         ProjectileUtil.rotateTowardsMovement(this, 0.2F);
         float f = this.getSettings().slowDown();
-        ;
         if (this.isInWater()) {
             for (int i = 0; i < 4; ++i) {
-                float f1 = 0.25F;
                 this.level.addParticle(ParticleTypes.BUBBLE, d2 - vec3.x * 0.25D, d0 - vec3.y * 0.25D, d1 - vec3.z * 0.25D, vec3.x, vec3.y, vec3.z);
             }
 
@@ -258,7 +263,7 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
                 final double limitY = tan * dxz;
                 dy = Mth.clamp(dy, -limitY, limitY);//fix dy by angle
             }
-            final Vec3 speed = MathUtil.rotate(new Vec3(dx, dy, dz), shootSettings.horizontalAngleOffset(), 0);
+            final Vec3 speed = MathHelper.rotate(new Vec3(dx, dy, dz), shootSettings.horizontalAngleOffset(), 0);
             this.setDeltaMovement(speed.normalize().scale(shootSettings.bulletSettings().bulletSpeed()));
         }
         this.summonBy(owner, shootSettings);
@@ -268,7 +273,7 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
         if (shootSettings.isParabola()) {
             this.pult(owner, shootSettings, owner);
         } else {
-            final Vec3 speed = MathUtil.rotate(vec, shootSettings.horizontalAngleOffset(), 0);
+            final Vec3 speed = MathHelper.rotate(vec, shootSettings.horizontalAngleOffset(), 0);
             this.setDeltaMovement(speed.normalize().scale(shootSettings.bulletSettings().bulletSpeed()));
         }
         this.summonBy(owner, shootSettings);
@@ -420,11 +425,24 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
 
     @Override
     public void registerControllers(AnimationData animationData) {
+        animationData.addAnimationController(new AnimationController<>(
+                this,
+                "controller",
+                0,
+                this::predicateAnimation
+        ));
+    }
 
+    protected PlayState predicateAnimation(AnimationEvent<?> event) {
+        final AnimationBuilder builder = new AnimationBuilder();
+        builder.addAnimation("idle", ILoopType.EDefaultLoopTypes.LOOP);
+        event.getController().setAnimation(builder);
+        return PlayState.CONTINUE;
     }
 
     @Override
     public AnimationFactory getFactory() {
         return factory;
     }
+
 }
