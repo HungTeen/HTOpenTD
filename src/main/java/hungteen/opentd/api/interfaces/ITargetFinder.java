@@ -18,11 +18,11 @@ import java.util.stream.Collectors;
  **/
 public interface ITargetFinder {
 
-    List<Entity> getTargets(Level level, Entity entity);
+    List<Entity> getTargets(ServerLevel level, Entity entity);
 
-    boolean stillValid(Level level, Entity entity, Entity target);
+    boolean stillValid(ServerLevel level, Entity entity, Entity target);
 
-    default List<LivingEntity> getLivings(Level level, Entity entity){
+    default List<LivingEntity> getLivings(ServerLevel level, Entity entity){
         return getTargets(level, entity).stream().filter(LivingEntity.class::isInstance).map(LivingEntity.class::cast).collect(Collectors.toList());
     }
 

@@ -1,7 +1,6 @@
 package hungteen.opentd.impl.requirement;
 
 import com.mojang.serialization.Codec;
-import hungteen.htlib.HTLib;
 import hungteen.htlib.common.registry.HTCodecRegistry;
 import hungteen.htlib.common.registry.HTRegistryManager;
 import hungteen.htlib.common.registry.HTSimpleRegistry;
@@ -10,7 +9,6 @@ import hungteen.opentd.api.interfaces.ISummonRequirement;
 import hungteen.opentd.api.interfaces.ISummonRequirementType;
 
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * @program: HTOpenTD
@@ -28,20 +26,15 @@ public class HTSummonRequirements {
     public static final ISummonRequirementType<ExperienceRequirement> EXPERIENCE_REQUIREMENT = new DefaultRequirement<>("experience",  ExperienceRequirement.CODEC);
     public static final ISummonRequirementType<BlockRequirement> BLOCK_REQUIREMENT = new DefaultRequirement<>("block",  BlockRequirement.CODEC);
     public static final ISummonRequirementType<EntityRequirement> ENTITY_REQUIREMENT = new DefaultRequirement<>("entity",  EntityRequirement.CODEC);
+    public static final ISummonRequirementType<AroundEntityRequirement> AROUND_ENTITY_REQUIREMENT = new DefaultRequirement<>("around_entity",  AroundEntityRequirement.CODEC);
 
     /* Requirement */
-
-//    public static final HTRegistryHolder<ISummonRequirement> DEFAULT = TowerMENTS.innerRegister(
-//            HTLib.prefix("default"), new CenterAreaTower(
-//                    Vec3.ZERO, 0, 1, true, 0, true
-//            )
-//    );
 
     /**
      * {@link OpenTD#OpenTD()}
      */
     public static void registerStuffs(){
-        Arrays.asList(NO_REQUIREMENT, EXPERIENCE_REQUIREMENT).forEach(HTSummonRequirements::registerTowerType);
+        Arrays.asList(NO_REQUIREMENT, EXPERIENCE_REQUIREMENT, BLOCK_REQUIREMENT, ENTITY_REQUIREMENT, AROUND_ENTITY_REQUIREMENT).forEach(HTSummonRequirements::registerTowerType);
     }
 
     public static void registerTowerType(ISummonRequirementType<?> type){

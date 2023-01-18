@@ -12,6 +12,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -217,7 +218,7 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
     }
 
     protected boolean shouldHit(Entity target) {
-        return (this.getSettings() == null || this.getSettings().targetFilter().match(this, target)) && !this.hitSet.contains(target.getId());
+        return (this.getSettings() == null || (level instanceof ServerLevel && this.getSettings().targetFilter().match((ServerLevel) level, this, target))) && !this.hitSet.contains(target.getId());
     }
 
     /**

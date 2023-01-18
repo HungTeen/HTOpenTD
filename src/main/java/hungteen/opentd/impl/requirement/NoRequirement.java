@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import hungteen.opentd.api.interfaces.ISummonRequirement;
 import hungteen.opentd.api.interfaces.ISummonRequirementType;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -24,17 +25,17 @@ public class NoRequirement implements ISummonRequirement {
     });
 
     @Override
-    public boolean allowOn(Level level, Player player, Entity entity) {
+    public boolean allowOn(ServerLevel level, Player player, Entity entity) {
         return true;
     }
 
     @Override
-    public boolean allowOn(Level level, Player player, BlockState state, BlockPos pos) {
+    public boolean allowOn(ServerLevel level, Player player, BlockState state, BlockPos pos) {
         return true;
     }
 
     @Override
-    public void consume(Level level, Player player) {
+    public void consume(ServerLevel level, Player player) {
 
     }
 

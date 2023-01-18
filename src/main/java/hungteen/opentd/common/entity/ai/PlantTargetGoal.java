@@ -6,6 +6,7 @@ import hungteen.htlib.util.helper.MathHelper;
 import hungteen.htlib.util.helper.RandomHelper;
 import hungteen.opentd.common.entity.PlantEntity;
 import hungteen.opentd.impl.tower.PVZPlantComponent;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
 
@@ -38,7 +39,7 @@ public class PlantTargetGoal extends Goal {
         if (this.plantEntity.getRandom().nextFloat() < this.targetSettings.chance()) {
             return false;
         }
-        List<LivingEntity> targets = this.targetSettings.targetFinder().getLivings(this.plantEntity.level, this.plantEntity);
+        List<LivingEntity> targets = this.targetSettings.targetFinder().getLivings((ServerLevel) this.plantEntity.level, this.plantEntity);
         final LivingEntity target = this.chooseTarget(targets);
         if (target != null) {
             this.targetMob = target;
@@ -69,7 +70,7 @@ public class PlantTargetGoal extends Goal {
             return false;
         }
         //already out range.
-        if (this.targetSettings.targetFinder().stillValid(this.plantEntity.level, this.plantEntity, entity)) {
+        if (this.targetSettings.targetFinder().stillValid((ServerLevel) this.plantEntity.level, this.plantEntity, entity)) {
             if(this.refreshTick < this.plantEntity.level.getGameTime()){
                 return false;
             }

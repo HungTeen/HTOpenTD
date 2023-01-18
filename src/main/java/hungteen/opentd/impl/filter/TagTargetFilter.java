@@ -5,6 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import hungteen.opentd.api.interfaces.ITargetFilter;
 import hungteen.opentd.api.interfaces.ITargetFilterType;
 import net.minecraft.core.Registry;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -21,7 +22,7 @@ public record TagTargetFilter(TagKey<EntityType<?>> entityTag) implements ITarge
     ).apply(instance, TagTargetFilter::new)).codec();
 
     @Override
-    public boolean match(Entity owner, Entity target) {
+    public boolean match(ServerLevel level, Entity owner, Entity target) {
         return target.getType().is(this.entityTag());
     }
 

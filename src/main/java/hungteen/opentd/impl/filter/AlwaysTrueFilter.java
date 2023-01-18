@@ -1,7 +1,10 @@
 package hungteen.opentd.impl.filter;
 
+import com.mojang.serialization.Codec;
 import hungteen.opentd.api.interfaces.ITargetFilter;
 import hungteen.opentd.api.interfaces.ITargetFilterType;
+import hungteen.opentd.impl.requirement.NoRequirement;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 
 /**
@@ -11,15 +14,19 @@ import net.minecraft.world.entity.Entity;
  **/
 public class AlwaysTrueFilter implements ITargetFilter {
 
-//    public static final Codec<AlwaysTrueFilter> CODEC = RecordCodecBuild.apply(instance, AlwaysTrueFilter::new)).codec();
+    public static final AlwaysTrueFilter INSTANCE = new AlwaysTrueFilter();
+
+    public static final Codec<AlwaysTrueFilter> CODEC = Codec.unit(() -> {
+        return AlwaysTrueFilter.INSTANCE;
+    });
 
     @Override
-    public boolean match(Entity owner, Entity target) {
+    public boolean match(ServerLevel level, Entity owner, Entity target) {
         return true;
     }
 
     @Override
     public ITargetFilterType<?> getType() {
-        return null;
+        return HTTargetFilters.ALWAYS_TRUE;
     }
 }

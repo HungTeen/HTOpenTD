@@ -7,6 +7,7 @@ import hungteen.opentd.api.interfaces.ITargetFinder;
 import hungteen.opentd.api.interfaces.ITargetFinderType;
 import hungteen.opentd.impl.filter.HTTargetFilters;
 import hungteen.opentd.impl.tower.PVZPlantComponent;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -32,8 +33,8 @@ public record RangeFinder(boolean checkSight, float width, float height, ITarget
     ).apply(instance, RangeFinder::new)).codec();
 
     @Override
-    public List<Entity> getTargets(Level level, Entity entity) {
-        return level.getEntitiesOfClass(Entity.class, getAABB(entity)).stream().filter(l -> this.targetFilter().match(entity, l)).filter(l -> this.checkTarget(entity, l)).collect(Collectors.toList());
+    public List<Entity> getTargets(ServerLevel level, Entity entity) {
+        return level.getEntitiesOfClass(Entity.class, getAABB(entity)).stream().filter(l -> this.targetFilter().match(level, entity, l)).filter(l -> this.checkTarget(entity, l)).collect(Collectors.toList());
     }
 
     private boolean checkTarget(Entity entity, Entity target) {
@@ -44,7 +45,7 @@ public record RangeFinder(boolean checkSight, float width, float height, ITarget
     }
 
     @Override
-    public boolean stillValid(Level level, Entity entity, Entity target) {
+    public boolean stillValid(ServerLevel level, Entity entity, Entity target) {
         return Math.abs(entity.getX() - target.getX()) <= this.width()
                 && Math.abs(entity.getZ() - target.getZ()) <= this.width()
                 && Math.abs(entity.getY() - target.getY()) <= this.height() && checkTarget(entity, target);

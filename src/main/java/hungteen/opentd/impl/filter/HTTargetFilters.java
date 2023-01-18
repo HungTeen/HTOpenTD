@@ -26,8 +26,9 @@ public class HTTargetFilters {
     public static final ITargetFilterType<OrTargetFilter> OR_FILTER = new DefaultFilter<>("or",  OrTargetFilter.CODEC);
     public static final ITargetFilterType<TypeTargetFilter> TYPE_FILTER = new DefaultFilter<>("types",  TypeTargetFilter.CODEC);
     public static final ITargetFilterType<AndTargetFilter> AND_FILTER = new DefaultFilter<>("and",  AndTargetFilter.CODEC);
-
-    //    public static final ITargetFilterType<AlwaysTrueFilter> ALWAYS_TRUE = new DefaultFilter<>("always_true",  Codec.EMPTY);
+    public static final ITargetFilterType<EntityPredicateFilter> ENTITY_PREDICATE_FILTER = new DefaultFilter<>("entity_predicate",  EntityPredicateFilter.CODEC);
+    public static final ITargetFilterType<AlwaysTrueFilter> ALWAYS_TRUE = new DefaultFilter<>("true",  AlwaysTrueFilter.CODEC);
+    public static final ITargetFilterType<NotTargetFilter> NOT_FILTER = new DefaultFilter<>("not",  NotTargetFilter.CODEC);
 
     /* Towers */
 
@@ -46,7 +47,7 @@ public class HTTargetFilters {
      * {@link OpenTD#OpenTD()}
      */
     public static void registerStuffs(){
-        Arrays.asList(TAG_FILTER, TYPE_FILTER, OR_FILTER).forEach(HTTargetFilters::registerFilterType);
+        Arrays.asList(TAG_FILTER, TYPE_FILTER, OR_FILTER, AND_FILTER, ENTITY_PREDICATE_FILTER, ALWAYS_TRUE, NOT_FILTER).forEach(HTTargetFilters::registerFilterType);
     }
 
     public static void registerFilterType(ITargetFilterType<?> type){

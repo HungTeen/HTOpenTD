@@ -80,7 +80,7 @@ public class SummonTowerItem extends Item {
             }
 
             if (level.mayInteract(player, blockpos) && player.mayUseItemAt(blockpos, hitResult.getDirection(), itemStack)) {
-                if (Level.isInSpawnableBounds(blockpos) && canPlace(level, player, itemStack, state, blockpos)) {
+                if (Level.isInSpawnableBounds(blockpos) && canPlace((ServerLevel) level, player, itemStack, state, blockpos)) {
                     Entity entity = getTowerSettings(itemStack).createEntity((ServerLevel) level, player, itemStack, blockpos);
                     if (entity == null) {
                         return InteractionResultHolder.pass(itemStack);
@@ -101,7 +101,7 @@ public class SummonTowerItem extends Item {
                 && event.getItemStack().getItem() instanceof SummonTowerItem
                 && ! PlayerUtil.isOnCooldown(event.getEntity(), event.getItemStack())
                 && Level.isInSpawnableBounds(event.getTarget().blockPosition())
-                && ((SummonTowerItem) event.getItemStack().getItem()).canPlace(event.getLevel(), event.getEntity(), event.getItemStack(), event.getTarget())) {
+                && ((SummonTowerItem) event.getItemStack().getItem()).canPlace((ServerLevel) event.getLevel(), event.getEntity(), event.getItemStack(), event.getTarget())) {
             Entity entity = getTowerSettings(event.getItemStack()).createEntity((ServerLevel) event.getLevel(), event.getEntity(), event.getItemStack(), event.getTarget().blockPosition());
             if (entity != null) {
                 //TODO 骑乘
@@ -130,12 +130,12 @@ public class SummonTowerItem extends Item {
         level.gameEvent(player, GameEvent.ENTITY_PLACE, entity.position());
     }
 
-    public boolean canPlace(Level level, Player player, ItemStack stack, Entity entity){
+    public boolean canPlace(ServerLevel level, Player player, ItemStack stack, Entity entity){
         return getItemSettings(stack).requirements().stream()
                 .allMatch(r -> r.allowOn(level, player, entity));
     }
 
-    public boolean canPlace(Level level, Player player, ItemStack stack, BlockState state, BlockPos pos){
+    public boolean canPlace(ServerLevel level, Player player, ItemStack stack, BlockState state, BlockPos pos){
         return getItemSettings(stack).requirements().stream()
                 .allMatch(r -> r.allowOn(level, player, state, pos));
     }

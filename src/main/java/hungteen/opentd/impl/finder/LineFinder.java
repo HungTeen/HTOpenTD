@@ -9,6 +9,7 @@ import hungteen.opentd.api.interfaces.ITargetFinder;
 import hungteen.opentd.api.interfaces.ITargetFinderType;
 import hungteen.opentd.impl.filter.HTTargetFilters;
 import hungteen.opentd.util.EntityUtil;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
@@ -33,10 +34,10 @@ public record LineFinder(float horizontalDegree, float verticalDegree, float len
     ).apply(instance, LineFinder::new)).codec();
 
     @Override
-    public List<Entity> getTargets(Level level, Entity entity) {
+    public List<Entity> getTargets(ServerLevel level, Entity entity) {
         final Vec3 direction = MathHelper.rotate(entity.getViewVector(1F), horizontalDegree(), verticalDegree());
         final EntityHitResult entityRay = EntityHelper.rayTraceEntities(level, entity, direction, length, (target) -> {
-            return this.targetFilter().match(entity, target);
+            return this.targetFilter().match(level, entity, target);
         });
         if(entityRay != null && entityRay.getType() == HitResult.Type.ENTITY) {
             return Arrays.asList(entityRay.getEntity());
@@ -45,7 +46,7 @@ public record LineFinder(float horizontalDegree, float verticalDegree, float len
     }
 
     @Override
-    public boolean stillValid(Level level, Entity entity, Entity target) {
+    public boolean stillValid(ServerLevel level, Entity entity, Entity target) {
         return getTargets(level, entity).contains(target);
     }
 

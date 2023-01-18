@@ -1,5 +1,6 @@
 package hungteen.opentd.api.interfaces;
 
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.PathfinderMob;
@@ -11,7 +12,7 @@ import net.minecraft.world.entity.PathfinderMob;
  **/
 public interface ITargetFilter {
 
-    boolean match(Entity owner, Entity target);
+    boolean match(ServerLevel level, Entity owner, Entity target);
 
     /**
      * Get the type of filter.

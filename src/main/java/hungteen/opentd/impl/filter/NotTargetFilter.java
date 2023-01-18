@@ -14,19 +14,19 @@ import java.util.List;
  * @author: HungTeen
  * @create: 2022-12-17 18:14
  **/
-public record AndTargetFilter(List<ITargetFilter> filters) implements ITargetFilter {
+public record NotTargetFilter(ITargetFilter filter) implements ITargetFilter {
 
-    public static final Codec<AndTargetFilter> CODEC = RecordCodecBuilder.<AndTargetFilter>mapCodec(instance -> instance.group(
-            HTTargetFilters.getCodec().listOf().fieldOf("filters").forGetter(AndTargetFilter::filters)
-    ).apply(instance, AndTargetFilter::new)).codec();
+    public static final Codec<NotTargetFilter> CODEC = RecordCodecBuilder.<NotTargetFilter>mapCodec(instance -> instance.group(
+            HTTargetFilters.getCodec().fieldOf("filter").forGetter(NotTargetFilter::filter)
+    ).apply(instance, NotTargetFilter::new)).codec();
 
     @Override
     public boolean match(ServerLevel level, Entity owner, Entity target) {
-        return this.filters().stream().allMatch(l -> l.match(level, owner, target));
+        return ! this.filter().match(level, owner, target);
     }
 
     @Override
     public ITargetFilterType<?> getType() {
-        return HTTargetFilters.AND_FILTER;
+        return HTTargetFilters.NOT_FILTER;
     }
 }

@@ -1,5 +1,6 @@
 package hungteen.opentd.impl.tower;
 
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import hungteen.htlib.util.helper.ParticleHelper;
@@ -13,10 +14,8 @@ import hungteen.opentd.impl.effect.HTEffectComponents;
 import hungteen.opentd.impl.filter.HTTargetFilters;
 import hungteen.opentd.impl.finder.HTTargetFinders;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
@@ -36,7 +35,6 @@ import net.minecraftforge.registries.ForgeRegistries;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 
 /**
  * @program: HTOpenTD
@@ -47,7 +45,7 @@ public record PVZPlantComponent(PlantSettings plantSetting, List<TargetSetting> 
                                 Optional<ShootGoalSetting> shootGoalSetting,
                                 Optional<GenGoalSetting> genGoalSetting,
                                 Optional<AttackGoalSetting> attackGoalSetting,
-                                Optional<InstantEffectSetting> instantEffectSetting,
+                                Optional<CloseInstantEffectSetting> instantEffectSetting,
                                 List<ConstantAffectSetting> constantAffectSettings,
                                 List<EffectTargetSetting> hurtSettings,
                                 List<EffectTargetSetting> dieSettings) implements ITowerComponent {
@@ -58,7 +56,7 @@ public record PVZPlantComponent(PlantSettings plantSetting, List<TargetSetting> 
             Codec.optionalField("shoot_goal", ShootGoalSetting.CODEC).forGetter(PVZPlantComponent::shootGoalSetting),
             Codec.optionalField("gen_goal", GenGoalSetting.CODEC).forGetter(PVZPlantComponent::genGoalSetting),
             Codec.optionalField("attack_goal", AttackGoalSetting.CODEC).forGetter(PVZPlantComponent::attackGoalSetting),
-            Codec.optionalField("instant_setting", InstantEffectSetting.CODEC).forGetter(PVZPlantComponent::instantEffectSetting),
+            Codec.optionalField("instant_setting", CloseInstantEffectSetting.CODEC).forGetter(PVZPlantComponent::instantEffectSetting),
             ConstantAffectSetting.CODEC.listOf().optionalFieldOf("constant_settings", Arrays.asList()).forGetter(PVZPlantComponent::constantAffectSettings),
             EffectTargetSetting.CODEC.listOf().optionalFieldOf("hurt_settings", Arrays.asList()).forGetter(PVZPlantComponent::hurtSettings),
             EffectTargetSetting.CODEC.listOf().optionalFieldOf("die_settings", Arrays.asList()).forGetter(PVZPlantComponent::dieSettings)
@@ -108,24 +106,30 @@ public record PVZPlantComponent(PlantSettings plantSetting, List<TargetSetting> 
         ).apply(instance, RenderSettings::new)).codec();
     }
 
-    public record PlantSettings(CompoundTag extraNBT, GrowSettings growSetting, boolean changeDirection, boolean pushable, RenderSettings renderSetting) {
+    public record PlantSettings(CompoundTag extraNBT, GrowSettings growSetting, ResourceLocation id, int maxExistTick, boolean changeDirection, boolean pushable, RenderSettings renderSetting) {
 
         public static final Codec<PlantSettings> CODEC = RecordCodecBuilder.<PlantSettings>mapCodec(instance -> instance.group(
                 CompoundTag.CODEC.optionalFieldOf("extra_nbt", new CompoundTag()).forGetter(PlantSettings::extraNBT),
                 GrowSettings.CODEC.optionalFieldOf("grow_setting", GrowSettings.DEFAULT).forGetter(PlantSettings::growSetting),
+                ResourceLocation.CODEC.fieldOf("id").forGetter(PlantSettings::id),
+                Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("max_exist_tick", 0).forGetter(PlantSettings::maxExistTick),
                 Codec.BOOL.optionalFieldOf("change_direction", true).forGetter(PlantSettings::changeDirection),
                 Codec.BOOL.optionalFieldOf("pushable", false).forGetter(PlantSettings::pushable),
                 RenderSettings.CODEC.fieldOf("render_setting").forGetter(PlantSettings::renderSetting)
         ).apply(instance, PlantSettings::new)).codec();
     }
 
-    public record GrowSettings(List<Float> scales, List<Integer> growDurations, Optional<SoundEvent> growSound) {
-        public static final GrowSettings DEFAULT = new GrowSettings(Arrays.asList(1F), Arrays.asList(), Optional.empty());
+    public record GrowSettings(List<Float> scales, List<Integer> growDurations, Optional<SoundEvent> growSound, List<Pair<IEffectComponent, Integer>> growEffects) {
+        public static final GrowSettings DEFAULT = new GrowSettings(Arrays.asList(1F), Arrays.asList(), Optional.empty(), Arrays.asList());
 
         public static final Codec<GrowSettings> CODEC = RecordCodecBuilder.<GrowSettings>mapCodec(instance -> instance.group(
                 Codec.floatRange(0, Float.MAX_VALUE).listOf().fieldOf("scales").forGetter(GrowSettings::scales),
                 Codec.intRange(0, Integer.MAX_VALUE).listOf().fieldOf("grow_durations").forGetter(GrowSettings::growDurations),
-                Codec.optionalField("grow_sound", SoundEvent.CODEC).forGetter(GrowSettings::growSound)
+                Codec.optionalField("grow_sound", SoundEvent.CODEC).forGetter(GrowSettings::growSound),
+                Codec.mapPair(
+                        HTEffectComponents.getCodec().fieldOf("effect"),
+                        Codec.intRange(0, Integer.MAX_VALUE).fieldOf("age")
+                ).codec().listOf().fieldOf("grow_effects").forGetter(GrowSettings::growEffects)
         ).apply(instance, GrowSettings::new)).codec();
 
         public int getMaxAge() {
@@ -235,15 +239,14 @@ public record PVZPlantComponent(PlantSettings plantSetting, List<TargetSetting> 
         ).apply(instance, AttackGoalSetting::new)).codec();
     }
 
-    public record InstantEffectSetting(boolean needClose, double closeRange, int finalAge, ITargetFilter targetFilter, Optional<SoundEvent> instantSound, List<IEffectComponent> effects) {
-        public static final Codec<InstantEffectSetting> CODEC = RecordCodecBuilder.<InstantEffectSetting>mapCodec(instance -> instance.group(
-                Codec.BOOL.optionalFieldOf("need_close", false).forGetter(InstantEffectSetting::needClose),
-                Codec.doubleRange(0, Double.MAX_VALUE).optionalFieldOf("close_range", 3D).forGetter(InstantEffectSetting::closeRange),
-                Codec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("final_age", 2).forGetter(InstantEffectSetting::finalAge),
-                HTTargetFilters.getCodec().fieldOf("target_filter").forGetter(InstantEffectSetting::targetFilter),
-                Codec.optionalField("instant_sound", SoundEvent.CODEC).forGetter(InstantEffectSetting::instantSound),
-                HTEffectComponents.getCodec().listOf().fieldOf("effects").forGetter(InstantEffectSetting::effects)
-        ).apply(instance, InstantEffectSetting::new)).codec();
+    public record CloseInstantEffectSetting(double closeRange, int instantTick, ITargetFilter targetFilter, Optional<SoundEvent> instantSound, List<IEffectComponent> effects) {
+        public static final Codec<CloseInstantEffectSetting> CODEC = RecordCodecBuilder.<CloseInstantEffectSetting>mapCodec(instance -> instance.group(
+                Codec.doubleRange(0, Double.MAX_VALUE).optionalFieldOf("close_range", 3D).forGetter(CloseInstantEffectSetting::closeRange),
+                Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("instant_tick", 30).forGetter(CloseInstantEffectSetting::instantTick),
+                HTTargetFilters.getCodec().fieldOf("target_filter").forGetter(CloseInstantEffectSetting::targetFilter),
+                Codec.optionalField("instant_sound", SoundEvent.CODEC).forGetter(CloseInstantEffectSetting::instantSound),
+                HTEffectComponents.getCodec().listOf().fieldOf("effects").forGetter(CloseInstantEffectSetting::effects)
+        ).apply(instance, CloseInstantEffectSetting::new)).codec();
     }
 
     public record ConstantAffectSetting(int cd, ITargetFinder targetFinder, List<EffectTargetSetting> effectSettings) {

@@ -9,6 +9,7 @@ import hungteen.opentd.api.interfaces.ITargetFilter;
 import hungteen.opentd.impl.filter.HTTargetFilters;
 import hungteen.opentd.util.EntityUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 
 import java.util.Arrays;
@@ -40,11 +41,14 @@ public record SplashEffectComponent(double radius, double height, boolean isCirc
     }
 
     private void effect(Entity attacker){
-        EntityHelper.getPredicateEntities(attacker, EntityHelper.getEntityAABB(attacker, radius(), height()), Entity.class, l -> {
-            return filter().match(attacker, l);
-        }).forEach(target -> {
-            effects().forEach(effect -> effect.effectTo(attacker, target));
-        });
+        if(attacker.level instanceof ServerLevel){
+            EntityHelper.getPredicateEntities(attacker, EntityHelper.getEntityAABB(attacker, radius(), height()), Entity.class, l -> {
+                return filter().match((ServerLevel) attacker.level, attacker, l);
+            }).forEach(target -> {
+                effects().forEach(effect -> effect.effectTo(attacker, target));
+            });
+        }
+
     }
 
     @Override

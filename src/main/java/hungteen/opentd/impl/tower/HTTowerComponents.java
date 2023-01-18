@@ -9,7 +9,9 @@ import hungteen.opentd.OpenTD;
 import hungteen.opentd.api.interfaces.ITowerComponent;
 import hungteen.opentd.api.interfaces.ITowerComponentType;
 import hungteen.opentd.impl.effect.DamageEffectComponent;
+import hungteen.opentd.impl.effect.NBTEffectComponent;
 import hungteen.opentd.impl.effect.SplashEffectComponent;
+import hungteen.opentd.impl.effect.SummonEffectComponent;
 import hungteen.opentd.impl.filter.OrTargetFilter;
 import hungteen.opentd.impl.filter.TagTargetFilter;
 import hungteen.opentd.impl.filter.TypeTargetFilter;
@@ -18,7 +20,9 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.EntityTypeTags;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Arrays;
@@ -45,7 +49,7 @@ public class HTTowerComponents {
                     new PVZPlantComponent.PlantSettings(
                             new CompoundTag(),
                             PVZPlantComponent.GrowSettings.DEFAULT,
-                            true, false,
+                            OpenTD.prefix("pea_shooter_test"), 0, true, false,
                             PVZPlantComponent.RenderSettings.DEFAULT
                     ),
                     Arrays.asList(new PVZPlantComponent.TargetSetting(
@@ -97,10 +101,12 @@ public class HTTowerComponents {
                                             new PVZPlantComponent.BulletSettings(
                                                     new TypeTargetFilter(Arrays.asList(EntityType.CREEPER)),
                                                     Arrays.asList(
-                                                            new DamageEffectComponent(5F),
-                                                            new SplashEffectComponent(5, 5, true, new OrTargetFilter(Arrays.asList()), Arrays.asList(new DamageEffectComponent(2F)))
+                                                            new DamageEffectComponent(false, 5F),
+                                                            new SplashEffectComponent(5, 5, true, new OrTargetFilter(Arrays.asList()), Arrays.asList(new DamageEffectComponent(false, 2F))),
+                                                            new NBTEffectComponent(get(), false),
+                                                            new SummonEffectComponent(3, 5, true, true, EntityType.EXPERIENCE_ORB, new CompoundTag())
                                                     ),
-                                                    0.1F, 1, 300, 0.0001F, 0.99999F, false, false,
+                                                    1F, 1, 300, 0.0001F, 0.99999F, false, false,
                                                     PVZPlantComponent.RenderSettings.make(0.5F, 0.5F, 0.6F, "pea_shooter"),
                                                     Optional.empty(),
                                                     Optional.of(
@@ -126,7 +132,7 @@ public class HTTowerComponents {
                     new PVZPlantComponent.PlantSettings(
                             new CompoundTag(),
                             PVZPlantComponent.GrowSettings.DEFAULT,
-                            false, false,
+                            OpenTD.prefix("pea_shooter_test"), 200, false, false,
                             PVZPlantComponent.RenderSettings.make(0.8F, 1F, 1F, "sun_flower")
                     ),
                     Arrays.asList(),
@@ -149,6 +155,12 @@ public class HTTowerComponents {
                     Arrays.asList()
             )
     );
+
+    private static CompoundTag get(){
+        CompoundTag tag = new CompoundTag();
+        tag.putShort("Fire", (short) 100);
+        return tag;
+    }
 
     /**
      * {@link OpenTD#OpenTD()}

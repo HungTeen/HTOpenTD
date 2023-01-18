@@ -8,6 +8,7 @@ import hungteen.opentd.api.interfaces.ITargetFilter;
 import hungteen.opentd.common.entity.BulletEntity;
 import hungteen.opentd.impl.filter.HTTargetFilters;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -28,8 +29,8 @@ public record AttractEffectComponent(Optional<ITargetFilter> attractFilter) impl
 
     @Override
     public void effectTo(Entity owner, Entity entity) {
-        if(entity instanceof Mob && owner instanceof LivingEntity){
-            if(((Mob)entity).getTarget() == null || ! attractFilter().isPresent() || attractFilter().get().match(owner, ((Mob)entity).getTarget())){
+        if(entity instanceof Mob && owner instanceof LivingEntity && owner.level instanceof ServerLevel){
+            if(((Mob)entity).getTarget() == null || ! attractFilter().isPresent() || attractFilter().get().match((ServerLevel) owner.level, owner, ((Mob)entity).getTarget())){
                 ((Mob)entity).setTarget((LivingEntity) owner);
             }
         }

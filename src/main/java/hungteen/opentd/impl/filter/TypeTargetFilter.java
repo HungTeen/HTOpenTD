@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import hungteen.opentd.api.interfaces.ITargetFilter;
 import hungteen.opentd.api.interfaces.ITargetFilterType;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -22,7 +23,7 @@ public record TypeTargetFilter(List<EntityType<?>> types) implements ITargetFilt
     ).apply(instance, TypeTargetFilter::new)).codec();
 
     @Override
-    public boolean match(Entity owner, Entity target) {
+    public boolean match(ServerLevel level, Entity owner, Entity target) {
         return this.types().stream().anyMatch(l -> l.equals(target.getType()));
     }
 
