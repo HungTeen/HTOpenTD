@@ -1,6 +1,6 @@
 package hungteen.opentd.common.network;
 
-import hungteen.htlib.client.ClientProxy;
+import hungteen.htlib.HTLib;
 import hungteen.opentd.util.PlayerUtil;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -45,7 +45,7 @@ public class CDPacket {
         public static void onMessage(CDPacket message, Supplier<NetworkEvent.Context> ctx) {
             ctx.get().enqueueWork(()->{
                 final ResourceLocation location = new ResourceLocation(message.id);
-                PlayerUtil.getOptManager(ClientProxy.MC.player).ifPresent(l -> {
+                PlayerUtil.getOptManager(HTLib.PROXY.getPlayer()).ifPresent(l -> {
                     l.setSummonItemCD(location, message.cd);
                     l.setSummonItemPT(location, message.pt);
                 });

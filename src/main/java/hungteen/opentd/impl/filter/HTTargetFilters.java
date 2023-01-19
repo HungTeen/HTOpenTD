@@ -7,6 +7,7 @@ import hungteen.htlib.common.registry.HTSimpleRegistry;
 import hungteen.opentd.OpenTD;
 import hungteen.opentd.api.interfaces.ITargetFilter;
 import hungteen.opentd.api.interfaces.ITargetFilterType;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
 import java.util.Arrays;
 
@@ -29,6 +30,7 @@ public class HTTargetFilters {
     public static final ITargetFilterType<EntityPredicateFilter> ENTITY_PREDICATE_FILTER = new DefaultFilter<>("entity_predicate",  EntityPredicateFilter.CODEC);
     public static final ITargetFilterType<AlwaysTrueFilter> ALWAYS_TRUE = new DefaultFilter<>("true",  AlwaysTrueFilter.CODEC);
     public static final ITargetFilterType<NotTargetFilter> NOT_FILTER = new DefaultFilter<>("not",  NotTargetFilter.CODEC);
+    public static final ITargetFilterType<ClassFilter> CLASS_FILTER = new DefaultFilter<>("class",  ClassFilter.CODEC);
 
     /* Towers */
 
@@ -44,10 +46,10 @@ public class HTTargetFilters {
 //    );
 
     /**
-     * {@link OpenTD#OpenTD()}
+     * {@link OpenTD#setUp(FMLCommonSetupEvent)} ()}
      */
     public static void registerStuffs(){
-        Arrays.asList(TAG_FILTER, TYPE_FILTER, OR_FILTER, AND_FILTER, ENTITY_PREDICATE_FILTER, ALWAYS_TRUE, NOT_FILTER).forEach(HTTargetFilters::registerFilterType);
+        Arrays.asList(TAG_FILTER, TYPE_FILTER, OR_FILTER, AND_FILTER, ENTITY_PREDICATE_FILTER, ALWAYS_TRUE, NOT_FILTER, CLASS_FILTER).forEach(HTTargetFilters::registerFilterType);
     }
 
     public static void registerFilterType(ITargetFilterType<?> type){

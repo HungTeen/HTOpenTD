@@ -46,6 +46,6 @@ public record ExplosionEffectComponent(boolean canBreak, boolean destroyMode, fl
 
     @Override
     public IEffectComponentType<?> getType() {
-        return null;
+        return HTEffectComponents.EXPLOSION_EFFECT;
     }
 }

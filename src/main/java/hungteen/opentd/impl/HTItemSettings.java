@@ -7,7 +7,12 @@ import hungteen.htlib.common.registry.HTRegistryHolder;
 import hungteen.htlib.common.registry.HTRegistryManager;
 import hungteen.opentd.OpenTD;
 import hungteen.opentd.api.interfaces.ISummonRequirement;
+import hungteen.opentd.impl.filter.EntityPredicateFilter;
+import hungteen.opentd.impl.requirement.AroundEntityRequirement;
 import hungteen.opentd.impl.requirement.HTSummonRequirements;
+import net.minecraft.advancements.critereon.EntityPredicate;
+import net.minecraft.advancements.critereon.NbtPredicate;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
@@ -31,13 +36,27 @@ public class HTItemSettings {
 
     public static final HTRegistryHolder<ItemSetting> PEA_SHOOTER = SUMMON_ITEMS.innerRegister(
             OpenTD.prefix("pea_shooter"),
-            new Builder().model(OpenTD.prefix("pea_shooter_card")).card().build()
+            new Builder().model(OpenTD.prefix("pea_shooter_card")).card().requirement(new AroundEntityRequirement(3, 3, 1, 10, Optional.empty(), new EntityPredicateFilter(EntityPredicate.ANY, EntityPredicate.Builder.entity().nbt(new NbtPredicate(get())).build()))).build()
     );
 
     public static final HTRegistryHolder<ItemSetting> SUN_FLOWER = SUMMON_ITEMS.innerRegister(
             OpenTD.prefix("sun_flower"),
             new Builder().model(OpenTD.prefix("sun_flower_card")).card().build()
     );
+
+    private static CompoundTag get(){
+        CompoundTag tag = new CompoundTag();
+        {
+            CompoundTag tmp = new CompoundTag();
+            {
+                CompoundTag tmp1 = new CompoundTag();
+                tmp1.putString("id", OpenTD.prefix("sun_flower_test").toString());
+                tmp.put("plant_setting", tmp1);
+            }
+            tag.put("ComponentTag", tmp);
+        }
+        return tag;
+    }
 
     /**
      * {@link OpenTD#setUp(FMLCommonSetupEvent)} ()}
@@ -85,6 +104,11 @@ public class HTItemSettings {
 
         public Builder texts(List<String> textComponents){
             this.textComponents = textComponents;
+            return this;
+        }
+
+        public Builder requirement(ISummonRequirement requirement){
+            this.requirements.add(requirement);
             return this;
         }
 

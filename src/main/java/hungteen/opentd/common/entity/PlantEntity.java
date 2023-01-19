@@ -569,7 +569,7 @@ public class PlantEntity extends TowerEntity {
         if (tag.contains("ComponentTag")) {
             this.componentTag = tag.getCompound("ComponentTag");
         }
-        // TODO 专门用于NBT召唤特定植物。
+        // 专门用于NBT召唤特定植物。
         if (tag.contains("ComponentLocation")) {
             final ResourceLocation location = new ResourceLocation(tag.getString("ComponentLocation"));
             HTTowerComponents.TOWERS.getValue(location).ifPresent(l -> {
@@ -580,6 +580,8 @@ public class PlantEntity extends TowerEntity {
                 }
             });
         }
+        // Refresh component when tag changed.
+        this.getComponent();
         if (tag.contains("CreatureAge")) {
             this.setAge(tag.getInt("CreatureAge"));
         }

@@ -6,6 +6,7 @@ import hungteen.opentd.api.interfaces.IEffectComponent;
 import hungteen.opentd.api.interfaces.IEffectComponentType;
 import hungteen.opentd.api.interfaces.ITargetFilter;
 import hungteen.opentd.common.entity.BulletEntity;
+import hungteen.opentd.impl.filter.AlwaysTrueFilter;
 import hungteen.opentd.impl.filter.HTTargetFilters;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -21,15 +22,21 @@ import java.util.Optional;
  * @author: HungTeen
  * @create: 2023-01-11 20:00
  **/
-public record AttractEffectComponent(Optional<ITargetFilter> attractFilter) implements IEffectComponent {
+public record AttractEffectComponent(ITargetFilter targetFilter, Optional<ITargetFilter> attractFilter) implements IEffectComponent {
 
     public static final Codec<AttractEffectComponent> CODEC = RecordCodecBuilder.<AttractEffectComponent>mapCodec(instance -> instance.group(
+            HTTargetFilters.getCodec().optionalFieldOf("target_filter", AlwaysTrueFilter.INSTANCE).forGetter(AttractEffectComponent::targetFilter),
             Codec.optionalField("attract_filter", HTTargetFilters.getCodec()).forGetter(AttractEffectComponent::attractFilter)
     ).apply(instance, AttractEffectComponent::new)).codec();
 
     @Override
     public void effectTo(Entity owner, Entity entity) {
         if(entity instanceof Mob && owner instanceof LivingEntity && owner.level instanceof ServerLevel){
+            // Target not match.
+            if(! targetFilter().match((ServerLevel) owner.level, owner, entity)){
+                return;
+            }
+            // Match target's target.
             if(((Mob)entity).getTarget() == null || ! attractFilter().isPresent() || attractFilter().get().match((ServerLevel) owner.level, owner, ((Mob)entity).getTarget())){
                 ((Mob)entity).setTarget((LivingEntity) owner);
             }

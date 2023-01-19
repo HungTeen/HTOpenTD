@@ -8,6 +8,7 @@ import hungteen.htlib.impl.raid.HTRaidComponents;
 import hungteen.opentd.OpenTD;
 import hungteen.opentd.impl.HTSummonItems;
 import hungteen.opentd.impl.effect.HTEffectComponents;
+import hungteen.opentd.impl.filter.ClassFilter;
 import hungteen.opentd.impl.filter.HTTargetFilters;
 import hungteen.opentd.impl.finder.HTTargetFinders;
 import hungteen.opentd.impl.requirement.HTSummonRequirements;
@@ -28,6 +29,7 @@ public class OpenTDTestGen extends HTCodecGen {
     }
 
     public void run(CachedOutput cache) {
+        ClassFilter.registerClassifiers();
         HTTowerComponents.registerStuffs();
         HTSummonRequirements.registerStuffs();
         HTEffectComponents.registerStuffs();
