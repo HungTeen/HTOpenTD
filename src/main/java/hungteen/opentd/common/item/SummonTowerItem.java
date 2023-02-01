@@ -1,6 +1,8 @@
 package hungteen.opentd.common.item;
 
 import hungteen.opentd.api.interfaces.ITowerComponent;
+import hungteen.opentd.common.event.events.PostSummonTowerEvent;
+import hungteen.opentd.common.event.events.SummonTowerEvent;
 import hungteen.opentd.impl.HTItemSettings;
 import hungteen.opentd.impl.HTSummonItems;
 import hungteen.opentd.impl.tower.HTTowerComponents;
@@ -14,9 +16,13 @@ import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -25,6 +31,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,7 +49,6 @@ public class SummonTowerItem extends Item {
     private static final Predicate<Entity> ENTITY_PREDICATE = EntitySelector.NO_SPECTATORS.and(Entity::isPickable);
     private static final String SUMMON_TAG = "SummonEntry";
     public static final String ENTITY_TAG = "EntityTag";
-
 
     public SummonTowerItem() {
         super(new Properties());
@@ -81,12 +87,16 @@ public class SummonTowerItem extends Item {
 
             if (level.mayInteract(player, blockpos) && player.mayUseItemAt(blockpos, hitResult.getDirection(), itemStack)) {
                 if (Level.isInSpawnableBounds(blockpos) && canPlace((ServerLevel) level, player, itemStack, state, blockpos)) {
-                    Entity entity = getTowerSettings(itemStack).createEntity((ServerLevel) level, player, itemStack, blockpos);
-                    if (entity == null) {
-                        return InteractionResultHolder.pass(itemStack);
-                    } else {
-                        this.consume((ServerLevel)level, player, entity, itemStack, hand);
-                        return InteractionResultHolder.consume(itemStack);
+                    // KubeJs Event Inject.
+                    if(! MinecraftForge.EVENT_BUS.post(new SummonTowerEvent(player, itemStack, hand))){
+                        Entity entity = getTowerSettings(itemStack).createEntity((ServerLevel) level, player, itemStack, blockpos);
+                        if (entity == null) {
+                            return InteractionResultHolder.pass(itemStack);
+                        } else {
+                            MinecraftForge.EVENT_BUS.post(new PostSummonTowerEvent(player, itemStack, hand, entity));
+                            this.consume((ServerLevel)level, player, entity, itemStack, hand);
+                            return InteractionResultHolder.consume(itemStack);
+                        }
                     }
                 }
             } else {

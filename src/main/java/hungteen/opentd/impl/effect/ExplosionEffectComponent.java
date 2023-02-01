@@ -6,6 +6,7 @@ import hungteen.htlib.util.helper.WorldHelper;
 import hungteen.opentd.api.interfaces.IEffectComponent;
 import hungteen.opentd.api.interfaces.IEffectComponentType;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.level.Explosion;
@@ -27,12 +28,12 @@ public record ExplosionEffectComponent(boolean canBreak, boolean destroyMode, fl
     ).apply(instance, ExplosionEffectComponent::new)).codec();
 
     @Override
-    public void effectTo(Entity owner, Entity entity) {
+    public void effectTo(ServerLevel serverLevel, Entity owner, Entity entity) {
         explode(owner.level, entity);
     }
 
     @Override
-    public void effectTo(Entity owner, BlockPos pos) {
+    public void effectTo(ServerLevel serverLevel, Entity owner, BlockPos pos) {
 
     }
 

@@ -8,6 +8,7 @@ import hungteen.opentd.common.entity.BulletEntity;
 import hungteen.opentd.impl.requirement.ExperienceRequirement;
 import hungteen.opentd.impl.tower.PVZPlantComponent;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -26,7 +27,7 @@ public record DamageEffectComponent(boolean ignoreImmuneTick, float amount) impl
             ).apply(instance, DamageEffectComponent::new)).codec();
 
     @Override
-    public void effectTo(Entity owner, Entity entity) {
+    public void effectTo(ServerLevel serverLevel, Entity owner, Entity entity) {
         if(ignoreImmuneTick()){
             entity.invulnerableTime = 0;
         }
@@ -39,7 +40,7 @@ public record DamageEffectComponent(boolean ignoreImmuneTick, float amount) impl
     }
 
     @Override
-    public void effectTo(Entity owner, BlockPos pos) {
+    public void effectTo(ServerLevel serverLevel, Entity owner, BlockPos pos) {
 
     }
 

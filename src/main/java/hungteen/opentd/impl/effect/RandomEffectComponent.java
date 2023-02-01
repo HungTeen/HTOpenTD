@@ -9,6 +9,7 @@ import hungteen.opentd.api.interfaces.IEffectComponentType;
 import hungteen.opentd.api.interfaces.ITargetFilter;
 import hungteen.opentd.impl.filter.HTTargetFilters;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 
@@ -34,13 +35,13 @@ public record RandomEffectComponent(int totalWeight, int effectTimes, boolean di
     ).apply(instance, RandomEffectComponent::new)).codec();
 
     @Override
-    public void effectTo(Entity owner, Entity entity) {
-        getEffects(owner.level.getRandom()).forEach(e -> e.effectTo(owner, entity));
+    public void effectTo(ServerLevel serverLevel, Entity owner, Entity entity) {
+        getEffects(owner.level.getRandom()).forEach(e -> e.effectTo(serverLevel, owner, entity));
     }
 
     @Override
-    public void effectTo(Entity owner, BlockPos pos) {
-        getEffects(owner.level.getRandom()).forEach(e -> e.effectTo(owner, pos));
+    public void effectTo(ServerLevel serverLevel, Entity owner, BlockPos pos) {
+        getEffects(owner.level.getRandom()).forEach(e -> e.effectTo(serverLevel, owner, pos));
     }
 
     private List<IEffectComponent> getEffects(RandomSource random){

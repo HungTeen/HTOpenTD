@@ -20,7 +20,8 @@ import java.util.List;
  * @author: HungTeen
  * @create: 2022-12-28 16:47
  **/
-public record SplashEffectComponent(double radius, double height, boolean isCircle, ITargetFilter filter, List<IEffectComponent> effects) implements IEffectComponent {
+public record SplashEffectComponent(double radius, double height, boolean isCircle, ITargetFilter filter,
+                                    List<IEffectComponent> effects) implements IEffectComponent {
 
     public static final Codec<SplashEffectComponent> CODEC = RecordCodecBuilder.<SplashEffectComponent>mapCodec(instance -> instance.group(
             Codec.doubleRange(0, Double.MAX_VALUE).optionalFieldOf("radius", 1D).forGetter(SplashEffectComponent::radius),
@@ -31,24 +32,21 @@ public record SplashEffectComponent(double radius, double height, boolean isCirc
     ).apply(instance, SplashEffectComponent::new)).codec();
 
     @Override
-    public void effectTo(Entity owner, Entity entity) {
-        effect(owner);
+    public void effectTo(ServerLevel serverLevel, Entity owner, Entity entity) {
+        effect(serverLevel, owner);
     }
 
     @Override
-    public void effectTo(Entity owner, BlockPos pos) {
-        effect(owner);
+    public void effectTo(ServerLevel serverLevel, Entity owner, BlockPos pos) {
+        effect(serverLevel, owner);
     }
 
-    private void effect(Entity attacker){
-        if(attacker.level instanceof ServerLevel){
-            EntityHelper.getPredicateEntities(attacker, EntityHelper.getEntityAABB(attacker, radius(), height()), Entity.class, l -> {
-                return filter().match((ServerLevel) attacker.level, attacker, l);
-            }).forEach(target -> {
-                effects().forEach(effect -> effect.effectTo(attacker, target));
-            });
-        }
-
+    private void effect(ServerLevel serverLevel, Entity attacker) {
+        EntityHelper.getPredicateEntities(attacker, EntityHelper.getEntityAABB(attacker, radius(), height()), Entity.class, l -> {
+            return filter().match((ServerLevel) attacker.level, attacker, l);
+        }).forEach(target -> {
+            effects().forEach(effect -> effect.effectTo(serverLevel, attacker, target));
+        });
     }
 
     @Override

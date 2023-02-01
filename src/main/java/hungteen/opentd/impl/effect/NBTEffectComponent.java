@@ -6,6 +6,7 @@ import hungteen.opentd.api.interfaces.IEffectComponent;
 import hungteen.opentd.api.interfaces.IEffectComponentType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 
@@ -24,12 +25,12 @@ public record NBTEffectComponent(CompoundTag nbt, boolean self) implements IEffe
     ).apply(instance, NBTEffectComponent::new)).codec();
 
     @Override
-    public void effectTo(Entity owner, Entity entity) {
+    public void effectTo(ServerLevel serverLevel, Entity owner, Entity entity) {
         effect(self() ? owner : entity);
     }
 
     @Override
-    public void effectTo(Entity owner, BlockPos pos) {
+    public void effectTo(ServerLevel serverLevel, Entity owner, BlockPos pos) {
         if (self()){
             effect(owner);
         }

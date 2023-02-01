@@ -150,6 +150,21 @@ repositories {
     maven {
         url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
     }
+    maven {
+        // Shedaniel's maven (Architectury API)
+        url = "https://maven.architectury.dev"
+        content {
+            includeGroup "dev.architectury"
+        }
+    }
+
+    maven {
+        // saps.dev Maven (KubeJS and Rhino)
+        url = "https://maven.saps.dev/minecraft"
+        content {
+            includeGroup "dev.latvian.mods"
+        }
+    }
 }
 
 dependencies {
@@ -164,10 +179,17 @@ dependencies {
     implementation fg.deobf("curse.maven:configured-457570:${configured_version}")
 
     implementation fg.deobf("hungteen:htlib:${htlib_version}")
-
     implementation fg.deobf("hungteen:htlib:${htlib_version}")
 
     implementation fg.deobf("curse.maven:geckolib-388172:${geckolib_version}")
+
+//    implementation fg.deobf("curse.maven:kubejs-238086:${kubejs_version}")
+//    implementation fg.deobf("curse.maven:rhino-416294:${rhino_version}")
+//    implementation fg.deobf("curse.maven:architectury-419699:${architectury_version}")
+
+    implementation fg.deobf("dev.latvian.mods:kubejs-forge:${kubejs_version}")
+    implementation fg.deobf("dev.latvian.mods:rhino-forge:${rhino_version}")
+    implementation fg.deobf("dev.architectury:architectury-forge:${architectury_version}")
 }
 
 mixin {

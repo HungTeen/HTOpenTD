@@ -30,7 +30,7 @@ public record AttractEffectComponent(ITargetFilter targetFilter, Optional<ITarge
     ).apply(instance, AttractEffectComponent::new)).codec();
 
     @Override
-    public void effectTo(Entity owner, Entity entity) {
+    public void effectTo(ServerLevel serverLevel, Entity owner, Entity entity) {
         if(entity instanceof Mob && owner instanceof LivingEntity && owner.level instanceof ServerLevel){
             // Target not match.
             if(! targetFilter().match((ServerLevel) owner.level, owner, entity)){
@@ -44,7 +44,7 @@ public record AttractEffectComponent(ITargetFilter targetFilter, Optional<ITarge
     }
 
     @Override
-    public void effectTo(Entity owner, BlockPos pos) {
+    public void effectTo(ServerLevel serverLevel, Entity owner, BlockPos pos) {
 
     }
 

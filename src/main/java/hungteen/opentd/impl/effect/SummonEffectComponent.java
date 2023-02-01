@@ -37,14 +37,14 @@ public record SummonEffectComponent(int count, int radius, boolean self, boolean
             ).apply(instance, SummonEffectComponent::new)).codec();
 
     @Override
-    public void effectTo(Entity owner, Entity entity) {
+    public void effectTo(ServerLevel serverLevel, Entity owner, Entity entity) {
         for(int i = 0; i < count(); ++ i){
             spawn(owner.level, self() ? owner : entity, nbt());
         }
     }
 
     @Override
-    public void effectTo(Entity owner, BlockPos pos) {
+    public void effectTo(ServerLevel serverLevel, Entity owner, BlockPos pos) {
         if(self()){
             for(int i = 0; i < count(); ++ i){
                 spawn(owner.level, owner, nbt());

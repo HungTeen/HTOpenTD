@@ -1,5 +1,6 @@
 package hungteen.opentd.impl.tower;
 
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import hungteen.htlib.common.registry.HTCodecRegistry;
 import hungteen.htlib.common.registry.HTRegistryHolder;
@@ -11,6 +12,7 @@ import hungteen.opentd.api.interfaces.ITowerComponentType;
 import hungteen.opentd.impl.effect.*;
 import hungteen.opentd.impl.filter.*;
 import hungteen.opentd.impl.finder.RangeFinder;
+import net.minecraft.commands.CommandFunction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvents;
@@ -100,9 +102,14 @@ public class HTTowerComponents {
                                                             new DamageEffectComponent(false, 5F),
                                                             new SplashEffectComponent(5, 5, true, new OrTargetFilter(Arrays.asList()), Arrays.asList(new DamageEffectComponent(false, 2F))),
                                                             new NBTEffectComponent(get(), false),
-                                                            new SummonEffectComponent(3, 5, true, true, EntityType.EXPERIENCE_ORB, new CompoundTag())
+                                                            new RandomEffectComponent(10, 1, true, Arrays.asList(
+                                                                    Pair.of(
+                                                                            new FunctionEffectComponent(false, new CommandFunction.CacheableFunction(OpenTD.prefix("test"))),
+                                                                            1
+                                                                    )
+                                                            ))
                                                     ),
-                                                    1F, 1, 300, 0.0001F, 0.99999F, false, false,
+                                                    0.2F, 1, 300, 0.0001F, 0.99999F, false, true,
                                                     PVZPlantComponent.RenderSettings.make(0.5F, 0.5F, 0.6F, "pea_shooter"),
                                                     Optional.empty(),
                                                     Optional.of(

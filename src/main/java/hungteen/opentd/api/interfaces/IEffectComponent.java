@@ -1,6 +1,7 @@
 package hungteen.opentd.api.interfaces;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.block.state.BlockState;
@@ -12,9 +13,9 @@ import net.minecraft.world.level.block.state.BlockState;
  **/
 public interface IEffectComponent {
 
-    void effectTo(Entity owner, Entity entity);
+    void effectTo(ServerLevel serverLevel, Entity owner, Entity entity);
 
-    void effectTo(Entity owner, BlockPos pos);
+    void effectTo(ServerLevel serverLevel, Entity owner, BlockPos pos);
 
     /**
      * Get the type of effect.

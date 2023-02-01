@@ -6,6 +6,7 @@ import hungteen.htlib.util.helper.EffectHelper;
 import hungteen.opentd.api.interfaces.IEffectComponent;
 import hungteen.opentd.api.interfaces.IEffectComponentType;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -28,7 +29,7 @@ public record PotionEffectComponent(MobEffect effect, int duration, int level, b
     ).apply(instance, PotionEffectComponent::new)).codec();
 
     @Override
-    public void effectTo(Entity owner, Entity entity) {
+    public void effectTo(ServerLevel serverLevel, Entity owner, Entity entity) {
         if(self()){
             if(owner instanceof LivingEntity){
                 ((LivingEntity)owner).addEffect(EffectHelper.effect(this.effect(), duration(), level(), false, display()), entity);
@@ -41,7 +42,7 @@ public record PotionEffectComponent(MobEffect effect, int duration, int level, b
     }
 
     @Override
-    public void effectTo(Entity owner, BlockPos pos) {
+    public void effectTo(ServerLevel serverLevel, Entity owner, BlockPos pos) {
         if(self()){
             if(owner instanceof LivingEntity){
                 ((LivingEntity)owner).addEffect(EffectHelper.effect(this.effect(), duration(), level(), false, display()));

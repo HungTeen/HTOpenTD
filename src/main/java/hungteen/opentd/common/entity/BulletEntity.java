@@ -19,6 +19,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
+import net.minecraft.world.entity.projectile.ShulkerBullet;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -77,6 +78,9 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
         this.setParabola(shootSettings.isParabola());
         this.pultHeight = shootSettings.pultHeight();
         this.settings = shootSettings.bulletSettings();
+        final double d0 = this.getDeltaMovement().horizontalDistance();
+        this.setYRot((float)(Mth.atan2(this.getDeltaMovement().x, this.getDeltaMovement().z) * (double)(180F / (float)Math.PI)));
+        this.setXRot((float)(Mth.atan2(this.getDeltaMovement().y, d0) * (double)(180F / (float)Math.PI)));
     }
 
     public void tick() {
@@ -96,9 +100,9 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
         }
         // lock to target.
         if (this.getSettings().lockToTarget() && this.lockTarget.isPresent() && EntityHelper.isEntityValid(lockTarget.get())) {
+            final Entity target = this.lockTarget.get();
+            final Vec3 speed = this.getDeltaMovement();
             if (this.isParabola) {
-                final Entity target = this.lockTarget.get();
-                final Vec3 speed = this.getDeltaMovement();
                 final double g = this.getGravity();
                 final double t1 = speed.y / g;
                 final double height = speed.y * speed.y / 2 / g;
@@ -117,7 +121,9 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
                     this.setDeltaMovement(vxz * dx / dxz, speed.y, vxz * dz / dxz);
                 }
             } else{
-                //TODO 直线跟踪？
+                final Vec3 direction = target.getEyePosition().subtract(this.position()).normalize().scale(this.getSpeed());
+                final double scale = 0.2;
+                this.setDeltaMovement(speed.add((direction.x() - speed.x()) * scale, (direction.y() - speed.y) * scale, (direction.z() - speed.z()) * scale));
             }
         }
         // on hit.
@@ -199,8 +205,8 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
     }
 
     protected void onHitEntity(EntityHitResult result) {
-        if (this.shouldHit(result.getEntity())) {
-            this.getEffects().forEach(e -> e.effectTo(this, result.getEntity()));
+        if (this.shouldHit(result.getEntity()) && this.level instanceof ServerLevel) {
+            this.getEffects().forEach(e -> e.effectTo((ServerLevel) this.level, this, result.getEntity()));
             hitSet.add(result.getEntity().getId());
             if (++this.hitCount >= this.getMaxHitCount()) {
                 this.canExist = false;
@@ -209,10 +215,10 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
     }
 
     protected void onHitBlock(BlockHitResult result) {
-        if (!this.ignoreBlock()) {
+        if (!this.ignoreBlock() && this.level instanceof ServerLevel) {
             BlockState blockstate = this.level.getBlockState(result.getBlockPos());
             blockstate.onProjectileHit(this.level, blockstate, result, this);
-            this.getEffects().forEach(e -> e.effectTo(this, result.getBlockPos()));
+            this.getEffects().forEach(e -> e.effectTo((ServerLevel) this.level, this, result.getBlockPos()));
             this.canExist = false;
         }
     }
@@ -334,6 +340,10 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
         return this.getSettings() == null ? 0 : this.getSettings().gravity();
     }
 
+    protected float getSpeed() {
+        return this.getSettings() == null ? 0.1F : this.getSettings().bulletSpeed();
+    }
+
     protected int getMaxHitCount() {
         return this.getSettings() == null ? 1 : this.getSettings().maxHitCount();
     }
@@ -346,6 +356,7 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
         return this.getSettings() == null ? Arrays.asList() : this.getSettings().effects();
     }
 
+    @Nullable
     public PVZPlantComponent.BulletSettings getSettings() {
         return this.settings;
     }

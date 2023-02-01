@@ -36,12 +36,12 @@ public class HTItemSettings {
 
     public static final HTRegistryHolder<ItemSetting> PEA_SHOOTER = SUMMON_ITEMS.innerRegister(
             OpenTD.prefix("pea_shooter"),
-            new Builder().model(OpenTD.prefix("pea_shooter_card")).card().requirement(new AroundEntityRequirement(3, 3, 1, 10, Optional.empty(), new EntityPredicateFilter(EntityPredicate.ANY, EntityPredicate.Builder.entity().nbt(new NbtPredicate(get())).build()))).build()
+            new Builder().model(OpenTD.prefix("pea_shooter_card")).name("item.opentd.test_pea_shooter_card").card().requirement(new AroundEntityRequirement(3, 3, 1, 10, Optional.empty(), new EntityPredicateFilter(EntityPredicate.ANY, EntityPredicate.Builder.entity().nbt(new NbtPredicate(get())).build()))).build()
     );
 
     public static final HTRegistryHolder<ItemSetting> SUN_FLOWER = SUMMON_ITEMS.innerRegister(
             OpenTD.prefix("sun_flower"),
-            new Builder().model(OpenTD.prefix("sun_flower_card")).card().build()
+            new Builder().model(OpenTD.prefix("sun_flower_card")).name("item.opentd.test_sun_flower_card").card().build()
     );
 
     private static CompoundTag get(){
