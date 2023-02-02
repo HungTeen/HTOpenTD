@@ -2,7 +2,9 @@ package hungteen.opentd.compat.kubejs.event;
 
 import dev.latvian.mods.kubejs.player.PlayerEventJS;
 import hungteen.opentd.common.event.events.SummonTowerEvent;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
@@ -26,9 +28,18 @@ public class SummonTowerEventJS extends PlayerEventJS {
         return this.event.getItemStack();
     }
 
+    public Entity getTargetEntity(){
+        return this.event.getTargetEntity();
+    }
+
+    public BlockPos getTargetPos(){
+        return this.event.getTargetPos();
+    }
+
     @Override
     public Player getEntity() {
         return this.event.getEntity();
     }
+
 
 }

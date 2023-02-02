@@ -8,9 +8,13 @@ import dev.latvian.mods.kubejs.item.KubeJSItemEventHandler;
 import dev.latvian.mods.kubejs.script.ScriptType;
 import dev.latvian.mods.kubejs.util.ClassFilter;
 import hungteen.opentd.common.capability.OpenTDCapabilities;
+import hungteen.opentd.common.event.events.BulletHitEvent;
 import hungteen.opentd.common.event.events.PostSummonTowerEvent;
+import hungteen.opentd.common.event.events.ShootBulletEvent;
 import hungteen.opentd.common.event.events.SummonTowerEvent;
+import hungteen.opentd.compat.kubejs.event.BulletHitEventJS;
 import hungteen.opentd.compat.kubejs.event.PostSummonTowerEventJS;
+import hungteen.opentd.compat.kubejs.event.ShootBulletEventJS;
 import hungteen.opentd.compat.kubejs.event.SummonTowerEventJS;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.server.commands.ExecuteCommand;
@@ -31,6 +35,8 @@ public class MyKubeJSPlugin extends KubeJSPlugin {
         final IEventBus forgeBus = MinecraftForge.EVENT_BUS;
         forgeBus.addListener(EventPriority.NORMAL, MyKubeJSPlugin::preSummonTower);
         forgeBus.addListener(EventPriority.NORMAL, MyKubeJSPlugin::postSummonTower);
+        forgeBus.addListener(EventPriority.NORMAL, MyKubeJSPlugin::bulletHit);
+        forgeBus.addListener(EventPriority.NORMAL, MyKubeJSPlugin::shootBullet);
     }
 
     @Override
@@ -51,5 +57,15 @@ public class MyKubeJSPlugin extends KubeJSPlugin {
 
     private static void postSummonTower(PostSummonTowerEvent event) {
         OTDKubeJSEvents.POST_SUMMON_TOWER.post(new PostSummonTowerEventJS(event));
+    }
+
+    private static void bulletHit(BulletHitEvent event) {
+            OTDKubeJSEvents.BULLET_HIT.post(new BulletHitEventJS(event));
+    }
+
+    private static void shootBullet(ShootBulletEvent event) {
+        if(OTDKubeJSEvents.SHOOT_BULLET.post(new ShootBulletEventJS(event))){
+            event.setCanceled(true);
+        }
     }
 }

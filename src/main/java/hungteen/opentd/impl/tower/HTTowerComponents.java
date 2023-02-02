@@ -9,6 +9,7 @@ import hungteen.htlib.common.registry.HTSimpleRegistry;
 import hungteen.opentd.OpenTD;
 import hungteen.opentd.api.interfaces.ITowerComponent;
 import hungteen.opentd.api.interfaces.ITowerComponentType;
+import hungteen.opentd.common.codec.ParticleSetting;
 import hungteen.opentd.impl.effect.*;
 import hungteen.opentd.impl.filter.*;
 import hungteen.opentd.impl.finder.RangeFinder;
@@ -98,9 +99,9 @@ public class HTTowerComponents {
                                             false, false, 0, Vec3.ZERO, 10, 0, 10,
                                             new PVZPlantComponent.BulletSettings(
                                                     new ClassFilter(ClassFilter.ENEMY),
-                                                    Arrays.asList(
-                                                            new DamageEffectComponent(false, 5F),
-                                                            new SplashEffectComponent(5, 5, true, new OrTargetFilter(Arrays.asList()), Arrays.asList(new DamageEffectComponent(false, 2F))),
+                                                    new ListEffectComponent(Arrays.asList(
+                                                            new DamageEffectComponent(false, 5F, 0),
+                                                            new SplashEffectComponent(5, 5, true, new OrTargetFilter(Arrays.asList()), new DamageEffectComponent(false, 2F, 0.1F)),
                                                             new NBTEffectComponent(get(), false),
                                                             new RandomEffectComponent(10, 1, true, Arrays.asList(
                                                                     Pair.of(
@@ -108,12 +109,12 @@ public class HTTowerComponents {
                                                                             1
                                                                     )
                                                             ))
-                                                    ),
+                                                    )),
                                                     0.2F, 1, 300, 0.0001F, 0.99999F, false, true,
                                                     PVZPlantComponent.RenderSettings.make(0.5F, 0.5F, 0.6F, "pea_shooter"),
                                                     Optional.empty(),
                                                     Optional.of(
-                                                            new PVZPlantComponent.ParticleSetting(
+                                                            new ParticleSetting(
                                                                     ParticleTypes.FLAME, 1, true, new Vec3(1, 1, 1), new Vec3(0.1, 0.1, 0.1)
                                                             )
                                                     )
@@ -125,8 +126,8 @@ public class HTTowerComponents {
                     Optional.empty(),
                     Optional.empty(),
                     Arrays.asList(),
-                    Arrays.asList(),
-                    Arrays.asList()
+                    Optional.empty(),
+                    Optional.empty()
             )
     );
 
@@ -157,22 +158,14 @@ public class HTTowerComponents {
                             new PVZPlantComponent.ConstantAffectSetting(
                                     20,
                                     new RangeFinder(true, 10, 10, new ClassFilter(ClassFilter.ENEMY)),
-                                    Arrays.asList(
-                                            new PVZPlantComponent.EffectTargetSetting(
-                                                    AlwaysTrueFilter.INSTANCE,
-                                                    Arrays.asList(
-                                                            new AttractEffectComponent(
-                                                                    AlwaysTrueFilter.INSTANCE,
-                                                                    Optional.of(AlwaysTrueFilter.INSTANCE)
-                                                            )
-                                                    )
-                                            )
-
+                                    new AttractEffectComponent(
+                                            AlwaysTrueFilter.INSTANCE,
+                                            Optional.of(AlwaysTrueFilter.INSTANCE)
                                     )
                             )
                     ),
-                    Arrays.asList(),
-                    Arrays.asList()
+                    Optional.empty(),
+                    Optional.empty()
             )
     );
 

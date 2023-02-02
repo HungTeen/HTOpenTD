@@ -88,12 +88,12 @@ public class SummonTowerItem extends Item {
             if (level.mayInteract(player, blockpos) && player.mayUseItemAt(blockpos, hitResult.getDirection(), itemStack)) {
                 if (Level.isInSpawnableBounds(blockpos) && canPlace((ServerLevel) level, player, itemStack, state, blockpos)) {
                     // KubeJs Event Inject.
-                    if(! MinecraftForge.EVENT_BUS.post(new SummonTowerEvent(player, itemStack, hand))){
+                    if(! MinecraftForge.EVENT_BUS.post(new SummonTowerEvent(player, itemStack, hand, blockpos))){
                         Entity entity = getTowerSettings(itemStack).createEntity((ServerLevel) level, player, itemStack, blockpos);
                         if (entity == null) {
                             return InteractionResultHolder.pass(itemStack);
                         } else {
-                            MinecraftForge.EVENT_BUS.post(new PostSummonTowerEvent(player, itemStack, hand, entity));
+                            MinecraftForge.EVENT_BUS.post(new PostSummonTowerEvent(player, itemStack, hand, blockpos, entity));
                             this.consume((ServerLevel)level, player, entity, itemStack, hand);
                             return InteractionResultHolder.consume(itemStack);
                         }
@@ -112,13 +112,16 @@ public class SummonTowerItem extends Item {
                 && ! PlayerUtil.isOnCooldown(event.getEntity(), event.getItemStack())
                 && Level.isInSpawnableBounds(event.getTarget().blockPosition())
                 && ((SummonTowerItem) event.getItemStack().getItem()).canPlace((ServerLevel) event.getLevel(), event.getEntity(), event.getItemStack(), event.getTarget())) {
-            Entity entity = getTowerSettings(event.getItemStack()).createEntity((ServerLevel) event.getLevel(), event.getEntity(), event.getItemStack(), event.getTarget().blockPosition());
-            if (entity != null) {
-                //TODO 骑乘
-                ((SummonTowerItem) event.getItemStack().getItem()).consume((ServerLevel) event.getLevel(), event.getEntity(), entity, event.getItemStack(), event.getHand());
-                event.setCancellationResult(InteractionResult.SUCCESS);
-            } else{
-                event.setCancellationResult(InteractionResult.PASS);
+            if(! MinecraftForge.EVENT_BUS.post(new SummonTowerEvent(event.getEntity(), event.getItemStack(), event.getHand(), event.getTarget()))) {
+                Entity entity = getTowerSettings(event.getItemStack()).createEntity((ServerLevel) event.getLevel(), event.getEntity(), event.getItemStack(), event.getTarget().blockPosition());
+                if (entity != null) {
+                    //TODO 骑乘
+                    MinecraftForge.EVENT_BUS.post(new PostSummonTowerEvent(event.getEntity(), event.getItemStack(), event.getHand(), event.getTarget(), entity));
+                    ((SummonTowerItem) event.getItemStack().getItem()).consume((ServerLevel) event.getLevel(), event.getEntity(), entity, event.getItemStack(), event.getHand());
+                    event.setCancellationResult(InteractionResult.SUCCESS);
+                } else {
+                    event.setCancellationResult(InteractionResult.PASS);
+                }
             }
         }
     }

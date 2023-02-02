@@ -27,6 +27,7 @@ public class HTSummonRequirements {
     public static final ISummonRequirementType<BlockRequirement> BLOCK_REQUIREMENT = new DefaultRequirement<>("block",  BlockRequirement.CODEC);
     public static final ISummonRequirementType<EntityRequirement> ENTITY_REQUIREMENT = new DefaultRequirement<>("entity",  EntityRequirement.CODEC);
     public static final ISummonRequirementType<AroundEntityRequirement> AROUND_ENTITY_REQUIREMENT = new DefaultRequirement<>("around_entity",  AroundEntityRequirement.CODEC);
+    public static final ISummonRequirementType<InventoryRequirement> INVENTORY_REQUIREMENT = new DefaultRequirement<>("inventory",  InventoryRequirement.CODEC);
 
     /* Requirement */
 
@@ -34,7 +35,7 @@ public class HTSummonRequirements {
      * {@link OpenTD#OpenTD()}
      */
     public static void registerStuffs(){
-        Arrays.asList(NO_REQUIREMENT, EXPERIENCE_REQUIREMENT, BLOCK_REQUIREMENT, ENTITY_REQUIREMENT, AROUND_ENTITY_REQUIREMENT).forEach(HTSummonRequirements::registerTowerType);
+        Arrays.asList(NO_REQUIREMENT, EXPERIENCE_REQUIREMENT, BLOCK_REQUIREMENT, ENTITY_REQUIREMENT, AROUND_ENTITY_REQUIREMENT, INVENTORY_REQUIREMENT).forEach(HTSummonRequirements::registerTowerType);
     }
 
     public static void registerTowerType(ISummonRequirementType<?> type){

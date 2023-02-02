@@ -68,4 +68,33 @@ public class PlayerUtil {
         }
     }
 
+    public static void removeItem(Player player, ItemStack stack, int count){
+        for(int i = 0; i < player.getInventory().getContainerSize(); ++ i) {
+            ItemStack itemStack = player.getInventory().getItem(i);
+            if (ItemStack.isSameItemSameTags(stack, itemStack)) {
+                if(itemStack.getCount() <= count){
+                    count -= itemStack.getCount();
+                    player.getInventory().removeItem(i, itemStack.getCount());
+                } else{
+                    player.getInventory().removeItem(i, count);
+                    count = 0;
+                }
+            }
+            if(count <= 0){
+                break;
+            }
+        }
+    }
+
+    public static int getItemCount(Player player, ItemStack stack){
+        int count = 0;
+        for(int i = 0; i < player.getInventory().getContainerSize(); ++ i) {
+            ItemStack itemStack = player.getInventory().getItem(i);
+            if (ItemStack.isSameItemSameTags(stack, itemStack)) {
+                count += itemStack.getCount();
+            }
+        }
+        return count;
+    }
+
 }

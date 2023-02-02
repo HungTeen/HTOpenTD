@@ -1,5 +1,6 @@
 package hungteen.opentd.common.event.events;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -17,8 +18,13 @@ public class PostSummonTowerEvent extends SummonTowerEvent {
 
     private final Entity towerEntity;
 
-    public PostSummonTowerEvent(Player player, ItemStack itemStack, InteractionHand hand, Entity towerEntity) {
-        super(player, itemStack, hand);
+    public PostSummonTowerEvent(Player player, ItemStack itemStack, InteractionHand hand, BlockPos targetPos, Entity towerEntity) {
+        super(player, itemStack, hand, targetPos);
+        this.towerEntity = towerEntity;
+    }
+
+    public PostSummonTowerEvent(Player player, ItemStack itemStack, InteractionHand hand, Entity targetEntity, Entity towerEntity) {
+        super(player, itemStack, hand, targetEntity);
         this.towerEntity = towerEntity;
     }
 

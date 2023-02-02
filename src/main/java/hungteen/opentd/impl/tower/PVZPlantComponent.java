@@ -7,9 +7,11 @@ import hungteen.htlib.util.helper.ParticleHelper;
 import hungteen.htlib.util.helper.RandomHelper;
 import hungteen.opentd.OpenTD;
 import hungteen.opentd.api.interfaces.*;
+import hungteen.opentd.common.codec.ParticleSetting;
 import hungteen.opentd.common.entity.OpenTDEntities;
 import hungteen.opentd.common.entity.PlantEntity;
 import hungteen.opentd.common.item.SummonTowerItem;
+import hungteen.opentd.impl.effect.EffectEffectComponent;
 import hungteen.opentd.impl.effect.HTEffectComponents;
 import hungteen.opentd.impl.filter.HTTargetFilters;
 import hungteen.opentd.impl.finder.HTTargetFinders;
@@ -47,8 +49,8 @@ public record PVZPlantComponent(PlantSettings plantSetting, List<TargetSetting> 
                                 Optional<AttackGoalSetting> attackGoalSetting,
                                 Optional<CloseInstantEffectSetting> instantEffectSetting,
                                 List<ConstantAffectSetting> constantAffectSettings,
-                                List<EffectTargetSetting> hurtSettings,
-                                List<EffectTargetSetting> dieSettings) implements ITowerComponent {
+                                Optional<IEffectComponent> hurtEffect,
+                                Optional<IEffectComponent> dieEffect) implements ITowerComponent {
 
     public static final Codec<PVZPlantComponent> CODEC = RecordCodecBuilder.<PVZPlantComponent>mapCodec(instance -> instance.group(
             PlantSettings.CODEC.fieldOf("plant_setting").forGetter(PVZPlantComponent::plantSetting),
@@ -58,8 +60,8 @@ public record PVZPlantComponent(PlantSettings plantSetting, List<TargetSetting> 
             Codec.optionalField("attack_goal", AttackGoalSetting.CODEC).forGetter(PVZPlantComponent::attackGoalSetting),
             Codec.optionalField("instant_setting", CloseInstantEffectSetting.CODEC).forGetter(PVZPlantComponent::instantEffectSetting),
             ConstantAffectSetting.CODEC.listOf().optionalFieldOf("constant_settings", Arrays.asList()).forGetter(PVZPlantComponent::constantAffectSettings),
-            EffectTargetSetting.CODEC.listOf().optionalFieldOf("hurt_settings", Arrays.asList()).forGetter(PVZPlantComponent::hurtSettings),
-            EffectTargetSetting.CODEC.listOf().optionalFieldOf("die_settings", Arrays.asList()).forGetter(PVZPlantComponent::dieSettings)
+            Codec.optionalField("hurt_effect", HTEffectComponents.getCodec()).forGetter(PVZPlantComponent::hurtEffect),
+            Codec.optionalField("die_effect", HTEffectComponents.getCodec()).forGetter(PVZPlantComponent::dieEffect)
     ).apply(instance, PVZPlantComponent::new)).codec();
 
     @Override
@@ -177,13 +179,13 @@ public record PVZPlantComponent(PlantSettings plantSetting, List<TargetSetting> 
         ).apply(instance, ShootSettings::new)).codec();
     }
 
-    public record BulletSettings(ITargetFilter targetFilter, List<IEffectComponent> effects, float bulletSpeed,
+    public record BulletSettings(ITargetFilter targetFilter, IEffectComponent effect, float bulletSpeed,
                                  int maxHitCount, int maxExistTick, float gravity, float slowDown, boolean ignoreBlock,
                                  boolean lockToTarget, RenderSettings renderSettings, Optional<ParticleSetting> hitParticle, Optional<ParticleSetting> trailParticle) {
 
         public static final Codec<BulletSettings> CODEC = RecordCodecBuilder.<BulletSettings>mapCodec(instance -> instance.group(
                 HTTargetFilters.getCodec().fieldOf("target_filter").forGetter(BulletSettings::targetFilter),
-                HTEffectComponents.getCodec().listOf().optionalFieldOf("effects", Arrays.asList()).forGetter(BulletSettings::effects),
+                HTEffectComponents.getCodec().fieldOf("effect").forGetter(BulletSettings::effect),
                 Codec.floatRange(0, Float.MAX_VALUE).optionalFieldOf("bullet_speed", 0.15F).forGetter(BulletSettings::bulletSpeed),
                 Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("max_hit_count", 1).forGetter(BulletSettings::maxHitCount),
                 Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("max_exist_tick", 50).forGetter(BulletSettings::maxExistTick),
@@ -227,7 +229,7 @@ public record PVZPlantComponent(PlantSettings plantSetting, List<TargetSetting> 
     }
 
     public record AttackGoalSetting(int duration, int coolDown, int startTick, boolean needRest, double distance, Optional<SoundEvent> attackSound,
-                                    List<IEffectComponent> effects) {
+                                    IEffectComponent effect) {
         public static final Codec<AttackGoalSetting> CODEC = RecordCodecBuilder.<AttackGoalSetting>mapCodec(instance -> instance.group(
                 Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("duration", 0).forGetter(AttackGoalSetting::duration),
                 Codec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("cool_down", 30).forGetter(AttackGoalSetting::coolDown),
@@ -235,67 +237,27 @@ public record PVZPlantComponent(PlantSettings plantSetting, List<TargetSetting> 
                 Codec.BOOL.optionalFieldOf("need_rest", false).forGetter(AttackGoalSetting::needRest),
                 Codec.doubleRange(0, Double.MAX_VALUE).optionalFieldOf("distance", 3D).forGetter(AttackGoalSetting::distance),
                 Codec.optionalField("attack_sound", SoundEvent.CODEC).forGetter(AttackGoalSetting::attackSound),
-                HTEffectComponents.getCodec().listOf().fieldOf("effects").forGetter(AttackGoalSetting::effects)
+                HTEffectComponents.getCodec().fieldOf("effect").forGetter(AttackGoalSetting::effect)
         ).apply(instance, AttackGoalSetting::new)).codec();
     }
 
-    public record CloseInstantEffectSetting(double closeRange, int instantTick, ITargetFilter targetFilter, Optional<SoundEvent> instantSound, List<IEffectComponent> effects) {
+    public record CloseInstantEffectSetting(double closeRange, int instantTick, ITargetFilter targetFilter, Optional<SoundEvent> instantSound, IEffectComponent effect) {
         public static final Codec<CloseInstantEffectSetting> CODEC = RecordCodecBuilder.<CloseInstantEffectSetting>mapCodec(instance -> instance.group(
                 Codec.doubleRange(0, Double.MAX_VALUE).optionalFieldOf("close_range", 3D).forGetter(CloseInstantEffectSetting::closeRange),
                 Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("instant_tick", 30).forGetter(CloseInstantEffectSetting::instantTick),
                 HTTargetFilters.getCodec().fieldOf("target_filter").forGetter(CloseInstantEffectSetting::targetFilter),
                 Codec.optionalField("instant_sound", SoundEvent.CODEC).forGetter(CloseInstantEffectSetting::instantSound),
-                HTEffectComponents.getCodec().listOf().fieldOf("effects").forGetter(CloseInstantEffectSetting::effects)
+                HTEffectComponents.getCodec().fieldOf("effect").forGetter(CloseInstantEffectSetting::effect)
         ).apply(instance, CloseInstantEffectSetting::new)).codec();
     }
 
-    public record ConstantAffectSetting(int cd, ITargetFinder targetFinder, List<EffectTargetSetting> effectSettings) {
+    public record ConstantAffectSetting(int cd, ITargetFinder targetFinder, IEffectComponent effect) {
 
         public static final Codec<ConstantAffectSetting> CODEC = RecordCodecBuilder.<ConstantAffectSetting>mapCodec(instance -> instance.group(
                 Codec.intRange(1, Integer.MAX_VALUE).fieldOf("cd").forGetter(ConstantAffectSetting::cd),
                 HTTargetFinders.getCodec().fieldOf("target_finder").forGetter(ConstantAffectSetting::targetFinder),
-                EffectTargetSetting.CODEC.listOf().optionalFieldOf("effect_settings", Arrays.asList()).forGetter(ConstantAffectSetting::effectSettings)
+                HTEffectComponents.getCodec().fieldOf("effect").forGetter(ConstantAffectSetting::effect)
         ).apply(instance, ConstantAffectSetting::new)).codec();
-    }
-
-    public record EffectTargetSetting(ITargetFilter targetFilter, List<IEffectComponent> effects) {
-
-        public static final Codec<EffectTargetSetting> CODEC = RecordCodecBuilder.<EffectTargetSetting>mapCodec(instance -> instance.group(
-                HTTargetFilters.getCodec().fieldOf("filter").forGetter(EffectTargetSetting::targetFilter),
-                HTEffectComponents.getCodec().listOf().optionalFieldOf("effects", Arrays.asList()).forGetter(EffectTargetSetting::effects)
-        ).apply(instance, EffectTargetSetting::new)).codec();
-    }
-
-    public record ParticleSetting(ParticleType<?> particleType, int amount, boolean isRandom, Vec3 offset, Vec3 speed) {
-
-        public static final Codec<ParticleSetting> CODEC = RecordCodecBuilder.<ParticleSetting>mapCodec(instance -> instance.group(
-                ForgeRegistries.PARTICLE_TYPES.getCodec().fieldOf("particle_type").forGetter(ParticleSetting::particleType),
-                Codec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("amount", 1).forGetter(ParticleSetting::amount),
-                Codec.BOOL.optionalFieldOf("is_random", true).forGetter(ParticleSetting::isRandom),
-                Vec3.CODEC.optionalFieldOf("offset", Vec3.ZERO).forGetter(ParticleSetting::offset),
-                Vec3.CODEC.optionalFieldOf("speed", Vec3.ZERO).forGetter(ParticleSetting::speed)
-        ).apply(instance, ParticleSetting::new)).codec();
-
-        public Optional<ParticleOptions> getType(){
-            if(particleType() instanceof SimpleParticleType){
-                return Optional.of((SimpleParticleType) particleType());
-            }
-            return Optional.empty();
-        }
-
-        public void spawn(Level level, Vec3 center, RandomSource rand){
-            if(this.getType().isPresent()){
-                for(int i = 0; i < amount(); ++ i){
-                    Vec3 pos = center;
-                    Vec3 speed = speed();
-                    if(isRandom()){
-                        pos = center.add(RandomHelper.doubleRange(rand, offset().x()), RandomHelper.doubleRange(rand, offset().y()), RandomHelper.doubleRange(rand, offset().z()));
-                        speed = new Vec3(RandomHelper.doubleRange(rand, speed().x()), RandomHelper.doubleRange(rand, speed().y()), RandomHelper.doubleRange(rand, speed().z()));
-                    }
-                    ParticleHelper.spawnParticles(level, getType().get(), pos, speed.x(), speed.y(), speed.z());
-                }
-            }
-        }
     }
 
 }

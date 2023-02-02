@@ -4,11 +4,11 @@ import com.mojang.datafixers.util.Pair;
 import hungteen.htlib.util.helper.EntityHelper;
 import hungteen.htlib.util.helper.RandomHelper;
 import hungteen.opentd.OpenTD;
-import hungteen.opentd.api.interfaces.ITowerComponent;
 import hungteen.opentd.common.entity.ai.PlantAttackGoal;
 import hungteen.opentd.common.entity.ai.PlantGenGoal;
 import hungteen.opentd.common.entity.ai.PlantShootGoal;
 import hungteen.opentd.common.entity.ai.PlantTargetGoal;
+import hungteen.opentd.common.event.events.ShootBulletEvent;
 import hungteen.opentd.impl.tower.HTTowerComponents;
 import hungteen.opentd.impl.tower.PVZPlantComponent;
 import hungteen.opentd.util.EntityUtil;
@@ -22,7 +22,6 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.commands.TeamCommand;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.DifficultyInstance;
@@ -33,7 +32,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.scores.Team;
+import net.minecraftforge.common.MinecraftForge;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib3.core.PlayState;
 import software.bernie.geckolib3.core.builder.AnimationBuilder;
@@ -178,7 +177,7 @@ public class PlantEntity extends TowerEntity {
                 this.getComponent().instantEffectSetting().ifPresent(l -> {
                     if (l.targetFilter().match((ServerLevel) this.level, this, this.getTarget()) && this.distanceTo(this.getTarget()) < l.closeRange()) {
                         if (this.getInstantTick() >= l.instantTick()) {
-                            l.effects().forEach(e -> e.effectTo((ServerLevel) this.level, this, this.getTarget()));
+                            l.effect().effectTo((ServerLevel) this.level, this, this.getTarget());
                             this.discard();
                         } else {
                             this.setInstantTick(this.getInstantTick() + 1);
@@ -190,8 +189,8 @@ public class PlantEntity extends TowerEntity {
             }
             // 范围作用植物。
             if (this.getComponent() != null) {
-                if(this.getComponent().plantSetting().maxExistTick() > 0){
-                    if(++ this.existTick >= this.getComponent().plantSetting().maxExistTick()){
+                if (this.getComponent().plantSetting().maxExistTick() > 0) {
+                    if (++this.existTick >= this.getComponent().plantSetting().maxExistTick()) {
                         this.discard();
                         return;
                     }
@@ -199,9 +198,7 @@ public class PlantEntity extends TowerEntity {
                 this.getComponent().constantAffectSettings().forEach(setting -> {
                     if (this.tickCount % setting.cd() == 0) {
                         setting.targetFinder().getTargets((ServerLevel) this.level, this).forEach(target -> {
-                            setting.effectSettings().stream().filter(e -> e.targetFilter().match((ServerLevel) this.level, this, target)).forEach(e -> {
-                                e.effects().forEach(l -> l.effectTo((ServerLevel) this.level, this, target));
-                            });
+                            setting.effect().effectTo((ServerLevel) this.level, this, target);
                         });
                     }
                 });
@@ -284,7 +281,9 @@ public class PlantEntity extends TowerEntity {
             } else {
                 bullet.shootTo(this, shootSettings, vec);
             }
-            this.level.addFreshEntity(bullet);
+            if (!MinecraftForge.EVENT_BUS.post(new ShootBulletEvent(this, bullet))) {
+                this.level.addFreshEntity(bullet);
+            }
         }
     }
 
@@ -314,13 +313,11 @@ public class PlantEntity extends TowerEntity {
 
     public void attack() {
         if (this.getComponent() != null && this.getComponent().attackGoalSetting().isPresent() && this.level instanceof ServerLevel) {
-            this.getComponent().attackGoalSetting().get().effects().forEach(effect -> {
-                if (this.getTarget() != null) {
-                    effect.effectTo((ServerLevel) this.level, this, this.getTarget());
-                } else {
-                    effect.effectTo((ServerLevel) this.level, this, this.blockPosition());
-                }
-            });
+            if (this.getTarget() != null) {
+                this.getComponent().attackGoalSetting().get().effect().effectTo((ServerLevel) this.level, this, this.getTarget());
+            } else {
+                this.getComponent().attackGoalSetting().get().effect().effectTo((ServerLevel) this.level, this, this.blockPosition());
+            }
             this.getComponent().attackGoalSetting().get().attackSound().ifPresent(this::playSound);
         }
     }
@@ -368,7 +365,7 @@ public class PlantEntity extends TowerEntity {
         this.setAge(this.getAge() + 1);
         this.growTick = 0;
         this.getGrowSettings().growSound().ifPresent(this::playSound);
-        if(this.level instanceof ServerLevel){
+        if (this.level instanceof ServerLevel) {
             this.getGrowSettings().growEffects().stream()
                     .filter(l -> l.getSecond() == this.getAge())
                     .map(Pair::getFirst)
@@ -380,15 +377,11 @@ public class PlantEntity extends TowerEntity {
     public boolean hurt(DamageSource source, float amount) {
         if (super.hurt(source, amount)) {
             if (this.getComponent() != null && this.level instanceof ServerLevel) {
-                this.getComponent().hurtSettings().forEach(settings -> {
-                    if (source.getEntity() != null && settings.targetFilter().match((ServerLevel) this.level, this, source.getEntity())) {
-                        settings.effects().forEach(effect -> {
-                            effect.effectTo((ServerLevel) this.level, this, source.getEntity());
-                        });
+                this.getComponent().hurtEffect().ifPresent(effect -> {
+                    if (source.getEntity() != null) {
+                        effect.effectTo((ServerLevel) this.level, this, source.getEntity());
                     } else {
-                        settings.effects().forEach(effect -> {
-                            effect.effectTo((ServerLevel) this.level, this, this.blockPosition());
-                        });
+                        effect.effectTo((ServerLevel) this.level, this, this.blockPosition());
                     }
                 });
             }
@@ -401,15 +394,11 @@ public class PlantEntity extends TowerEntity {
     public void die(DamageSource source) {
         super.die(source);
         if (this.getComponent() != null && this.level instanceof ServerLevel) {
-            this.getComponent().dieSettings().forEach(settings -> {
-                if (source.getEntity() != null && settings.targetFilter().match((ServerLevel) this.level, this, source.getEntity())) {
-                    settings.effects().forEach(effect -> {
-                        effect.effectTo((ServerLevel) this.level, this, source.getEntity());
-                    });
+            this.getComponent().dieEffect().ifPresent(effect -> {
+                if (source.getEntity() != null) {
+                    effect.effectTo((ServerLevel) this.level, this, source.getEntity());
                 } else {
-                    settings.effects().forEach(effect -> {
-                        effect.effectTo((ServerLevel) this.level, this, this.blockPosition());
-                    });
+                    effect.effectTo((ServerLevel) this.level, this, this.blockPosition());
                 }
             });
         }
@@ -616,7 +605,7 @@ public class PlantEntity extends TowerEntity {
         if (tag.contains("InstantTick")) {
             this.setInstantTick(tag.getInt("InstantTick"));
         }
-        if(tag.contains("ExistTick")){
+        if (tag.contains("ExistTick")) {
             this.existTick = tag.getInt("ExistTick");
         }
         if (tag.contains("Resting")) {

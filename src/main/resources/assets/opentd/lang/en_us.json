@@ -5,6 +5,7 @@
 
   "tip.opentd.wrong_block": "Can not place on this block",
   "tip.opentd.wrong_entity": "Can not place on this entity",
-  "tip.opentd.wrong_entity": "Need %s level and %s xp",
-  "tip.opentd.entity_count": "Around specific entity must between %s and %s"
+  "tip.opentd.require_xp": "Need %s level and %s xp",
+  "tip.opentd.entity_count": "Around specific entity must between %s and %s",
+  "tip.opentd.require_inventory": "Lack summon required items in inventory"
 }

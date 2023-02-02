@@ -4,6 +4,8 @@ import hungteen.htlib.util.helper.EntityHelper;
 import hungteen.htlib.util.helper.MathHelper;
 import hungteen.opentd.OpenTD;
 import hungteen.opentd.api.interfaces.IEffectComponent;
+import hungteen.opentd.common.codec.ParticleSetting;
+import hungteen.opentd.common.event.events.BulletHitEvent;
 import hungteen.opentd.impl.tower.PVZPlantComponent;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import net.minecraft.core.BlockPos;
@@ -19,7 +21,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
-import net.minecraft.world.entity.projectile.ShulkerBullet;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -30,6 +31,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.entity.IEntityAdditionalSpawnData;
 import net.minecraftforge.network.NetworkHooks;
 import software.bernie.geckolib3.core.IAnimatable;
@@ -206,11 +208,12 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
 
     protected void onHitEntity(EntityHitResult result) {
         if (this.shouldHit(result.getEntity()) && this.level instanceof ServerLevel) {
-            this.getEffects().forEach(e -> e.effectTo((ServerLevel) this.level, this, result.getEntity()));
+            this.getEffect().ifPresent(l -> l.effectTo((ServerLevel) this.level, this, result.getEntity()));
             hitSet.add(result.getEntity().getId());
             if (++this.hitCount >= this.getMaxHitCount()) {
                 this.canExist = false;
             }
+            MinecraftForge.EVENT_BUS.post(new BulletHitEvent(this, result));
         }
     }
 
@@ -218,8 +221,9 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
         if (!this.ignoreBlock() && this.level instanceof ServerLevel) {
             BlockState blockstate = this.level.getBlockState(result.getBlockPos());
             blockstate.onProjectileHit(this.level, blockstate, result, this);
-            this.getEffects().forEach(e -> e.effectTo((ServerLevel) this.level, this, result.getBlockPos()));
+            this.getEffect().ifPresent(l -> l.effectTo((ServerLevel) this.level, this, result.getBlockPos()));
             this.canExist = false;
+            MinecraftForge.EVENT_BUS.post(new BulletHitEvent(this, result));
         }
     }
 
@@ -240,7 +244,7 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
     }
 
     @Nullable
-    protected PVZPlantComponent.ParticleSetting getHitParticle() {
+    protected ParticleSetting getHitParticle() {
         if(getSettings() != null && getSettings().hitParticle().isPresent()) {
             return getSettings().hitParticle().get();
         };
@@ -248,7 +252,7 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
     }
 
     @Nullable
-    protected PVZPlantComponent.ParticleSetting getTrailParticle() {
+    protected ParticleSetting getTrailParticle() {
         if(getSettings() != null && getSettings().trailParticle().isPresent()) {
             return getSettings().trailParticle().get();
         };
@@ -336,24 +340,28 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
         return this.getSettings() == null ? 0 : this.getSettings().maxExistTick();
     }
 
-    protected float getGravity() {
+    public float getGravity() {
         return this.getSettings() == null ? 0 : this.getSettings().gravity();
     }
 
-    protected float getSpeed() {
+    public float getSpeed() {
         return this.getSettings() == null ? 0.1F : this.getSettings().bulletSpeed();
     }
 
-    protected int getMaxHitCount() {
+    public int getMaxHitCount() {
         return this.getSettings() == null ? 1 : this.getSettings().maxHitCount();
     }
 
-    protected boolean ignoreBlock() {
+    public int getHitCount(){
+        return this.hitCount;
+    }
+
+    public boolean ignoreBlock() {
         return this.getSettings() != null && this.getSettings().ignoreBlock();
     }
 
-    protected List<IEffectComponent> getEffects() {
-        return this.getSettings() == null ? Arrays.asList() : this.getSettings().effects();
+    protected Optional<IEffectComponent> getEffect() {
+        return this.getSettings() == null ? Optional.empty() : Optional.ofNullable(this.getSettings().effect());
     }
 
     @Nullable

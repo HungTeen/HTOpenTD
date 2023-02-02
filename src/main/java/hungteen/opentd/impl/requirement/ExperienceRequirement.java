@@ -2,6 +2,7 @@ package hungteen.opentd.impl.requirement;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import hungteen.htlib.util.helper.PlayerHelper;
 import hungteen.opentd.api.interfaces.ISummonRequirement;
 import hungteen.opentd.api.interfaces.ISummonRequirementType;
 import net.minecraft.core.BlockPos;
@@ -47,7 +48,12 @@ public record ExperienceRequirement(Optional<String> tip, int experience, int le
     }
 
     public boolean enoughXp(Player player) {
-        return player.experienceLevel >= level() && player.totalExperience >= experience() && player.experienceLevel >= costLevel() && player.totalExperience >= costExperience();
+        if(player.experienceLevel >= level() && player.totalExperience >= experience() && player.experienceLevel >= costLevel() && player.totalExperience >= costExperience()){
+            return true;
+        } else{
+            PlayerHelper.sendTipTo(player, getTip());
+            return false;
+        }
     }
 
     public Component getTip() {
