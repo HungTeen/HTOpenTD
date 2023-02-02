@@ -44,6 +44,7 @@ import java.util.Optional;
  * @create: 2022-12-15 10:40
  **/
 public record PVZPlantComponent(PlantSettings plantSetting, List<TargetSetting> targetSettings,
+                                Optional<MovementSetting> movementSetting,
                                 Optional<ShootGoalSetting> shootGoalSetting,
                                 Optional<GenGoalSetting> genGoalSetting,
                                 Optional<AttackGoalSetting> attackGoalSetting,
@@ -55,6 +56,7 @@ public record PVZPlantComponent(PlantSettings plantSetting, List<TargetSetting> 
     public static final Codec<PVZPlantComponent> CODEC = RecordCodecBuilder.<PVZPlantComponent>mapCodec(instance -> instance.group(
             PlantSettings.CODEC.fieldOf("plant_setting").forGetter(PVZPlantComponent::plantSetting),
             TargetSetting.CODEC.listOf().optionalFieldOf("target_settings", Arrays.asList()).forGetter(PVZPlantComponent::targetSettings),
+            Codec.optionalField("move_setting", MovementSetting.CODEC).forGetter(PVZPlantComponent::movementSetting),
             Codec.optionalField("shoot_goal", ShootGoalSetting.CODEC).forGetter(PVZPlantComponent::shootGoalSetting),
             Codec.optionalField("gen_goal", GenGoalSetting.CODEC).forGetter(PVZPlantComponent::genGoalSetting),
             Codec.optionalField("attack_goal", AttackGoalSetting.CODEC).forGetter(PVZPlantComponent::attackGoalSetting),
@@ -137,6 +139,15 @@ public record PVZPlantComponent(PlantSettings plantSetting, List<TargetSetting> 
         public int getMaxAge() {
             return Math.min(this.scales.size(), this.growDurations.size() + 1);
         }
+    }
+
+    public record MovementSetting(boolean canRandomMove, double speedModifier, double backwardPercent, double upwardPercent){
+        public static final Codec<MovementSetting> CODEC = RecordCodecBuilder.<MovementSetting>mapCodec(instance -> instance.group(
+                Codec.BOOL.optionalFieldOf("can_random_move", true).forGetter(MovementSetting::canRandomMove),
+                Codec.doubleRange(0, Double.MAX_VALUE).optionalFieldOf("speed_modifier", 1D).forGetter(MovementSetting::speedModifier),
+                Codec.doubleRange(0, 1).optionalFieldOf("backward_percent", 0.3D).forGetter(MovementSetting::backwardPercent),
+                Codec.doubleRange(0, 1).optionalFieldOf("upward_percent", 0.7D).forGetter(MovementSetting::upwardPercent)
+        ).apply(instance, MovementSetting::new)).codec();
     }
 
     public record TargetSetting(int priority, float chance, boolean closest, int refreshCD, ITargetFinder targetFinder) {

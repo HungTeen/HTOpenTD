@@ -14,17 +14,23 @@ import hungteen.opentd.impl.effect.*;
 import hungteen.opentd.impl.filter.*;
 import hungteen.opentd.impl.finder.RangeFinder;
 import net.minecraft.commands.CommandFunction;
+import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.phys.Vec3;
 import org.checkerframework.checker.units.qual.A;
 
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -46,7 +52,7 @@ public class HTTowerComponents {
     public static final HTRegistryHolder<ITowerComponent> PEA_SHOOTER = TOWERS.innerRegister(
             OpenTD.prefix("pea_shooter_test"), new PVZPlantComponent(
                     new PVZPlantComponent.PlantSettings(
-                            new CompoundTag(),
+                            get1(),
                             PVZPlantComponent.GrowSettings.DEFAULT,
                             OpenTD.prefix("pea_shooter_test"), 0, true, false,
                             PVZPlantComponent.RenderSettings.DEFAULT
@@ -92,6 +98,9 @@ public class HTTowerComponents {
                                     )
                             )
                     )),
+                    Optional.of(
+                            new PVZPlantComponent.MovementSetting(true, 1D, 0.3D, 0.7D)
+                    ),
                     Optional.of(new PVZPlantComponent.ShootGoalSetting(
                             0, 20, 10, 4, false, Optional.of(SoundEvents.SNOW_GOLEM_SHOOT),
                             Arrays.asList(
@@ -141,6 +150,7 @@ public class HTTowerComponents {
                     ),
                     Arrays.asList(),
                     Optional.empty(),
+                    Optional.empty(),
                     Optional.of(
                             new PVZPlantComponent.GenGoalSetting(
                                     20, 10, 100, 100, false, Optional.of(SoundEvents.PLAYER_LEVELUP),
@@ -172,6 +182,21 @@ public class HTTowerComponents {
     private static CompoundTag get() {
         CompoundTag tag = new CompoundTag();
         tag.putShort("Fire", (short) 100);
+        return tag;
+    }
+
+    private static CompoundTag get1() {
+        CompoundTag tag = new CompoundTag();
+        {
+            ListTag listtag = new ListTag();
+            {
+                CompoundTag compoundtag = new CompoundTag();
+                compoundtag.putString("Name", Objects.requireNonNull(Registry.ATTRIBUTE.getKey(Attributes.MOVEMENT_SPEED)).toString());
+                compoundtag.putDouble("Base", 0.4F);
+                listtag.add(compoundtag);
+            }
+            tag.put("Attributes", listtag);
+        }
         return tag;
     }
 

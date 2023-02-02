@@ -4,10 +4,7 @@ import com.mojang.datafixers.util.Pair;
 import hungteen.htlib.util.helper.EntityHelper;
 import hungteen.htlib.util.helper.RandomHelper;
 import hungteen.opentd.OpenTD;
-import hungteen.opentd.common.entity.ai.PlantAttackGoal;
-import hungteen.opentd.common.entity.ai.PlantGenGoal;
-import hungteen.opentd.common.entity.ai.PlantShootGoal;
-import hungteen.opentd.common.entity.ai.PlantTargetGoal;
+import hungteen.opentd.common.entity.ai.*;
 import hungteen.opentd.common.event.events.ShootBulletEvent;
 import hungteen.opentd.impl.tower.HTTowerComponents;
 import hungteen.opentd.impl.tower.PVZPlantComponent;
@@ -29,6 +26,11 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
+import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
+import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
+import net.minecraft.world.entity.monster.Skeleton;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.phys.Vec3;
@@ -128,6 +130,16 @@ public class PlantEntity extends TowerEntity {
             this.goalSelector.addGoal(2, new PlantShootGoal(this));
             this.goalSelector.addGoal(2, new PlantGenGoal(this));
             this.goalSelector.addGoal(1, new PlantAttackGoal(this));
+            if(this.getComponent().plantSetting().changeDirection()){
+                this.goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 8.0F));
+                this.goalSelector.addGoal(6, new RandomLookAroundGoal(this));
+            }
+            this.getComponent().movementSetting().ifPresent(movementSetting -> {
+                if(movementSetting.canRandomMove()){
+                    this.goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 1.0D));
+                }
+                this.goalSelector.addGoal(1, new MoveToTargetGoal(this, movementSetting.speedModifier(), movementSetting.backwardPercent(), movementSetting.upwardPercent()));
+            });
         }
     }
 
@@ -239,6 +251,9 @@ public class PlantEntity extends TowerEntity {
 
     protected PlayState predicateAnimation(AnimationEvent<?> event) {
         final AnimationBuilder builder = new AnimationBuilder();
+        if(event.isMoving() && this.getComponent() != null && this.getComponent().movementSetting().isPresent()) {
+            builder.addAnimation("move", ILoopType.EDefaultLoopTypes.LOOP);
+        }
         if (this.getShootTick() > 0) {
             builder.addAnimation("shoot", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
         } else if (this.getGenTick() > 0) {

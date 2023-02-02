@@ -21,7 +21,7 @@ public class PlantShootGoal extends HTGoal {
 
     public PlantShootGoal(PlantEntity attacker) {
         this.plantEntity = attacker;
-        this.setFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));
+        this.setFlags(EnumSet.of(Goal.Flag.LOOK));
     }
 
     @Override
