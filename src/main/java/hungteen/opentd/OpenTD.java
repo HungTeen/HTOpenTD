@@ -2,6 +2,7 @@ package hungteen.opentd;
 
 import com.mojang.logging.LogUtils;
 import hungteen.htlib.HTLib;
+import hungteen.opentd.common.OpenTDSounds;
 import hungteen.opentd.common.capability.OpenTDCapabilities;
 import hungteen.opentd.common.effect.OpenTDEffects;
 import hungteen.opentd.common.entity.OpenTDEntities;
@@ -49,6 +50,7 @@ public class OpenTD {
         OpenTDItems.register(modBus);
         OpenTDEntities.register(modBus);
         OpenTDEffects.register(modBus);
+        OpenTDSounds.register(modBus);
 
         final IEventBus forgeBus = MinecraftForge.EVENT_BUS;
         forgeBus.addGenericListener(Entity.class, OpenTDCapabilities::attachCapabilities);

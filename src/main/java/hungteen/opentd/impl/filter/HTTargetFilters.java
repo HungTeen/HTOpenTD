@@ -31,25 +31,16 @@ public class HTTargetFilters {
     public static final ITargetFilterType<AlwaysTrueFilter> ALWAYS_TRUE = new DefaultFilter<>("true",  AlwaysTrueFilter.CODEC);
     public static final ITargetFilterType<NotTargetFilter> NOT_FILTER = new DefaultFilter<>("not",  NotTargetFilter.CODEC);
     public static final ITargetFilterType<ClassFilter> CLASS_FILTER = new DefaultFilter<>("class",  ClassFilter.CODEC);
+    public static final ITargetFilterType<NBTTargetFilter> NBT_FILTER = new DefaultFilter<>("nbt",  NBTTargetFilter.CODEC);
+    public static final ITargetFilterType<EventFilter> EVENT_FILTER = new DefaultFilter<>("event",  EventFilter.CODEC);
 
     /* Towers */
-
-//    public static final HTRegistryHolder<ITargetFilter> PEA_SHOOTER = TOWERS.innerRegister(
-//            OpenTD.prefix("pea_shooter"), new PVZPlantComponent(
-//                    new PVZPlantComponent.PlantSettings(
-//                            PVZPlantComponent.GrowSettings.DEFAULT,
-//                            OpenTD.prefix("geo/pea_shooter.geo.json"),
-//                            OpenTD.prefix("textures/entity/pea_shooter.png"),
-//                            OpenTD.prefix("animations/pea_shooter.animation.json")
-//                    )
-//            )
-//    );
 
     /**
      * {@link OpenTD#setUp(FMLCommonSetupEvent)} ()}
      */
     public static void registerStuffs(){
-        Arrays.asList(TAG_FILTER, TYPE_FILTER, OR_FILTER, AND_FILTER, ENTITY_PREDICATE_FILTER, ALWAYS_TRUE, NOT_FILTER, CLASS_FILTER).forEach(HTTargetFilters::registerFilterType);
+        Arrays.asList(TAG_FILTER, TYPE_FILTER, OR_FILTER, AND_FILTER, ENTITY_PREDICATE_FILTER, ALWAYS_TRUE, NOT_FILTER, CLASS_FILTER, NBT_FILTER, EVENT_FILTER).forEach(HTTargetFilters::registerFilterType);
     }
 
     public static void registerFilterType(ITargetFilterType<?> type){

@@ -8,14 +8,8 @@ import dev.latvian.mods.kubejs.item.KubeJSItemEventHandler;
 import dev.latvian.mods.kubejs.script.ScriptType;
 import dev.latvian.mods.kubejs.util.ClassFilter;
 import hungteen.opentd.common.capability.OpenTDCapabilities;
-import hungteen.opentd.common.event.events.BulletHitEvent;
-import hungteen.opentd.common.event.events.PostSummonTowerEvent;
-import hungteen.opentd.common.event.events.ShootBulletEvent;
-import hungteen.opentd.common.event.events.SummonTowerEvent;
-import hungteen.opentd.compat.kubejs.event.BulletHitEventJS;
-import hungteen.opentd.compat.kubejs.event.PostSummonTowerEventJS;
-import hungteen.opentd.compat.kubejs.event.ShootBulletEventJS;
-import hungteen.opentd.compat.kubejs.event.SummonTowerEventJS;
+import hungteen.opentd.common.event.events.*;
+import hungteen.opentd.compat.kubejs.event.*;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.server.commands.ExecuteCommand;
 import net.minecraft.world.entity.Entity;
@@ -37,6 +31,8 @@ public class MyKubeJSPlugin extends KubeJSPlugin {
         forgeBus.addListener(EventPriority.NORMAL, MyKubeJSPlugin::postSummonTower);
         forgeBus.addListener(EventPriority.NORMAL, MyKubeJSPlugin::bulletHit);
         forgeBus.addListener(EventPriority.NORMAL, MyKubeJSPlugin::shootBullet);
+        forgeBus.addListener(EventPriority.NORMAL, MyKubeJSPlugin::filterTarget);
+        forgeBus.addListener(EventPriority.NORMAL, MyKubeJSPlugin::entityEffect);
     }
 
     @Override
@@ -67,5 +63,15 @@ public class MyKubeJSPlugin extends KubeJSPlugin {
         if(OTDKubeJSEvents.SHOOT_BULLET.post(new ShootBulletEventJS(event))){
             event.setCanceled(true);
         }
+    }
+
+    private static void filterTarget(FilterTargetEvent event) {
+        if(OTDKubeJSEvents.FILTER_TARGET.post(new FilterTargetEventJS(event))){
+            event.setCanceled(true);
+        }
+    }
+
+    private static void entityEffect(EntityEffectEvent event) {
+        OTDKubeJSEvents.ENTITY_EFFECT.post(new EntityEffectEventJS(event));
     }
 }

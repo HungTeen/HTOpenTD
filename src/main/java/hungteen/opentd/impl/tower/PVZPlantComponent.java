@@ -56,7 +56,7 @@ public record PVZPlantComponent(PlantSettings plantSetting, List<TargetSetting> 
     public static final Codec<PVZPlantComponent> CODEC = RecordCodecBuilder.<PVZPlantComponent>mapCodec(instance -> instance.group(
             PlantSettings.CODEC.fieldOf("plant_setting").forGetter(PVZPlantComponent::plantSetting),
             TargetSetting.CODEC.listOf().optionalFieldOf("target_settings", Arrays.asList()).forGetter(PVZPlantComponent::targetSettings),
-            Codec.optionalField("move_setting", MovementSetting.CODEC).forGetter(PVZPlantComponent::movementSetting),
+            Codec.optionalField("movement_setting", MovementSetting.CODEC).forGetter(PVZPlantComponent::movementSetting),
             Codec.optionalField("shoot_goal", ShootGoalSetting.CODEC).forGetter(PVZPlantComponent::shootGoalSetting),
             Codec.optionalField("gen_goal", GenGoalSetting.CODEC).forGetter(PVZPlantComponent::genGoalSetting),
             Codec.optionalField("attack_goal", AttackGoalSetting.CODEC).forGetter(PVZPlantComponent::attackGoalSetting),
@@ -186,7 +186,7 @@ public record PVZPlantComponent(PlantSettings plantSetting, List<TargetSetting> 
                 Codec.doubleRange(0, Double.MAX_VALUE).optionalFieldOf("vertical_angle_limit", 0D).forGetter(ShootSettings::verticalAngleLimit),
                 Codec.DOUBLE.optionalFieldOf("horizontal_angle_offset", 0D).forGetter(ShootSettings::horizontalAngleOffset),
                 Codec.doubleRange(0, Double.MAX_VALUE).optionalFieldOf("pult_height", 10D).forGetter(ShootSettings::pultHeight),
-                BulletSettings.CODEC.fieldOf("bullet_settings").forGetter(ShootSettings::bulletSettings)
+                BulletSettings.CODEC.fieldOf("bullet_setting").forGetter(ShootSettings::bulletSettings)
         ).apply(instance, ShootSettings::new)).codec();
     }
 

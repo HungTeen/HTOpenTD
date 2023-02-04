@@ -2,10 +2,8 @@ package hungteen.opentd.compat.kubejs;
 
 import dev.latvian.mods.kubejs.event.EventGroup;
 import dev.latvian.mods.kubejs.event.EventHandler;
-import hungteen.opentd.compat.kubejs.event.BulletHitEventJS;
-import hungteen.opentd.compat.kubejs.event.PostSummonTowerEventJS;
-import hungteen.opentd.compat.kubejs.event.ShootBulletEventJS;
-import hungteen.opentd.compat.kubejs.event.SummonTowerEventJS;
+import dev.latvian.mods.kubejs.event.Extra;
+import hungteen.opentd.compat.kubejs.event.*;
 
 /**
  * @program: HTOpenTD
@@ -20,4 +18,6 @@ public interface OTDKubeJSEvents {
     EventHandler POST_SUMMON_TOWER = GROUP.server("postSummonTower", () -> PostSummonTowerEventJS.class);
     EventHandler BULLET_HIT = GROUP.server("bulletHit", () -> BulletHitEventJS.class);
     EventHandler SHOOT_BULLET = GROUP.server("shootBullet", () -> ShootBulletEventJS.class).cancelable();
+    EventHandler FILTER_TARGET = GROUP.server("filterTarget", () -> FilterTargetEventJS.class).cancelable();
+    EventHandler ENTITY_EFFECT = GROUP.server("entityEffect", () -> EntityEffectEventJS.class);
 }

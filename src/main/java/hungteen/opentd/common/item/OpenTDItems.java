@@ -1,7 +1,9 @@
 package hungteen.opentd.common.item;
 
 import hungteen.opentd.OpenTD;
+import hungteen.opentd.common.OpenTDSounds;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.RecordItem;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -17,6 +19,8 @@ public class OpenTDItems {
     private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, OpenTD.MOD_ID);
 
     public static final RegistryObject<Item> SUMMON_TOWER_ITEM = ITEMS.register("summon_tower_item", SummonTowerItem::new);
+
+//    public static final RegistryObject<Item> RECORD = ITEMS.register("record", () -> new RecordItem(0, OpenTDSounds.ZOMBOSS.get(), new Item.Properties(), 178));
 
     public static void register(IEventBus eventBus){
         ITEMS.register(eventBus);

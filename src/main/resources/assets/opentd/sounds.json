@@ -1,0 +1,10 @@
+{
+  "zomboss": {
+    "sounds": [
+      {
+        "name": "opentd:zomboss",
+        "stream": true
+      }
+    ]
+  }
+}

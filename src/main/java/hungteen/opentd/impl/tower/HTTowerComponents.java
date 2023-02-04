@@ -13,6 +13,7 @@ import hungteen.opentd.common.codec.ParticleSetting;
 import hungteen.opentd.impl.effect.*;
 import hungteen.opentd.impl.filter.*;
 import hungteen.opentd.impl.finder.RangeFinder;
+import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.commands.CommandFunction;
 import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleTypes;
