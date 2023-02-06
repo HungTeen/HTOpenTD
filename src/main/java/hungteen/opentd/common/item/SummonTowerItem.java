@@ -1,5 +1,6 @@
 package hungteen.opentd.common.item;
 
+import hungteen.opentd.api.interfaces.ISummonRequirement;
 import hungteen.opentd.api.interfaces.ITowerComponent;
 import hungteen.opentd.common.event.events.PostSummonTowerEvent;
 import hungteen.opentd.common.event.events.SummonTowerEvent;
@@ -131,11 +132,8 @@ public class SummonTowerItem extends Item {
             itemstack.hurtAndBreak(1, player, (p) -> {
                 player.broadcastBreakEvent(hand);
             });
+            getItemSettings(itemstack).requirements().forEach(l -> l.consume(level, player));
         }
-//        final CompoundTag tmp = entity.saveWithoutId(new CompoundTag());
-//        CompoundTag.CODEC.encodeStart(JsonOps.INSTANCE, tmp)
-//                .resultOrPartial(msg -> OpenTD.log().error(msg))
-//                        .ifPresent(System.out::println);
 
         PlayerUtil.addCooldown(player, itemstack, getItemSettings(itemstack).coolDown());
 

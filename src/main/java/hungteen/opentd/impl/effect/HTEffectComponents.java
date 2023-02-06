@@ -19,7 +19,7 @@ import java.util.Arrays;
 public class HTEffectComponents {
 
     public static final HTSimpleRegistry<IEffectComponentType<?>> EFFECT_TYPES = HTRegistryManager.create(OpenTD.prefix("effect_type"));
-    public static final HTCodecRegistry<IEffectComponent> EFFECTS = HTRegistryManager.create(IEffectComponent.class, "tower_defence/effects", HTEffectComponents::getCodec, true);
+    public static final HTCodecRegistry<IEffectComponent> EFFECTS = HTRegistryManager.create(IEffectComponent.class, "tower_defence/effects", HTEffectComponents::getCodec, OpenTD.MOD_ID);
 
     /* Effect types */
 

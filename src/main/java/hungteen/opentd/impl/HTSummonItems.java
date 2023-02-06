@@ -17,7 +17,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
  **/
 public class HTSummonItems {
 
-    public static final HTCodecRegistry<SummonEntry> SUMMON_ITEMS = HTRegistryManager.create(SummonEntry.class, "tower_defence/summon_items", () -> SummonEntry.CODEC, true);
+    public static final HTCodecRegistry<SummonEntry> SUMMON_ITEMS = HTRegistryManager.create(SummonEntry.class, "tower_defence/summon_items", () -> SummonEntry.CODEC, OpenTD.MOD_ID);
 
     public static final HTRegistryHolder<SummonEntry> PEA_SHOOTER_CARD = SUMMON_ITEMS.innerRegister(
             OpenTD.prefix("pea_shooter_card"),

@@ -27,7 +27,7 @@ import java.util.Optional;
  **/
 public class HTItemSettings {
 
-    public static final HTCodecRegistry<ItemSetting> SUMMON_ITEMS = HTRegistryManager.create(ItemSetting.class, "tower_defence/item_settings", () -> ItemSetting.CODEC, true);
+    public static final HTCodecRegistry<ItemSetting> SUMMON_ITEMS = HTRegistryManager.create(ItemSetting.class, "tower_defence/item_settings", () -> ItemSetting.CODEC, OpenTD.MOD_ID);
 
     public static final HTRegistryHolder<ItemSetting> DEFAULT = SUMMON_ITEMS.innerRegister(
             OpenTD.prefix("default"),

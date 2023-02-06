@@ -17,7 +17,7 @@ import java.util.Arrays;
 public class HTTargetFinders {
 
     public static final HTSimpleRegistry<ITargetFinderType<?>> FINDER_TYPES = HTRegistryManager.create(OpenTD.prefix("target_finder_type"));
-    public static final HTCodecRegistry<ITargetFinder> FINDERS = HTRegistryManager.create(ITargetFinder.class, "tower_defence/target_finders", HTTargetFinders::getCodec, true);
+    public static final HTCodecRegistry<ITargetFinder> FINDERS = HTRegistryManager.create(ITargetFinder.class, "tower_defence/target_finders", HTTargetFinders::getCodec, OpenTD.MOD_ID);
 
     /* Target Finder types */
 

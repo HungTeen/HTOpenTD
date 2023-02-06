@@ -183,10 +183,6 @@ dependencies {
 
     implementation fg.deobf("curse.maven:geckolib-388172:${geckolib_version}")
 
-//    implementation fg.deobf("curse.maven:kubejs-238086:${kubejs_version}")
-//    implementation fg.deobf("curse.maven:rhino-416294:${rhino_version}")
-//    implementation fg.deobf("curse.maven:architectury-419699:${architectury_version}")
-
     implementation fg.deobf("dev.latvian.mods:kubejs-forge:${kubejs_version}")
     implementation fg.deobf("dev.latvian.mods:rhino-forge:${rhino_version}")
     implementation fg.deobf("dev.architectury:architectury-forge:${architectury_version}")
