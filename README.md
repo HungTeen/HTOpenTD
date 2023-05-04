@@ -2,24 +2,27 @@
 
 [![](https://cf.way2muchnoise.eu/versions/807555.svg)](https://www.curseforge.com/minecraft/mc-mods/open-tower-defence)
 
+---
+### Pre-requisites
+OpenTD requires the following dependencies :
 
-### Features
-Custom Tower <br>
-Custom Behavior (Shoot, Gen, Effect...) <br>
-Custom Model (Animation, Texture...) <br>
-
-### Current Progress
-
-| Version |   Status   |
-|:-------:|:----------:|
-| 1.19.2  | Developing |
+[![]( https://cf.way2muchnoise.eu/title/hungteens-lib.svg)](https://www.curseforge.com/minecraft/mc-mods/hungteens-lib)
+[![]( https://cf.way2muchnoise.eu/title/geckolib.svg)](https://www.curseforge.com/minecraft/mc-mods/geckolib)
 
 ---
 
-### Related Websites
+### Features
+* Custom Tower : make your own plants in pvz... <br>
+* Custom Behavior : shoot bullets, gen items... <br>
+* Custom Model : make your own textures, models, and animation... <br>
+* KubeJS Support : this mod will try to compat with KubeJS. <br>
+---
 
-BiliBili: [Click Here](https://space.bilibili.com/362855464)
+### Current Progress
 
-YouTube: [Click Here](https://www.youtube.com/channel/UCc0zRvlwZdYLc4AKPafC4cg)
+| Version |   Status   | Stable | Latest |
+|:-------:|:----------:|:------:|:------:|
+| 1.19.2  | Developing | 1.0.0  | 1.0.0  |
+|  1.20   |  Waiting   |  None  |  None  |
 
 ---

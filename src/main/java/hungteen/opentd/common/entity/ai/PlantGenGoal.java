@@ -2,7 +2,7 @@ package hungteen.opentd.common.entity.ai;
 
 import hungteen.htlib.util.WeightList;
 import hungteen.opentd.common.entity.PlantEntity;
-import hungteen.opentd.impl.tower.PVZPlantComponent;
+import hungteen.opentd.common.impl.tower.PVZPlantComponent;
 
 import java.util.stream.Collectors;
 

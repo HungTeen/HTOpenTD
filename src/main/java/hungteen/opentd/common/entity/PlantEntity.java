@@ -1,13 +1,14 @@
 package hungteen.opentd.common.entity;
 
 import com.mojang.datafixers.util.Pair;
-import hungteen.htlib.util.helper.EntityHelper;
 import hungteen.htlib.util.helper.RandomHelper;
+import hungteen.htlib.util.helper.registry.EntityHelper;
 import hungteen.opentd.OpenTD;
+import hungteen.opentd.common.codec.RenderSetting;
 import hungteen.opentd.common.entity.ai.*;
 import hungteen.opentd.common.event.events.ShootBulletEvent;
-import hungteen.opentd.impl.tower.HTTowerComponents;
-import hungteen.opentd.impl.tower.PVZPlantComponent;
+import hungteen.opentd.common.impl.tower.HTTowerComponents;
+import hungteen.opentd.common.impl.tower.PVZPlantComponent;
 import hungteen.opentd.util.EntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -29,9 +30,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
-import net.minecraft.world.entity.monster.Skeleton;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.phys.Vec3;
@@ -307,7 +306,7 @@ public class PlantEntity extends TowerEntity {
         if (genSettings != null && this.getComponent() != null && this.getComponent().genGoalSetting().isPresent()) {
             if (this.level instanceof ServerLevel serverlevel && Level.isInSpawnableBounds(this.blockPosition())) {
                 CompoundTag compoundtag = genSettings.nbt().copy();
-                compoundtag.putString("id", EntityHelper.getKey(genSettings.entityType()).toString());
+                compoundtag.putString("id", EntityHelper.get().getKey(genSettings.entityType()).toString());
                 final Vec3 position = this.getEyePosition().add(genSettings.offset());
                 Entity entity = EntityType.loadEntityRecursive(compoundtag, serverlevel, (e) -> {
                     e.moveTo(position.x(), position.y(), position.z(), this.getYRot(), this.getXRot());
@@ -641,8 +640,8 @@ public class PlantEntity extends TowerEntity {
         return this.getComponent() == null ? PVZPlantComponent.GrowSettings.DEFAULT : this.getComponent().plantSetting().growSetting();
     }
 
-    public PVZPlantComponent.RenderSettings getRenderSettings() {
-        return this.getComponent() == null ? PVZPlantComponent.RenderSettings.DEFAULT : this.getComponent().plantSetting().renderSetting();
+    public RenderSetting getRenderSettings() {
+        return this.getComponent() == null ? RenderSetting.DEFAULT : this.getComponent().plantSetting().renderSetting();
     }
 
     @Nullable

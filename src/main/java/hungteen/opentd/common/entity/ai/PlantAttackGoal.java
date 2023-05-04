@@ -2,7 +2,7 @@ package hungteen.opentd.common.entity.ai;
 
 import hungteen.htlib.util.helper.EntityHelper;
 import hungteen.opentd.common.entity.PlantEntity;
-import hungteen.opentd.impl.tower.PVZPlantComponent;
+import hungteen.opentd.common.impl.tower.PVZPlantComponent;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
 

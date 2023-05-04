@@ -2,6 +2,7 @@ package hungteen.opentd;
 
 import com.mojang.logging.LogUtils;
 import hungteen.htlib.HTLib;
+import hungteen.htlib.util.helper.StringHelper;
 import hungteen.opentd.common.OpenTDSounds;
 import hungteen.opentd.common.capability.OpenTDCapabilities;
 import hungteen.opentd.common.effect.OpenTDEffects;
@@ -9,14 +10,14 @@ import hungteen.opentd.common.entity.OpenTDEntities;
 import hungteen.opentd.common.item.OpenTDItems;
 import hungteen.opentd.common.network.NetworkHandler;
 import hungteen.opentd.data.OpenTDTestGen;
-import hungteen.opentd.impl.HTItemSettings;
-import hungteen.opentd.impl.HTSummonItems;
-import hungteen.opentd.impl.effect.HTEffectComponents;
-import hungteen.opentd.impl.filter.ClassFilter;
-import hungteen.opentd.impl.finder.HTTargetFinders;
-import hungteen.opentd.impl.requirement.HTSummonRequirements;
-import hungteen.opentd.impl.filter.HTTargetFilters;
-import hungteen.opentd.impl.tower.HTTowerComponents;
+import hungteen.opentd.common.impl.HTItemSettings;
+import hungteen.opentd.common.impl.HTSummonItems;
+import hungteen.opentd.common.impl.effect.HTEffectComponents;
+import hungteen.opentd.common.impl.filter.ClassFilter;
+import hungteen.opentd.common.impl.finder.HTTargetFinders;
+import hungteen.opentd.common.impl.requirement.HTSummonRequirements;
+import hungteen.opentd.common.impl.filter.HTTargetFilters;
+import hungteen.opentd.common.impl.tower.HTTowerComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraftforge.common.MinecraftForge;
@@ -71,7 +72,7 @@ public class OpenTD {
     }
 
     public static ResourceLocation prefix(String name) {
-        return HTLib.res(MOD_ID, name);
+        return StringHelper.res(MOD_ID, name);
     }
 
     public static Logger log(){
