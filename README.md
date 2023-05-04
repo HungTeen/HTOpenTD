@@ -1,6 +1,7 @@
-[![](http://cf.way2muchnoise.eu/full_807555_downloads.svg)](https://www.curseforge.com/minecraft/mc-mods/open-tower-defence)
+# HungTeen's Open Tower Defence [![](https://cf.way2muchnoise.eu/full_807555_downloads.svg)](https://www.curseforge.com/minecraft/mc-mods/open-tower-defence)
 
-# HungTeen's Open Tower Defence
+[![](https://cf.way2muchnoise.eu/versions/807555.svg)](https://www.curseforge.com/minecraft/mc-mods/open-tower-defence)
+
 
 ### Features
 Custom Tower <br>
@@ -9,7 +10,9 @@ Custom Model (Animation, Texture...) <br>
 
 ### Current Progress
 
-OpenTD for 1.19.2: Developing.
+| Version |   Status   |
+|:-------:|:----------:|
+| 1.19.2  | Developing |
 
 ---
 
