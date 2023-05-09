@@ -2,9 +2,7 @@ package hungteen.opentd.common.impl.effect;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import hungteen.htlib.util.helper.EntityHelper;
 import hungteen.htlib.util.helper.MathHelper;
-import hungteen.htlib.util.helper.ParticleHelper;
 import hungteen.opentd.api.interfaces.IEffectComponent;
 import hungteen.opentd.api.interfaces.IEffectComponentType;
 import hungteen.opentd.common.codec.ParticleSetting;

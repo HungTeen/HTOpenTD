@@ -2,10 +2,9 @@ package hungteen.opentd.common.impl.effect;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import hungteen.htlib.impl.spawn.SpawnComponent;
-import hungteen.htlib.util.helper.EntityHelper;
 import hungteen.htlib.util.helper.RandomHelper;
 import hungteen.htlib.util.helper.WorldHelper;
+import hungteen.htlib.util.helper.registry.EntityHelper;
 import hungteen.opentd.api.interfaces.IEffectComponent;
 import hungteen.opentd.api.interfaces.IEffectComponentType;
 import net.minecraft.core.BlockPos;
@@ -53,7 +52,7 @@ public record SummonEffectComponent(int count, int radius, boolean self, boolean
 
     public void spawn(Level level, Entity summoner, CompoundTag compoundTag){
         if (level instanceof ServerLevel serverlevel && Level.isInSpawnableBounds(summoner.blockPosition())) {
-            compoundTag.putString("id", EntityHelper.getKey(entityType).toString());
+            compoundTag.putString("id", EntityHelper.get().getKey(entityType).toString());
 
             // position.
             final int dx = RandomHelper.range(summoner.getLevel().getRandom(), radius());

@@ -4,7 +4,6 @@ import com.mojang.serialization.Encoder;
 import hungteen.htlib.common.registry.HTCodecRegistry;
 import hungteen.htlib.common.registry.HTRegistryHolder;
 import hungteen.htlib.data.HTCodecGen;
-import hungteen.htlib.impl.raid.HTRaidComponents;
 import hungteen.opentd.OpenTD;
 import hungteen.opentd.common.impl.HTSummonItems;
 import hungteen.opentd.common.impl.effect.HTEffectComponents;

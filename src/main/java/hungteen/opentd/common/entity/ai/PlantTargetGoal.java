@@ -1,7 +1,7 @@
 package hungteen.opentd.common.entity.ai;
 
-import hungteen.htlib.util.algorithm.SortHelper;
-import hungteen.htlib.util.helper.EntityHelper;
+import hungteen.htlib.util.helper.algorithm.SortHelper;
+import hungteen.htlib.util.helper.registry.EntityHelper;
 import hungteen.opentd.common.entity.PlantEntity;
 import hungteen.opentd.common.impl.tower.PVZPlantComponent;
 import net.minecraft.server.level.ServerLevel;

@@ -1,6 +1,6 @@
 package hungteen.opentd.common.capability.player;
 
-import hungteen.htlib.util.interfaces.IPlayerDataManager;
+import hungteen.htlib.api.interfaces.IPlayerDataManager;
 import hungteen.opentd.common.network.CDPacket;
 import hungteen.opentd.common.network.NetworkHandler;
 import hungteen.opentd.common.impl.HTSummonItems;

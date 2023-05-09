@@ -2,7 +2,7 @@ package hungteen.opentd.common.impl.effect;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import hungteen.htlib.util.helper.EffectHelper;
+import hungteen.htlib.util.helper.registry.EffectHelper;
 import hungteen.opentd.api.interfaces.IEffectComponent;
 import hungteen.opentd.api.interfaces.IEffectComponentType;
 import net.minecraft.core.BlockPos;

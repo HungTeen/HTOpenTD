@@ -20,6 +20,8 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.util.random.Weight;
+import net.minecraft.util.random.WeightedEntry;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
@@ -186,7 +188,7 @@ public record PVZPlantComponent(PlantSettings plantSetting, List<TargetSetting> 
     }
 
     public record GenSettings(boolean plantFoodOnly, int weight, int cooldown, int count, EntityType<?> entityType,
-                              CompoundTag nbt, Vec3 offset, double horizontalSpeed, double verticalSpeed) {
+                              CompoundTag nbt, Vec3 offset, double horizontalSpeed, double verticalSpeed) implements WeightedEntry {
 
         public static final Codec<GenSettings> CODEC = RecordCodecBuilder.<GenSettings>mapCodec(instance -> instance.group(
                 Codec.BOOL.optionalFieldOf("plant_food_only", false).forGetter(GenSettings::plantFoodOnly),
@@ -199,6 +201,11 @@ public record PVZPlantComponent(PlantSettings plantSetting, List<TargetSetting> 
                 Codec.DOUBLE.optionalFieldOf("horizontal_speed", 0.25D).forGetter(GenSettings::horizontalSpeed),
                 Codec.DOUBLE.optionalFieldOf("vertical_speed", 0.3D).forGetter(GenSettings::verticalSpeed)
         ).apply(instance, GenSettings::new)).codec();
+
+        @Override
+        public Weight getWeight() {
+            return Weight.of(weight());
+        }
     }
 
     public record AttackGoalSetting(int duration, int coolDown, int startTick, boolean needRest, double distance, Optional<SoundEvent> attackSound,

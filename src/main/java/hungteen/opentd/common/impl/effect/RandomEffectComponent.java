@@ -3,7 +3,8 @@ package hungteen.opentd.common.impl.effect;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import hungteen.htlib.util.WeightList;
+import hungteen.htlib.util.SimpleWeightedList;
+import hungteen.htlib.util.WeightedList;
 import hungteen.opentd.api.interfaces.IEffectComponent;
 import hungteen.opentd.api.interfaces.IEffectComponentType;
 import net.minecraft.core.BlockPos;
@@ -43,14 +44,10 @@ public record RandomEffectComponent(int totalWeight, int effectTimes, boolean di
     }
 
     private List<IEffectComponent> getEffects(RandomSource random){
-        List<hungteen.htlib.util.Pair<IEffectComponent, Integer>> list = effects.stream().map(p -> hungteen.htlib.util.Pair.of(p.getFirst(), p.getSecond())).collect(Collectors.toList());
-        int totalWeight = totalWeight();
-        if(totalWeight == 0){
-            totalWeight = list.stream().map(hungteen.htlib.util.Pair::getSecond).reduce(0, Integer::sum);
-        }
-        WeightList<IEffectComponent> weightList = WeightList.of(list.toArray(new hungteen.htlib.util.Pair[0]));
-        weightList.setTotalWeight(totalWeight);
-        return weightList.getRandomItems(random, effectTimes(), different());
+        SimpleWeightedList.Builder<IEffectComponent> builder = new SimpleWeightedList.Builder<>();
+        effects().forEach(p -> builder.add(p.getFirst(), p.getSecond()));
+        builder.weight(totalWeight());
+        return builder.build().getItems(random, effectTimes(), different());
     }
 
     @Override

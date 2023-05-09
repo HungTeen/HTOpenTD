@@ -1,7 +1,7 @@
 package hungteen.opentd.common.entity;
 
-import hungteen.htlib.util.helper.EntityHelper;
 import hungteen.htlib.util.helper.MathHelper;
+import hungteen.htlib.util.helper.registry.EntityHelper;
 import hungteen.opentd.OpenTD;
 import hungteen.opentd.api.interfaces.IEffectComponent;
 import hungteen.opentd.common.codec.ParticleSetting;

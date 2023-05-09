@@ -2,8 +2,8 @@ package hungteen.opentd.common.impl.finder;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import hungteen.htlib.util.helper.EntityHelper;
 import hungteen.htlib.util.helper.MathHelper;
+import hungteen.htlib.util.helper.registry.EntityHelper;
 import hungteen.opentd.api.interfaces.ITargetFilter;
 import hungteen.opentd.api.interfaces.ITargetFinder;
 import hungteen.opentd.api.interfaces.ITargetFinderType;
