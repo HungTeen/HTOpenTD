@@ -3,7 +3,7 @@ package hungteen.opentd.common.capability.player;
 import hungteen.htlib.util.interfaces.IPlayerDataManager;
 import hungteen.opentd.common.network.CDPacket;
 import hungteen.opentd.common.network.NetworkHandler;
-import hungteen.opentd.impl.HTSummonItems;
+import hungteen.opentd.common.impl.HTSummonItems;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;

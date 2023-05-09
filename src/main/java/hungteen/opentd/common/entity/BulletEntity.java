@@ -6,7 +6,7 @@ import hungteen.opentd.OpenTD;
 import hungteen.opentd.api.interfaces.IEffectComponent;
 import hungteen.opentd.common.codec.ParticleSetting;
 import hungteen.opentd.common.event.events.BulletHitEvent;
-import hungteen.opentd.impl.tower.PVZPlantComponent;
+import hungteen.opentd.common.impl.tower.PVZPlantComponent;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;

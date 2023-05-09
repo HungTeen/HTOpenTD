@@ -7,14 +7,13 @@ issueTrackerURL = "https://github.com/HungTeen/Immortal/issues"
 modId = "opentd"
 version = "${file.jarVersion}"
 displayName = "HungTeen's Open Tower Defence"
-# A URL to query for updates for this mod. See the JSON update specification https://mcforge.readthedocs.io/en/latest/gettingstarted/autoupdate/
-#updateJSONURL="https://change.me.example.invalid/updates.json" #optional
+updateJSONURL="https://github.com/HungTeen/HTMCMods/blob/main/opentd.json"
 displayURL = "https://space.bilibili.com/362855464"
-logoFile = "examplemod.png"
+logoFile = "logo.png"
 credits = "..."
 authors = "HungTeen, GrassCrap"
 description = '''
-A mod that providers stuffs to play tower defence in mincraft.
+A mod that providers stuffs to play tower defence in minecraft.
 '''
 
 [[dependencies.opentd]]
@@ -34,7 +33,7 @@ side = "BOTH"
 [[dependencies.opentd]]
 modId = "htlib"
 mandatory = true
-versionRange = "[0.8.2,)"
+versionRange = "[0.9.0,)"
 
 [[dependencies.opentd]]
 modId = "geckolib3"

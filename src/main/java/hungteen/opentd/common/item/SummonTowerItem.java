@@ -4,9 +4,9 @@ import hungteen.opentd.api.interfaces.ISummonRequirement;
 import hungteen.opentd.api.interfaces.ITowerComponent;
 import hungteen.opentd.common.event.events.PostSummonTowerEvent;
 import hungteen.opentd.common.event.events.SummonTowerEvent;
-import hungteen.opentd.impl.HTItemSettings;
-import hungteen.opentd.impl.HTSummonItems;
-import hungteen.opentd.impl.tower.HTTowerComponents;
+import hungteen.opentd.common.impl.HTItemSettings;
+import hungteen.opentd.common.impl.HTSummonItems;
+import hungteen.opentd.common.impl.tower.HTTowerComponents;
 import hungteen.opentd.util.PlayerUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
@@ -52,7 +52,7 @@ public class SummonTowerItem extends Item {
     public static final String ENTITY_TAG = "EntityTag";
 
     public SummonTowerItem() {
-        super(new Properties());
+        super(new Properties().tab(OTDTabs.CARDS));
     }
 
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {

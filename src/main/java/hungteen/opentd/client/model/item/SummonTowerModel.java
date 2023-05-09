@@ -1,7 +1,7 @@
 package hungteen.opentd.client.model.item;
 
 import hungteen.opentd.common.item.SummonTowerItem;
-import hungteen.opentd.impl.HTItemSettings;
+import hungteen.opentd.common.impl.HTItemSettings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.block.model.BakedQuad;
