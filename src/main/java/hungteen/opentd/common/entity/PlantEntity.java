@@ -48,6 +48,7 @@ import software.bernie.geckolib3.util.GeckoLibUtil;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * @program: HTOpenTD
@@ -574,7 +575,6 @@ public class PlantEntity extends TowerEntity {
 
     @Override
     public void readAdditionalSaveData(CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
         if (tag.contains("ComponentTag")) {
             this.componentTag = tag.getCompound("ComponentTag");
         }
@@ -588,7 +588,12 @@ public class PlantEntity extends TowerEntity {
                             .ifPresent(nbt -> this.componentTag = (CompoundTag) nbt);
                 }
             });
+
         }
+        if(this.getComponent() != null){
+            tag.merge(this.getComponent().plantSetting().extraNBT());
+        }
+        super.readAdditionalSaveData(tag);
         // Refresh component when tag changed.
         this.getComponent();
         if (tag.contains("CreatureAge")) {
