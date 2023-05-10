@@ -2,8 +2,8 @@ package hungteen.opentd.common.entity.ai;
 
 import hungteen.htlib.util.helper.algorithm.SortHelper;
 import hungteen.htlib.util.helper.registry.EntityHelper;
-import hungteen.opentd.common.entity.PlantEntity;
-import hungteen.opentd.common.impl.tower.PVZPlantComponent;
+import hungteen.opentd.common.codec.TargetSetting;
+import hungteen.opentd.common.entity.TowerEntity;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
@@ -16,16 +16,16 @@ import java.util.List;
  * @author: HungTeen
  * @create: 2022-12-17 18:44
  **/
-public class PlantTargetGoal extends Goal {
+public class TowerTargetGoal extends Goal {
 
-    protected final PlantEntity plantEntity;
-    private final PVZPlantComponent.TargetSetting targetSettings;
+    protected final TowerEntity plantEntity;
+    private final TargetSetting targetSettings;
     protected final SortHelper.EntitySorter sorter;
     protected LivingEntity targetMob;
     private long refreshTick = 0;
 
 
-    public PlantTargetGoal(PlantEntity towerEntity, PVZPlantComponent.TargetSetting targetSettings) {
+    public TowerTargetGoal(TowerEntity towerEntity, TargetSetting targetSettings) {
         this.plantEntity = towerEntity;
         this.targetSettings = targetSettings;
         this.sorter = new SortHelper.EntitySorter(towerEntity);

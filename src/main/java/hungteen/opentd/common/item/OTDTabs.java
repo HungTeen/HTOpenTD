@@ -1,5 +1,6 @@
 package hungteen.opentd.common.item;
 
+import hungteen.htlib.util.helper.StringHelper;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -21,6 +22,6 @@ public class OTDTabs {
         public boolean hasSearchBar() {
             return true;
         }
-    };
+    }.setBackgroundImage(StringHelper.containerTexture("minecraft", "creative_inventory/tab_item_search"));
 
 }

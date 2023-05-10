@@ -5,7 +5,6 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
 import hungteen.opentd.client.model.entity.BulletEntityModel;
 import hungteen.opentd.common.entity.BulletEntity;
-import hungteen.opentd.common.entity.PlantEntity;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -27,9 +26,9 @@ public class BulletEntityRender extends GeoProjectilesRenderer<BulletEntity> {
 
     @Override
     public void render(GeoModel model, BulletEntity animatable, float partialTick, RenderType type, PoseStack poseStack, @Nullable MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-        if (animatable.getSettings() != null) {
+        if (animatable.bulletSetting() != null) {
             poseStack.pushPose();
-            final float scale = animatable.getSettings().renderSettings().scale();
+            final float scale = animatable.bulletSetting().renderSettings().scale();
             poseStack.scale(scale, scale, scale);
             super.render(model, animatable, partialTick, type, poseStack, bufferSource, buffer, packedLight, packedOverlay, red, green, blue, alpha);
             poseStack.popPose();
@@ -38,7 +37,7 @@ public class BulletEntityRender extends GeoProjectilesRenderer<BulletEntity> {
 
     @Override
     public void render(BulletEntity animatable, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
-        if (animatable.getSettings() != null) {
+        if (animatable.bulletSetting() != null) {
             poseStack.pushPose();
             poseStack.mulPose(Vector3f.YP.rotationDegrees(- Mth.lerp(partialTick, animatable.yRotO, animatable.getYRot()) - 90.0F));
             poseStack.mulPose(Vector3f.ZP.rotationDegrees(- Mth.lerp(partialTick, animatable.xRotO, animatable.getXRot())));

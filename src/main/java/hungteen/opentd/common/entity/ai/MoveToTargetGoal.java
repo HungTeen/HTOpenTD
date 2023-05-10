@@ -1,11 +1,9 @@
 package hungteen.opentd.common.entity.ai;
 
-import hungteen.opentd.common.entity.PlantEntity;
+import hungteen.opentd.common.entity.TowerEntity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
-import net.minecraft.world.entity.projectile.ProjectileUtil;
-import net.minecraft.world.item.BowItem;
 
 import java.util.EnumSet;
 
@@ -16,7 +14,7 @@ import java.util.EnumSet;
  **/
 public class MoveToTargetGoal extends HTGoal {
 
-    private final PlantEntity plantEntity;
+    private final TowerEntity towerEntity;
     private final double speedModifier;
     private final double followRange;
     private final double backwardDistance;
@@ -26,31 +24,31 @@ public class MoveToTargetGoal extends HTGoal {
     private boolean strafingBackwards;
     private int strafingTime = -1;
 
-    public MoveToTargetGoal(PlantEntity plantEntity, double speedModifier, double backwardPercent, double upwardPercent) {
-        this.plantEntity = plantEntity;
+    public MoveToTargetGoal(TowerEntity towerEntity, double speedModifier, double backwardPercent, double upwardPercent) {
+        this.towerEntity = towerEntity;
         this.speedModifier = speedModifier;
-        this.followRange = plantEntity.getAttributeValue(Attributes.FOLLOW_RANGE);
+        this.followRange = towerEntity.getAttributeValue(Attributes.FOLLOW_RANGE);
         this.backwardDistance = followRange * backwardPercent;
         this.upwardDistance = followRange * upwardPercent;
         this.setFlags(EnumSet.of(Goal.Flag.MOVE));
     }
 
     public boolean canUse() {
-        return this.plantEntity.getTarget() != null;
+        return this.towerEntity.getTarget() != null;
     }
 
     public boolean canContinueToUse() {
-        return (this.canUse() || !this.plantEntity.getNavigation().isDone());
+        return (this.canUse() || !this.towerEntity.getNavigation().isDone());
     }
 
     public void start() {
         super.start();
-        this.plantEntity.setAggressive(true);
+        this.towerEntity.setAggressive(true);
     }
 
     public void stop() {
         super.stop();
-        this.plantEntity.setAggressive(false);
+        this.towerEntity.setAggressive(false);
         this.seeTime = 0;
     }
 
@@ -59,10 +57,10 @@ public class MoveToTargetGoal extends HTGoal {
     }
 
     public void tick() {
-        LivingEntity livingentity = this.plantEntity.getTarget();
+        LivingEntity livingentity = this.towerEntity.getTarget();
         if (livingentity != null) {
-            double distanceSqr = this.plantEntity.distanceToSqr(livingentity.getX(), livingentity.getY(), livingentity.getZ());
-            boolean flag = this.plantEntity.getSensing().hasLineOfSight(livingentity);
+            double distanceSqr = this.towerEntity.distanceToSqr(livingentity.getX(), livingentity.getY(), livingentity.getZ());
+            boolean flag = this.towerEntity.getSensing().hasLineOfSight(livingentity);
             boolean flag1 = this.seeTime > 0;
             if (flag != flag1) {
                 this.seeTime = 0;
@@ -75,19 +73,19 @@ public class MoveToTargetGoal extends HTGoal {
             }
 
             if (!(distanceSqr > this.followRange) && this.seeTime >= 20) {
-                this.plantEntity.getNavigation().stop();
+                this.towerEntity.getNavigation().stop();
                 ++this.strafingTime;
             } else {
-                this.plantEntity.getNavigation().moveTo(livingentity, this.speedModifier);
+                this.towerEntity.getNavigation().moveTo(livingentity, this.speedModifier);
                 this.strafingTime = -1;
             }
 
             if (this.strafingTime >= 20) {
-                if ((double)this.plantEntity.getRandom().nextFloat() < 0.3D) {
+                if ((double)this.towerEntity.getRandom().nextFloat() < 0.3D) {
                     this.strafingClockwise = !this.strafingClockwise;
                 }
 
-                if ((double)this.plantEntity.getRandom().nextFloat() < 0.3D) {
+                if ((double)this.towerEntity.getRandom().nextFloat() < 0.3D) {
                     this.strafingBackwards = !this.strafingBackwards;
                 }
 
@@ -101,10 +99,10 @@ public class MoveToTargetGoal extends HTGoal {
                     this.strafingBackwards = true;
                 }
 
-                this.plantEntity.getMoveControl().strafe(this.strafingBackwards ? -0.5F : 0.5F, this.strafingClockwise ? 0.5F : -0.5F);
-                this.plantEntity.lookAt(livingentity, 30.0F, 30.0F);
+                this.towerEntity.getMoveControl().strafe(this.strafingBackwards ? -0.5F : 0.5F, this.strafingClockwise ? 0.5F : -0.5F);
+                this.towerEntity.lookAt(livingentity, 30.0F, 30.0F);
             } else {
-                this.plantEntity.getLookControl().setLookAt(livingentity, 30.0F, 30.0F);
+                this.towerEntity.getLookControl().setLookAt(livingentity, 30.0F, 30.0F);
             }
         }
     }

@@ -1,10 +1,12 @@
 package hungteen.opentd.api.interfaces;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * @program: HTOpenTD
@@ -14,6 +16,10 @@ import net.minecraft.world.item.ItemStack;
 public interface ITowerComponent {
 
     Entity createEntity(ServerLevel level, Player player, ItemStack stack, BlockPos pos);
+
+    default CompoundTag getExtraNBT(){
+        return new CompoundTag();
+    }
 
     /**
      * Get the type of tower.

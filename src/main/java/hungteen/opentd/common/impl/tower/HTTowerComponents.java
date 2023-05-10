@@ -9,9 +9,7 @@ import hungteen.htlib.common.registry.HTSimpleRegistry;
 import hungteen.opentd.OpenTD;
 import hungteen.opentd.api.interfaces.ITowerComponent;
 import hungteen.opentd.api.interfaces.ITowerComponentType;
-import hungteen.opentd.common.codec.MovementSetting;
-import hungteen.opentd.common.codec.ParticleSetting;
-import hungteen.opentd.common.codec.RenderSetting;
+import hungteen.opentd.common.codec.*;
 import hungteen.opentd.common.impl.effect.*;
 import hungteen.opentd.common.impl.filter.*;
 import hungteen.opentd.common.impl.finder.RangeFinder;
@@ -49,13 +47,13 @@ public class HTTowerComponents {
 
     public static final HTRegistryHolder<ITowerComponent> PEA_SHOOTER = TOWERS.innerRegister(
             OpenTD.prefix("pea_shooter_test"), new PVZPlantComponent(
-                    new PVZPlantComponent.PlantSettings(
+                    new PVZPlantComponent.PlantSetting(
                             get1(),
                             PVZPlantComponent.GrowSettings.DEFAULT,
                             OpenTD.prefix("pea_shooter_test"), 0, true, false,
                             RenderSetting.DEFAULT
                     ),
-                    Arrays.asList(new PVZPlantComponent.TargetSetting(
+                    Arrays.asList(new TargetSetting(
                             1, 0.2F, true, 10000,
                             new RangeFinder(true, 40, 40,
                                     new OrTargetFilter(
@@ -96,15 +94,15 @@ public class HTTowerComponents {
                                     )
                             )
                     )),
-                    Optional.of(
-                            new MovementSetting(true, 1D, 0.3D, 0.7D)
-                    ),
-                    Optional.of(new PVZPlantComponent.ShootGoalSetting(
+//                    Optional.of(
+//                            new MovementSetting(true, 1D, 0.3D, 0.7D)
+//                    ),
+                    Optional.of(new ShootGoalSetting(
                             0, 20, 10, 4, false, Optional.of(SoundEvents.SNOW_GOLEM_SHOOT),
                             Arrays.asList(
-                                    new PVZPlantComponent.ShootSettings(
+                                    new ShootGoalSetting.ShootSetting(
                                             false, false, 0, Vec3.ZERO, 10, 0, 10,
-                                            new PVZPlantComponent.BulletSettings(
+                                            new BulletSetting(
                                                     new ClassFilter(ClassFilter.ENEMY),
                                                     new ListEffectComponent(Arrays.asList(
                                                             new DamageEffectComponent(false, 5F, 0),
@@ -140,7 +138,7 @@ public class HTTowerComponents {
 
     public static final HTRegistryHolder<ITowerComponent> SUN_FLOWER = TOWERS.innerRegister(
             OpenTD.prefix("sun_flower_test"), new PVZPlantComponent(
-                    new PVZPlantComponent.PlantSettings(
+                    new PVZPlantComponent.PlantSetting(
                             new CompoundTag(),
                             PVZPlantComponent.GrowSettings.DEFAULT,
                             OpenTD.prefix("sun_flower_test"), 2000, false, false,
@@ -148,12 +146,11 @@ public class HTTowerComponents {
                     ),
                     Arrays.asList(),
                     Optional.empty(),
-                    Optional.empty(),
                     Optional.of(
-                            new PVZPlantComponent.GenGoalSetting(
+                            new GenGoalSetting(
                                     20, 10, 100, 100, false, Optional.of(SoundEvents.PLAYER_LEVELUP),
                                     Arrays.asList(
-                                            new PVZPlantComponent.GenSettings(
+                                            new GenGoalSetting.GenSetting(
                                                     false, 100, 200, 1,
                                                     EntityType.EXPERIENCE_ORB, new CompoundTag(), Vec3.ZERO, 0.25D, 0.3D
                                             )
@@ -163,7 +160,7 @@ public class HTTowerComponents {
                     Optional.empty(),
                     Optional.empty(),
                     Arrays.asList(
-                            new PVZPlantComponent.ConstantAffectSetting(
+                            new ConstantAffectSetting(
                                     20,
                                     new RangeFinder(true, 10, 10, new ClassFilter(ClassFilter.ENEMY)),
                                     new AttractEffectComponent(

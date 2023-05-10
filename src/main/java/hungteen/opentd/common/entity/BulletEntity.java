@@ -4,7 +4,9 @@ import hungteen.htlib.util.helper.MathHelper;
 import hungteen.htlib.util.helper.registry.EntityHelper;
 import hungteen.opentd.OpenTD;
 import hungteen.opentd.api.interfaces.IEffectComponent;
+import hungteen.opentd.common.codec.BulletSetting;
 import hungteen.opentd.common.codec.ParticleSetting;
+import hungteen.opentd.common.codec.ShootGoalSetting;
 import hungteen.opentd.common.event.events.BulletHitEvent;
 import hungteen.opentd.common.impl.tower.PVZPlantComponent;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
@@ -56,7 +58,7 @@ import java.util.*;
 public class BulletEntity extends Projectile implements IEntityAdditionalSpawnData, IAnimatable {
 
     private final AnimationFactory factory = GeckoLibUtil.createFactory(this);
-    private PVZPlantComponent.BulletSettings settings;
+    private BulletSetting setting;
     private IntOpenHashSet hitSet = new IntOpenHashSet();
     protected Optional<Entity> lockTarget = Optional.empty();
     protected Optional<BlockPos> lockPos = Optional.empty();
@@ -75,11 +77,11 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
 
     }
 
-    public void summonBy(Entity owner, PVZPlantComponent.ShootSettings shootSettings) {
+    public void summonBy(Entity owner, ShootGoalSetting.ShootSetting shootSetting) {
         this.setOwner(owner);
-        this.setParabola(shootSettings.isParabola());
-        this.pultHeight = shootSettings.pultHeight();
-        this.settings = shootSettings.bulletSettings();
+        this.setParabola(shootSetting.isParabola());
+        this.pultHeight = shootSetting.pultHeight();
+        this.setting = shootSetting.bulletSetting();
         final double d0 = this.getDeltaMovement().horizontalDistance();
         this.setYRot((float)(Mth.atan2(this.getDeltaMovement().x, this.getDeltaMovement().z) * (double)(180F / (float)Math.PI)));
         this.setXRot((float)(Mth.atan2(this.getDeltaMovement().y, d0) * (double)(180F / (float)Math.PI)));
@@ -88,7 +90,7 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
     public void tick() {
         super.tick();
         this.noPhysics = this.ignoreBlock();
-        if (this.getSettings() == null) {
+        if (this.bulletSetting() == null) {
             if (this.tickCount > 5) {
                 this.discard();
             }
@@ -101,7 +103,7 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
             }
         }
         // lock to target.
-        if (this.getSettings().lockToTarget() && this.lockTarget.isPresent() && EntityHelper.isEntityValid(lockTarget.get())) {
+        if (this.bulletSetting().lockToTarget() && this.lockTarget.isPresent() && EntityHelper.isEntityValid(lockTarget.get())) {
             final Entity target = this.lockTarget.get();
             final Vec3 speed = this.getDeltaMovement();
             if (this.isParabola) {
@@ -164,7 +166,7 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
         double d0 = this.getY() + vec3.y;
         double d1 = this.getZ() + vec3.z;
         ProjectileUtil.rotateTowardsMovement(this, 0.2F);
-        float f = this.getSettings().slowDown();
+        float f = this.bulletSetting().slowDown();
         if (this.isInWater()) {
             for (int i = 0; i < 4; ++i) {
                 this.level.addParticle(ParticleTypes.BUBBLE, d2 - vec3.x * 0.25D, d0 - vec3.y * 0.25D, d1 - vec3.z * 0.25D, vec3.x, vec3.y, vec3.z);
@@ -228,7 +230,7 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
     }
 
     protected boolean shouldHit(Entity target) {
-        return (this.getSettings() == null || (level instanceof ServerLevel && this.getSettings().targetFilter().match((ServerLevel) level, this, target))) && !this.hitSet.contains(target.getId());
+        return (this.bulletSetting() == null || (level instanceof ServerLevel && this.bulletSetting().targetFilter().match((ServerLevel) level, this, target))) && !this.hitSet.contains(target.getId());
     }
 
     /**
@@ -245,16 +247,16 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
 
     @Nullable
     protected ParticleSetting getHitParticle() {
-        if(getSettings() != null && getSettings().hitParticle().isPresent()) {
-            return getSettings().hitParticle().get();
+        if(bulletSetting() != null && bulletSetting().hitParticle().isPresent()) {
+            return bulletSetting().hitParticle().get();
         };
         return null;
     }
 
     @Nullable
     protected ParticleSetting getTrailParticle() {
-        if(getSettings() != null && getSettings().trailParticle().isPresent()) {
-            return getSettings().trailParticle().get();
+        if(bulletSetting() != null && bulletSetting().trailParticle().isPresent()) {
+            return bulletSetting().trailParticle().get();
         };
         return null;
     }
@@ -263,36 +265,36 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
     /**
      * attack bullet such as pea or spore
      */
-    public void shootToTarget(Mob owner, PVZPlantComponent.ShootSettings shootSettings, Entity target, double dx, double dy, double dz) {
+    public void shootToTarget(Mob owner, ShootGoalSetting.ShootSetting shootSetting, Entity target, double dx, double dy, double dz) {
         this.lockTarget = Optional.ofNullable(target);
-        if (shootSettings.isParabola()) {
-            this.pult(owner, shootSettings, target);
+        if (shootSetting.isParabola()) {
+            this.pult(owner, shootSetting, target);
         } else {
-            if (shootSettings.verticalAngleLimit() < 90) {
+            if (shootSetting.verticalAngleLimit() < 90) {
                 final double dxz = Math.sqrt(dx * dx + dz * dz);
-                final double tan = Math.tan(Math.toRadians(shootSettings.verticalAngleLimit()));
+                final double tan = Math.tan(Math.toRadians(shootSetting.verticalAngleLimit()));
                 final double limitY = tan * dxz;
                 dy = Mth.clamp(dy, -limitY, limitY);//fix dy by angle
             }
-            final Vec3 speed = MathHelper.rotate(new Vec3(dx, dy, dz), shootSettings.horizontalAngleOffset(), 0);
-            this.setDeltaMovement(speed.normalize().scale(shootSettings.bulletSettings().bulletSpeed()));
+            final Vec3 speed = MathHelper.rotate(new Vec3(dx, dy, dz), shootSetting.horizontalAngleOffset(), 0);
+            this.setDeltaMovement(speed.normalize().scale(shootSetting.bulletSetting().bulletSpeed()));
         }
-        this.summonBy(owner, shootSettings);
+        this.summonBy(owner, shootSetting);
     }
 
-    public void shootTo(Mob owner, PVZPlantComponent.ShootSettings shootSettings, Vec3 vec) {
-        if (shootSettings.isParabola()) {
-            this.pult(owner, shootSettings, owner);
+    public void shootTo(Mob owner, ShootGoalSetting.ShootSetting shootSetting, Vec3 vec) {
+        if (shootSetting.isParabola()) {
+            this.pult(owner, shootSetting, owner);
         } else {
-            final Vec3 speed = MathHelper.rotate(vec, shootSettings.horizontalAngleOffset(), 0);
-            this.setDeltaMovement(speed.normalize().scale(shootSettings.bulletSettings().bulletSpeed()));
+            final Vec3 speed = MathHelper.rotate(vec, shootSetting.horizontalAngleOffset(), 0);
+            this.setDeltaMovement(speed.normalize().scale(shootSetting.bulletSetting().bulletSpeed()));
         }
-        this.summonBy(owner, shootSettings);
+        this.summonBy(owner, shootSetting);
     }
 
-    public void pult(Mob owner, PVZPlantComponent.ShootSettings shootSettings, @Nonnull Entity target) {
-        final double g = shootSettings.bulletSettings().gravity();
-        final double h = shootSettings.pultHeight();
+    public void pult(Mob owner, ShootGoalSetting.ShootSetting shootSetting, @Nonnull Entity target) {
+        final double g = shootSetting.bulletSetting().gravity();
+        final double h = shootSetting.pultHeight();
         final double t1 = Math.sqrt(2 * h / g);//go up time.
         double t2 = 0;
         if (this.getY() + h - target.getY() - target.getBbHeight() >= 0) {//random pult.
@@ -337,19 +339,19 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
      * how long can bullet exist.
      */
     public int getMaxLiveTick() {
-        return this.getSettings() == null ? 0 : this.getSettings().maxExistTick();
+        return this.bulletSetting() == null ? 0 : this.bulletSetting().maxExistTick();
     }
 
     public float getGravity() {
-        return this.getSettings() == null ? 0 : this.getSettings().gravity();
+        return this.bulletSetting() == null ? 0 : this.bulletSetting().gravity();
     }
 
     public float getSpeed() {
-        return this.getSettings() == null ? 0.1F : this.getSettings().bulletSpeed();
+        return this.bulletSetting() == null ? 0.1F : this.bulletSetting().bulletSpeed();
     }
 
     public int getMaxHitCount() {
-        return this.getSettings() == null ? 1 : this.getSettings().maxHitCount();
+        return this.bulletSetting() == null ? 1 : this.bulletSetting().maxHitCount();
     }
 
     public int getHitCount(){
@@ -357,24 +359,24 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
     }
 
     public boolean ignoreBlock() {
-        return this.getSettings() != null && this.getSettings().ignoreBlock();
+        return this.bulletSetting() != null && this.bulletSetting().ignoreBlock();
     }
 
     protected Optional<IEffectComponent> getEffect() {
-        return this.getSettings() == null ? Optional.empty() : Optional.ofNullable(this.getSettings().effect());
+        return this.bulletSetting() == null ? Optional.empty() : Optional.ofNullable(this.bulletSetting().effect());
     }
 
     @Nullable
-    public PVZPlantComponent.BulletSettings getSettings() {
-        return this.settings;
+    public BulletSetting bulletSetting() {
+        return this.setting;
     }
 
     @Override
     public void writeSpawnData(FriendlyByteBuf buffer) {
         buffer.writeBoolean(this.isParabola);
         buffer.writeDouble(this.pultHeight);
-        if (this.settings != null) {
-            PVZPlantComponent.BulletSettings.CODEC.encodeStart(NbtOps.INSTANCE, this.settings)
+        if (this.setting != null) {
+            BulletSetting.CODEC.encodeStart(NbtOps.INSTANCE, this.setting)
                     .resultOrPartial(msg -> OpenTD.log().error(msg + " [Bullet] "))
                     .ifPresent(tag -> buffer.writeNbt((CompoundTag) tag));
         } else {
@@ -386,9 +388,9 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
     public void readSpawnData(FriendlyByteBuf additionalData) {
         this.isParabola = additionalData.readBoolean();
         this.pultHeight = additionalData.readDouble();
-        PVZPlantComponent.BulletSettings.CODEC.parse(NbtOps.INSTANCE, additionalData.readNbt())
+        BulletSetting.CODEC.parse(NbtOps.INSTANCE, additionalData.readNbt())
                 .resultOrPartial(msg -> OpenTD.log().error(msg + " [Bullet] "))
-                .ifPresent(settings -> this.settings = settings);
+                .ifPresent(settings -> this.setting = settings);
     }
 
     public void addAdditionalSaveData(CompoundTag compound) {
@@ -397,8 +399,8 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
         this.lockTarget.ifPresent(entity -> compound.putInt("LockTargetEntity", entity.getId()));
         this.lockPos.ifPresent(pos -> compound.putLong("LockTargetPos", pos.asLong()));
         compound.putDouble("PultHeight", this.pultHeight);
-        if (this.settings != null) {
-            PVZPlantComponent.BulletSettings.CODEC.encodeStart(NbtOps.INSTANCE, this.settings)
+        if (this.setting != null) {
+            BulletSetting.CODEC.encodeStart(NbtOps.INSTANCE, this.setting)
                     .resultOrPartial(msg -> OpenTD.log().error(msg + " [Bullet] "))
                     .ifPresent(tag -> compound.put("BulletSettings", tag));
         }
@@ -425,9 +427,9 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
             this.pultHeight = compound.getDouble("PultHeight");
         }
         if (compound.contains("BulletSettings")) {
-            PVZPlantComponent.BulletSettings.CODEC.parse(NbtOps.INSTANCE, compound.get("BulletSettings"))
+            BulletSetting.CODEC.parse(NbtOps.INSTANCE, compound.get("BulletSettings"))
                     .resultOrPartial(msg -> OpenTD.log().error(msg + " [Bullet] "))
-                    .ifPresent(settings -> this.settings = settings);
+                    .ifPresent(settings -> this.setting = settings);
         }
     }
 
