@@ -9,20 +9,6 @@ import software.bernie.geckolib3.model.AnimatedGeoModel;
  * @author: HungTeen
  * @create: 2022-12-17 10:53
  **/
-public class PlantEntityModel extends AnimatedGeoModel<PlantEntity> {
+public class PlantEntityModel extends TowerEntityModel<PlantEntity> {
 
-    @Override
-    public ResourceLocation getModelResource(PlantEntity plantEntity) {
-        return plantEntity.getComponent().plantSetting().renderSetting().modelLocation();
-    }
-
-    @Override
-    public ResourceLocation getTextureResource(PlantEntity plantEntity) {
-        return plantEntity.getComponent().plantSetting().renderSetting().textureLocation();
-    }
-
-    @Override
-    public ResourceLocation getAnimationResource(PlantEntity plantEntity) {
-        return plantEntity.getComponent().plantSetting().renderSetting().animationLocation();
-    }
 }

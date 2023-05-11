@@ -28,6 +28,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
@@ -92,6 +93,9 @@ public class PlantEntity extends TowerEntity {
             if(this.getComponent().plantSetting().changeDirection()){
                 this.goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 8.0F));
                 this.goalSelector.addGoal(6, new RandomLookAroundGoal(this));
+            }
+            if(this.getComponent().plantSetting().canFloat()){
+                this.goalSelector.addGoal(1, new FloatGoal(this));
             }
         }
     }
@@ -279,6 +283,11 @@ public class PlantEntity extends TowerEntity {
             this.parseComponent(PVZPlantComponent.CODEC, t -> this.component = t);
         }
         return component;
+    }
+
+    @Override
+    public RenderSetting getRenderSetting() {
+        return getComponent() != null ? getComponent().plantSetting().renderSetting() : RenderSetting.DEFAULT;
     }
 
     @Override

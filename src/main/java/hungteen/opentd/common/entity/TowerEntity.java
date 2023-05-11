@@ -5,6 +5,7 @@ import hungteen.htlib.util.helper.RandomHelper;
 import hungteen.htlib.util.helper.registry.EntityHelper;
 import hungteen.opentd.OpenTD;
 import hungteen.opentd.common.codec.GenGoalSetting;
+import hungteen.opentd.common.codec.RenderSetting;
 import hungteen.opentd.common.codec.ShootGoalSetting;
 import hungteen.opentd.common.codec.TowerComponent;
 import hungteen.opentd.common.entity.ai.*;
@@ -64,6 +65,10 @@ public abstract class TowerEntity extends PathfinderMob implements IAnimatable, 
     private static final EntityDataAccessor<Boolean> RESTING = SynchedEntityData.defineId(TowerEntity.class, EntityDataSerializers.BOOLEAN);
     private final AnimationFactory factory = GeckoLibUtil.createFactory(this);
     private CompoundTag componentTag = new CompoundTag();
+    private ResourceLocation towerTexture = null;
+    private ResourceLocation towerModel = null;
+    private ResourceLocation towerAnimation = null;
+    private String currentAnimation = null;
     public int preShootTick = 0;
     public int preGenTick = 0;
     public int preAttackTick = 0;
@@ -250,30 +255,36 @@ public abstract class TowerEntity extends PathfinderMob implements IAnimatable, 
 
     protected PlayState predicateAnimation(AnimationEvent<?> event) {
         final AnimationBuilder builder = new AnimationBuilder();
-        if (event.isMoving() && this.getComponent() != null && this.getComponent().movementSetting().isPresent()) {
-            builder.addAnimation("move", ILoopType.EDefaultLoopTypes.LOOP);
-        }
-        if (this.getShootTick() > 0) {
-            builder.addAnimation("shoot", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
-        } else if (this.getGenTick() > 0) {
-            builder.addAnimation("gen", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
-        } else if (this.getAttackTick() > 0) {
-            builder.addAnimation("attack", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
-        } else if (this.getInstantTick() > 0) {
-            builder.addAnimation("instant", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
-        } else {
-            if (this.isResting()) {
-                builder.addAnimation("rest", ILoopType.EDefaultLoopTypes.LOOP);
-            } else {
-                builder.addAnimation("idle", ILoopType.EDefaultLoopTypes.LOOP);
+        this.getCurrentAnimation().ifPresentOrElse(name -> {
+            builder.addAnimation(name, ILoopType.EDefaultLoopTypes.PLAY_ONCE);
+        }, () -> {
+            if (event.isMoving() && this.getComponent() != null && this.getComponent().movementSetting().isPresent()) {
+                builder.addAnimation("move", ILoopType.EDefaultLoopTypes.LOOP);
             }
-        }
+            if (this.getShootTick() > 0) {
+                builder.addAnimation("shoot", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
+            } else if (this.getGenTick() > 0) {
+                builder.addAnimation("gen", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
+            } else if (this.getAttackTick() > 0) {
+                builder.addAnimation("attack", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
+            } else if (this.getInstantTick() > 0) {
+                builder.addAnimation("instant", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
+            } else {
+                if (this.isResting()) {
+                    builder.addAnimation("rest", ILoopType.EDefaultLoopTypes.LOOP);
+                } else {
+                    builder.addAnimation("idle", ILoopType.EDefaultLoopTypes.LOOP);
+                }
+            }
+        });
         event.getController().setAnimation(builder);
         return PlayState.CONTINUE;
     }
 
 
     public abstract TowerComponent getComponent();
+
+    public abstract RenderSetting getRenderSetting();
 
     public boolean canChangeDirection() {
         return true;
@@ -377,6 +388,18 @@ public abstract class TowerEntity extends PathfinderMob implements IAnimatable, 
                     .resultOrPartial(msg -> OpenTD.log().error(msg + " [Plant Gen]"))
                     .ifPresent(nbt -> tag.put("Production", nbt));
         }
+        this.getTowerAnimation().ifPresent(res -> {
+            tag.putString("TowerAnimation", res.toString());
+        });
+        this.getTowerModel().ifPresent(res -> {
+            tag.putString("TowerModel", res.toString());
+        });
+        this.getTowerTexture().ifPresent(res -> {
+            tag.putString("TowerTexture", res.toString());
+        });
+        this.getCurrentAnimation().ifPresent(res -> {
+            tag.putString("CurrentAnimation", res);
+        });
     }
 
     @Override
@@ -441,6 +464,18 @@ public abstract class TowerEntity extends PathfinderMob implements IAnimatable, 
                     .resultOrPartial(msg -> OpenTD.log().error(msg + " [Plant Gen]"))
                     .ifPresent(settings -> this.genSetting = settings);
         }
+        if(tag.contains("TowerAnimation")){
+            this.setTowerAnimation(new ResourceLocation(tag.getString("TowerAnimation")));
+        }
+        if(tag.contains("TowerModel")){
+            this.setTowerModel(new ResourceLocation(tag.getString("TowerModel")));
+        }
+        if(tag.contains("TowerTexture")){
+            this.setTowerTexture(new ResourceLocation(tag.getString("TowerTexture")));
+        }
+        if(tag.contains("CurrentAnimation")){
+            this.setCurrentAnimation(tag.getString("CurrentAnimation"));
+        }
     }
 
     public Optional<UUID> getOwnerUUID() {
@@ -499,6 +534,38 @@ public abstract class TowerEntity extends PathfinderMob implements IAnimatable, 
 
     public void setProduction(GenGoalSetting.GenSetting setting) {
         this.genSetting = setting;
+    }
+
+    public Optional<ResourceLocation> getTowerModel() {
+        return Optional.ofNullable(towerModel);
+    }
+
+    public Optional<ResourceLocation> getTowerTexture() {
+        return Optional.ofNullable(towerTexture);
+    }
+
+    public Optional<ResourceLocation> getTowerAnimation() {
+        return Optional.ofNullable(towerAnimation);
+    }
+
+    public Optional<String> getCurrentAnimation() {
+        return Optional.ofNullable(currentAnimation);
+    }
+
+    public void setTowerModel(ResourceLocation towerModel) {
+        this.towerModel = towerModel;
+    }
+
+    public void setTowerTexture(ResourceLocation towerTexture) {
+        this.towerTexture = towerTexture;
+    }
+
+    public void setTowerAnimation(ResourceLocation towerAnimation) {
+        this.towerAnimation = towerAnimation;
+    }
+
+    public void setCurrentAnimation(String currentAnimation) {
+        this.currentAnimation = currentAnimation;
     }
 
     @Override

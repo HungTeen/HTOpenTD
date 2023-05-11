@@ -17,7 +17,7 @@ import software.bernie.geckolib3.renderers.geo.GeoEntityRenderer;
  * @author: HungTeen
  * @create: 2022-12-17 11:25
  **/
-public class PlantEntityRender extends GeoEntityRenderer<PlantEntity> {
+public class PlantEntityRender extends TowerEntityRender<PlantEntity> {
 
     public PlantEntityRender(EntityRendererProvider.Context renderManager) {
         super(renderManager, new PlantEntityModel());
@@ -40,17 +40,4 @@ public class PlantEntityRender extends GeoEntityRenderer<PlantEntity> {
         }
     }
 
-    @Override
-    public void render(GeoModel model, PlantEntity animatable, float partialTick, RenderType type, PoseStack poseStack, @Nullable MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-        if (animatable.getComponent() != null) {
-            super.render(model, animatable, partialTick, type, poseStack, bufferSource, buffer, packedLight, packedOverlay, red, green, blue, alpha);
-        }
-    }
-
-    @Override
-    public void render(PlantEntity animatable, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
-        if (animatable.getComponent() != null) {
-            super.render(animatable, entityYaw, partialTick, poseStack, bufferSource, packedLight);
-        }
-    }
 }

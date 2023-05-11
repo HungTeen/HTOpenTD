@@ -70,7 +70,7 @@ public class PVZPlantComponent extends TowerComponent {
         return plantSetting().extraNBT();
     }
 
-    public record PlantSetting(CompoundTag extraNBT, GrowSettings growSetting, ResourceLocation id, int maxExistTick, boolean changeDirection, boolean pushable, RenderSetting renderSetting) {
+    public record PlantSetting(CompoundTag extraNBT, GrowSettings growSetting, ResourceLocation id, int maxExistTick, boolean changeDirection, boolean pushable, boolean canFloat, RenderSetting renderSetting) {
 
         public static final Codec<PlantSetting> CODEC = RecordCodecBuilder.<PlantSetting>mapCodec(instance -> instance.group(
                 CompoundTag.CODEC.optionalFieldOf("extra_nbt", new CompoundTag()).forGetter(PlantSetting::extraNBT),
@@ -79,6 +79,7 @@ public class PVZPlantComponent extends TowerComponent {
                 Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("max_exist_tick", 0).forGetter(PlantSetting::maxExistTick),
                 Codec.BOOL.optionalFieldOf("change_direction", true).forGetter(PlantSetting::changeDirection),
                 Codec.BOOL.optionalFieldOf("pushable", false).forGetter(PlantSetting::pushable),
+                Codec.BOOL.optionalFieldOf("can_float", false).forGetter(PlantSetting::canFloat),
                 RenderSetting.CODEC.fieldOf("render_setting").forGetter(PlantSetting::renderSetting)
         ).apply(instance, PlantSetting::new)).codec();
     }
