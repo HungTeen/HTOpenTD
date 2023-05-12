@@ -1,6 +1,9 @@
 package hungteen.opentd.common.entity;
 
+import hungteen.opentd.common.codec.RenderSetting;
 import hungteen.opentd.common.codec.TowerComponent;
+import hungteen.opentd.common.impl.tower.PVZPlantComponent;
+import hungteen.opentd.common.impl.tower.PlantHeroComponent;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
@@ -20,6 +23,8 @@ import software.bernie.geckolib3.util.GeckoLibUtil;
  **/
 public class PlantHeroEntity extends TowerEntity {
 
+    private PlantHeroComponent component;
+
     public PlantHeroEntity(EntityType<? extends PathfinderMob> entityType, Level level) {
         super(entityType, level);
     }
@@ -35,18 +40,16 @@ public class PlantHeroEntity extends TowerEntity {
     }
 
     @Override
-    public void writeSpawnData(FriendlyByteBuf buffer) {
-
+    public PlantHeroComponent getComponent() {
+        if (component == null) {
+            this.parseComponent(PlantHeroComponent.CODEC, t -> this.component = t);
+        }
+        return component;
     }
 
     @Override
-    public void readSpawnData(FriendlyByteBuf additionalData) {
-
-    }
-
-    @Override
-    public TowerComponent getComponent() {
-        return null;
+    public RenderSetting getRenderSetting() {
+        return getComponent() != null ? getComponent().heroSetting().renderSetting() : RenderSetting.DEFAULT;
     }
 
 }

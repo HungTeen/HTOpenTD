@@ -5,4 +5,9 @@
 * 增加了plant_hero防御塔类型。
 * 植物设置中增加了can_float选项来支持在水中漂浮。
 * 使得KubeJS自由指定防御塔的动画、模型、贴图。
+* 新的作用组件vanilla_hurt，原版攻击实现，支持药水效果增强。
+* 添加move_controllers组件，可一定程度实现自定义移动类型。
+* 重写移动组件，植物不再支持移动，植物英雄支持。
 #### Bug修复
+#### 其他改变
+* 防御塔类型pvz_plant中movement_setting字段失效。

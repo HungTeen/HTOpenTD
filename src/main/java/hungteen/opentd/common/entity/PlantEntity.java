@@ -217,37 +217,6 @@ public class PlantEntity extends TowerEntity {
 
     }
 
-    @Override
-    public boolean hurt(DamageSource source, float amount) {
-        if (super.hurt(source, amount)) {
-            if (this.getComponent() != null && this.level instanceof ServerLevel) {
-                this.getComponent().hurtEffect().ifPresent(effect -> {
-                    if (source.getEntity() != null) {
-                        effect.effectTo((ServerLevel) this.level, this, source.getEntity());
-                    } else {
-                        effect.effectTo((ServerLevel) this.level, this, this.blockPosition());
-                    }
-                });
-            }
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public void die(DamageSource source) {
-        super.die(source);
-        if (this.getComponent() != null && this.level instanceof ServerLevel) {
-            this.getComponent().dieEffect().ifPresent(effect -> {
-                if (source.getEntity() != null) {
-                    effect.effectTo((ServerLevel) this.level, this, source.getEntity());
-                } else {
-                    effect.effectTo((ServerLevel) this.level, this, this.blockPosition());
-                }
-            });
-        }
-    }
-
     public int getMaxAge() {
         return this.getComponent() == null ? 1 : this.getComponent().plantSetting().growSetting().getMaxAge();
     }

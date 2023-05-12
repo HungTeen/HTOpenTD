@@ -7,6 +7,7 @@ import hungteen.opentd.common.OpenTDSounds;
 import hungteen.opentd.common.capability.OpenTDCapabilities;
 import hungteen.opentd.common.effect.OpenTDEffects;
 import hungteen.opentd.common.entity.OpenTDEntities;
+import hungteen.opentd.common.impl.HTPathNavigations;
 import hungteen.opentd.common.item.OpenTDItems;
 import hungteen.opentd.common.network.NetworkHandler;
 import hungteen.opentd.data.OpenTDTestGen;
@@ -60,6 +61,7 @@ public class OpenTD {
     public static void setUp(FMLCommonSetupEvent event){
         event.enqueueWork(() -> {
             ClassFilter.registerClassifiers();
+            HTPathNavigations.register();
             HTTowerComponents.registerStuffs();
             HTSummonRequirements.registerStuffs();
             HTEffectComponents.registerStuffs();

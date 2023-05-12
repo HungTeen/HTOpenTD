@@ -24,10 +24,14 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.players.OldUsersConverter;
 import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
+import net.minecraft.world.entity.ai.navigation.PathNavigation;
+import net.minecraft.world.entity.animal.frog.Frog;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.entity.IEntityAdditionalSpawnData;
@@ -127,6 +131,28 @@ public abstract class TowerEntity extends PathfinderMob implements IAnimatable, 
         return super.finalizeSpawn(accessor, instance, spawnType, groupData, compoundTag);
     }
 
+    /**
+     * 塔防组件改变时，需要更新。
+     */
+    public void updateComponent(){
+        this.registerGoals();
+        this.updateMovement();
+    }
+
+    public void updateMovement(){
+        this.getComponent().movementSetting().ifPresent(l -> {
+            l.nodeWeightList().forEach(pair -> {
+                try {
+                    this.setPathfindingMalus(BlockPathTypes.valueOf(pair.getFirst()), pair.getSecond());
+                } catch (IllegalArgumentException e) {
+                    OpenTD.log().error("Unable to find path type for {}", pair.getFirst());
+                }
+            });
+            l.pathNavigationType().ifPresent(t -> this.navigation = t.create(this.level, this));
+            l.moveComponent().ifPresent(t -> this.moveControl = t.create(this));
+        });
+    }
+
     @Override
     public void writeSpawnData(FriendlyByteBuf buffer) {
         buffer.writeNbt(this.componentTag);
@@ -148,6 +174,7 @@ public abstract class TowerEntity extends PathfinderMob implements IAnimatable, 
             if (!this.updated && this.getComponent() != null) {
                 this.updated = true;
                 this.registerGoals();
+                this.updateMovement();
             }
             // 距离灰烬植物。
             if (this.getComponent() != null && this.getTarget() != null) {
@@ -253,6 +280,37 @@ public abstract class TowerEntity extends PathfinderMob implements IAnimatable, 
         }
     }
 
+    @Override
+    public boolean hurt(DamageSource source, float amount) {
+        if (super.hurt(source, amount)) {
+            if (this.getComponent() != null && this.level instanceof ServerLevel) {
+                this.getComponent().hurtEffect().ifPresent(effect -> {
+                    if (source.getEntity() != null) {
+                        effect.effectTo((ServerLevel) this.level, this, source.getEntity());
+                    } else {
+                        effect.effectTo((ServerLevel) this.level, this, this.blockPosition());
+                    }
+                });
+            }
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void die(DamageSource source) {
+        super.die(source);
+        if (this.getComponent() != null && this.level instanceof ServerLevel) {
+            this.getComponent().dieEffect().ifPresent(effect -> {
+                if (source.getEntity() != null) {
+                    effect.effectTo((ServerLevel) this.level, this, source.getEntity());
+                } else {
+                    effect.effectTo((ServerLevel) this.level, this, this.blockPosition());
+                }
+            });
+        }
+    }
+
     protected PlayState predicateAnimation(AnimationEvent<?> event) {
         final AnimationBuilder builder = new AnimationBuilder();
         this.getCurrentAnimation().ifPresentOrElse(name -> {
@@ -281,6 +339,10 @@ public abstract class TowerEntity extends PathfinderMob implements IAnimatable, 
         return PlayState.CONTINUE;
     }
 
+    @Override
+    public EntityDimensions getDimensions(Pose pose) {
+        return getRenderSetting().dimension();
+    }
 
     public abstract TowerComponent getComponent();
 

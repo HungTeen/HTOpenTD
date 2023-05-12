@@ -51,6 +51,7 @@ public class HTTowerComponents {
                             get1(),
                             PVZPlantComponent.GrowSettings.DEFAULT,
                             OpenTD.prefix("pea_shooter_test"), 0, true, false,
+                            false,
                             RenderSetting.DEFAULT
                     ),
                     Arrays.asList(new TargetSetting(
@@ -142,6 +143,7 @@ public class HTTowerComponents {
                             new CompoundTag(),
                             PVZPlantComponent.GrowSettings.DEFAULT,
                             OpenTD.prefix("sun_flower_test"), 2000, false, false,
+                            false,
                             RenderSetting.make(0.8F, 1F, 1F, "sun_flower")
                     ),
                     Arrays.asList(),

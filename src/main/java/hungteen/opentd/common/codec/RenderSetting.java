@@ -5,6 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import hungteen.opentd.OpenTD;
 import hungteen.opentd.common.impl.tower.PVZPlantComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityDimensions;
 
 /**
  * @author PangTeen
@@ -22,6 +23,10 @@ public record RenderSetting(float width, float height, float scale, ResourceLoca
                 OpenTD.prefix("textures/entity/" + name + ".png"),
                 OpenTD.prefix("animations/" + name + ".animation.json")
         );
+    }
+
+    public EntityDimensions dimension(){
+        return EntityDimensions.scalable(width(), height());
     }
 
     public static final Codec<RenderSetting> CODEC = RecordCodecBuilder.<RenderSetting>mapCodec(instance -> instance.group(
