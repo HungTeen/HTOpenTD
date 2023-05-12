@@ -26,9 +26,11 @@ import net.minecraft.server.players.OldUsersConverter;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.goal.FloatGoal;
+import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
+import net.minecraft.world.entity.ai.goal.RandomSwimmingGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
-import net.minecraft.world.entity.ai.navigation.PathNavigation;
-import net.minecraft.world.entity.animal.frog.Frog;
+import net.minecraft.world.entity.ai.navigation.WaterBoundPathNavigation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
@@ -109,10 +111,27 @@ public abstract class TowerEntity extends PathfinderMob implements IAnimatable, 
             this.goalSelector.addGoal(2, new TowerGenGoal(this));
             this.goalSelector.addGoal(1, new TowerAttackGoal(this));
             this.getComponent().movementSetting().ifPresent(movementSetting -> {
+                movementSetting.navigationSetting().ifPresent(t -> {
+                    if (t.canFloat()) { // 可以漂浮在水面上。
+                        this.goalSelector.addGoal(1, new FloatGoal(this));
+                    }
+                });
                 if (movementSetting.canRandomMove()) {
-                    this.goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 1.0D));
+                    if (this.navigation instanceof WaterBoundPathNavigation) {
+                        this.goalSelector.addGoal(4, new RandomSwimmingGoal(this, 1.0D, 10));
+                    } else {
+                        if (movementSetting.avoidWater()) {
+                            this.goalSelector.addGoal(4, new WaterAvoidingRandomStrollGoal(this, 1.0D));
+                        } else {
+                            this.goalSelector.addGoal(4, new RandomStrollGoal(this, 1.0D));
+                        }
+                    }
                 }
-                this.goalSelector.addGoal(1, new MoveToTargetGoal(this, movementSetting.speedModifier(), movementSetting.backwardPercent(), movementSetting.upwardPercent()));
+                if (movementSetting.keepDistance()) {
+                    this.goalSelector.addGoal(1, new KeepDistanceWithTargetGoal(this, movementSetting.speedModifier(), movementSetting.backwardPercent(), movementSetting.upwardPercent()));
+                } else {
+                    this.goalSelector.addGoal(1, new MeleeMoveToTargetGoal(this, movementSetting.speedModifier(), false));
+                }
             });
         }
     }
@@ -134,21 +153,23 @@ public abstract class TowerEntity extends PathfinderMob implements IAnimatable, 
     /**
      * 塔防组件改变时，需要更新。
      */
-    public void updateComponent(){
-        this.registerGoals();
+    public void updateComponent() {
         this.updateMovement();
+        this.registerGoals();
     }
 
-    public void updateMovement(){
+    public void updateMovement() {
         this.getComponent().movementSetting().ifPresent(l -> {
-            l.nodeWeightList().forEach(pair -> {
-                try {
-                    this.setPathfindingMalus(BlockPathTypes.valueOf(pair.getFirst()), pair.getSecond());
-                } catch (IllegalArgumentException e) {
-                    OpenTD.log().error("Unable to find path type for {}", pair.getFirst());
-                }
+            l.navigationSetting().ifPresent(t -> {
+                this.navigation = t.getNavigator(this.level, this);
+                t.nodeWeightList().forEach(pair -> {
+                    try {
+                        this.setPathfindingMalus(BlockPathTypes.valueOf(pair.getFirst()), pair.getSecond());
+                    } catch (IllegalArgumentException e) {
+                        OpenTD.log().error("Unable to find path type for {}", pair.getFirst());
+                    }
+                });
             });
-            l.pathNavigationType().ifPresent(t -> this.navigation = t.create(this.level, this));
             l.moveComponent().ifPresent(t -> this.moveControl = t.create(this));
         });
     }
@@ -173,8 +194,7 @@ public abstract class TowerEntity extends PathfinderMob implements IAnimatable, 
             // 延迟更新防御塔的行为。
             if (!this.updated && this.getComponent() != null) {
                 this.updated = true;
-                this.registerGoals();
-                this.updateMovement();
+                this.updateComponent();
             }
             // 距离灰烬植物。
             if (this.getComponent() != null && this.getTarget() != null) {
@@ -526,16 +546,16 @@ public abstract class TowerEntity extends PathfinderMob implements IAnimatable, 
                     .resultOrPartial(msg -> OpenTD.log().error(msg + " [Plant Gen]"))
                     .ifPresent(settings -> this.genSetting = settings);
         }
-        if(tag.contains("TowerAnimation")){
+        if (tag.contains("TowerAnimation")) {
             this.setTowerAnimation(new ResourceLocation(tag.getString("TowerAnimation")));
         }
-        if(tag.contains("TowerModel")){
+        if (tag.contains("TowerModel")) {
             this.setTowerModel(new ResourceLocation(tag.getString("TowerModel")));
         }
-        if(tag.contains("TowerTexture")){
+        if (tag.contains("TowerTexture")) {
             this.setTowerTexture(new ResourceLocation(tag.getString("TowerTexture")));
         }
-        if(tag.contains("CurrentAnimation")){
+        if (tag.contains("CurrentAnimation")) {
             this.setCurrentAnimation(tag.getString("CurrentAnimation"));
         }
     }

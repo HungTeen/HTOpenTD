@@ -30,10 +30,6 @@ public class TowerAttackGoal extends HTGoal {
         if (this.setting() == null) {
             return false;
         }
-//        if (!this.plantEntity.canAttack()) {//can not attack because of the attacker itself.
-//            this.plantEntity.setAttackTick(0);
-//            return false;
-//        }
         this.target = this.towerEntity.getTarget();
         if (!this.checkTarget()) {//can not attack because of its target(such as height limit).
             return false;
@@ -56,26 +52,24 @@ public class TowerAttackGoal extends HTGoal {
         if (this.towerEntity.canChangeDirection()) {
             this.towerEntity.getLookControl().setLookAt(this.target, 30.0F, 30.0F);
         }
-        if (this.towerEntity.preAttackTick <= 0) {
-            this.attack();
+        final int time = this.towerEntity.getAttackTick();
+        // 冷却结束 或者 动画已经开始。
+        if (this.towerEntity.preAttackTick <= 0 || time != 0) {
+            if (time >= this.towerEntity.getCurrentAttackCD()) {
+                this.towerEntity.setAttackTick(0);
+            } else {
+                // 攻击帧。
+                if (time == this.towerEntity.getStartAttackTick()) {
+                    this.towerEntity.attack();
+                    this.towerEntity.preAttackTick = Objects.requireNonNull(this.setting()).duration();
+                }
+                this.towerEntity.setAttackTick(time + 1);
+            }
         } else {
             --this.towerEntity.preAttackTick;
         }
         if (Objects.requireNonNull(this.setting()).needRest()) {
             this.towerEntity.setResting(this.towerEntity.preAttackTick > 0);
-        }
-    }
-
-    protected void attack() {
-        final int time = this.towerEntity.getAttackTick();
-        if (time >= this.towerEntity.getCurrentAttackCD()) {
-            this.towerEntity.setAttackTick(0);
-            this.towerEntity.preAttackTick = Objects.requireNonNull(this.setting()).duration();
-        } else {
-            if (time == this.towerEntity.getStartAttackTick()) {
-                this.towerEntity.attack();
-            }
-            this.towerEntity.setAttackTick(time + 1);
         }
     }
 

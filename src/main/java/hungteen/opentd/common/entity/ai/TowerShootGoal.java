@@ -53,26 +53,24 @@ public class TowerShootGoal extends HTGoal {
         if(this.towerEntity.canChangeDirection()){
             this.towerEntity.getLookControl().setLookAt(this.target, 30.0F, 30.0F);
         }
+        final int time = this.towerEntity.getShootTick();
+        // 冷却结束 或者 动画已经开始。
         if (this.towerEntity.preShootTick <= 0) {
-            this.shoot();
+            if (time >= this.towerEntity.getCurrentShootCD()) {
+                this.towerEntity.setShootTick(0);
+            } else {
+                // 攻击帧。
+                if (time == this.towerEntity.getStartShootTick()) {
+                    this.towerEntity.startShootAttack(this.target);
+                    this.towerEntity.preShootTick = Objects.requireNonNull(this.setting()).duration();
+                }
+                this.towerEntity.setShootTick(time + 1);
+            }
         } else {
             --this.towerEntity.preShootTick;
         }
         if(Objects.requireNonNull(this.setting()).needRest()){
             this.towerEntity.setResting(this.towerEntity.preShootTick > 0);
-        }
-    }
-
-    protected void shoot(){
-        final int time = this.towerEntity.getShootTick();
-        if (time >= this.towerEntity.getCurrentShootCD()) {
-            this.towerEntity.setShootTick(0);
-            this.towerEntity.preShootTick = Objects.requireNonNull(this.setting()).duration();
-        } else {
-            if (time == this.towerEntity.getStartShootTick()) {
-                this.towerEntity.startShootAttack(this.target);
-            }
-            this.towerEntity.setShootTick(time + 1);
         }
     }
 

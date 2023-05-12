@@ -17,7 +17,7 @@ import net.minecraft.world.entity.LivingEntity;
 public record VanillaHurtEffect(boolean ignoreImmuneTick) implements IEffectComponent {
 
     public static final Codec<VanillaHurtEffect> CODEC = RecordCodecBuilder.<VanillaHurtEffect>mapCodec(instance -> instance.group(
-            Codec.BOOL.optionalFieldOf("ignore_immune_tick", false).forGetter(VanillaHurtEffect::ignoreImmuneTick),
+            Codec.BOOL.optionalFieldOf("ignore_immune_tick", false).forGetter(VanillaHurtEffect::ignoreImmuneTick)
     ).apply(instance, VanillaHurtEffect::new)).codec();
 
     @Override

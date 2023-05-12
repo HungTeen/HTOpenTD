@@ -5,8 +5,7 @@ import hungteen.htlib.common.registry.HTRegistryManager;
 import hungteen.htlib.common.registry.HTSimpleRegistry;
 import hungteen.opentd.OpenTD;
 import hungteen.opentd.api.interfaces.IPathNavigationType;
-import hungteen.opentd.api.interfaces.ITowerComponentType;
-import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.navigation.*;
 import net.minecraft.world.level.Level;
 
@@ -22,7 +21,7 @@ public class HTPathNavigations {
     public static final IPathNavigationType GROUND = register(new PathNavigationType("ground"){
 
         @Override
-        public PathNavigation create(Level level, PathfinderMob mob) {
+        public PathNavigation create(Level level, Mob mob) {
             return new GroundPathNavigation(mob, level);
         }
     });
@@ -30,7 +29,7 @@ public class HTPathNavigations {
     public static final IPathNavigationType WATER = register(new PathNavigationType("water"){
 
         @Override
-        public PathNavigation create(Level level, PathfinderMob mob) {
+        public PathNavigation create(Level level, Mob mob) {
             return new WaterBoundPathNavigation(mob, level);
         }
     });
@@ -38,7 +37,7 @@ public class HTPathNavigations {
     public static final IPathNavigationType FLY = register(new PathNavigationType("fly"){
 
         @Override
-        public PathNavigation create(Level level, PathfinderMob mob) {
+        public PathNavigation create(Level level, Mob mob) {
             return new FlyingPathNavigation(mob, level);
         }
     });
@@ -46,7 +45,7 @@ public class HTPathNavigations {
     public static final IPathNavigationType AMPHIBIOUS = register(new PathNavigationType("amphibious"){
 
         @Override
-        public PathNavigation create(Level level, PathfinderMob mob) {
+        public PathNavigation create(Level level, Mob mob) {
             return new AmphibiousPathNavigation(mob, level);
         }
     });

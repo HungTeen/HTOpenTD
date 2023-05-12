@@ -1,8 +1,10 @@
 package hungteen.opentd.client;
 
+import hungteen.opentd.client.model.entity.TowerEntityModel;
 import hungteen.opentd.client.model.item.SummonTowerModel;
 import hungteen.opentd.client.render.entity.BulletEntityRender;
 import hungteen.opentd.client.render.entity.PlantEntityRender;
+import hungteen.opentd.client.render.entity.TowerEntityRender;
 import hungteen.opentd.client.render.item.CoolDownDecorator;
 import hungteen.opentd.common.entity.OpenTDEntities;
 import hungteen.opentd.common.item.OpenTDItems;
@@ -29,6 +31,7 @@ public class ClientHandler {
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(OpenTDEntities.BULLET_ENTITY.get(), BulletEntityRender::new);
         event.registerEntityRenderer(OpenTDEntities.PLANT_ENTITY.get(), PlantEntityRender::new);
+        event.registerEntityRenderer(OpenTDEntities.PLANT_HERO_ENTITY.get(), context -> new TowerEntityRender<>(context, new TowerEntityModel<>()));
     }
 
     @SubscribeEvent

@@ -12,7 +12,7 @@ import java.util.EnumSet;
  * @author: HungTeen
  * @create: 2023-02-02 19:24
  **/
-public class MoveToTargetGoal extends HTGoal {
+public class KeepDistanceWithTargetGoal extends HTGoal {
 
     private final TowerEntity towerEntity;
     private final double speedModifier;
@@ -24,7 +24,7 @@ public class MoveToTargetGoal extends HTGoal {
     private boolean strafingBackwards;
     private int strafingTime = -1;
 
-    public MoveToTargetGoal(TowerEntity towerEntity, double speedModifier, double backwardPercent, double upwardPercent) {
+    public KeepDistanceWithTargetGoal(TowerEntity towerEntity, double speedModifier, double backwardPercent, double upwardPercent) {
         this.towerEntity = towerEntity;
         this.speedModifier = speedModifier;
         this.followRange = towerEntity.getAttributeValue(Attributes.FOLLOW_RANGE);
@@ -50,10 +50,6 @@ public class MoveToTargetGoal extends HTGoal {
         super.stop();
         this.towerEntity.setAggressive(false);
         this.seeTime = 0;
-    }
-
-    public boolean requiresUpdateEveryTick() {
-        return true;
     }
 
     public void tick() {
