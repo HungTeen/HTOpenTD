@@ -78,9 +78,9 @@ public class PlantEntity extends TowerEntity {
     }
 
     @Override
-    public void onSyncedDataUpdated(EntityDataAccessor<?> dataAccessor) {
-        super.onSyncedDataUpdated(dataAccessor);
-        if (dataAccessor.equals(AGE)) {
+    public void onSyncedDataUpdated(EntityDataAccessor<?> accessor) {
+        super.onSyncedDataUpdated(accessor);
+        if (accessor.equals(AGE)) {
             this.refreshDimensions();
             this.growAnimTick = GROW_ANIM_CD;
         }

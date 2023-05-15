@@ -4,15 +4,13 @@ import com.mojang.serialization.Codec;
 import hungteen.htlib.util.helper.RandomHelper;
 import hungteen.htlib.util.helper.registry.EntityHelper;
 import hungteen.opentd.OpenTD;
-import hungteen.opentd.common.codec.GenGoalSetting;
-import hungteen.opentd.common.codec.RenderSetting;
-import hungteen.opentd.common.codec.ShootGoalSetting;
-import hungteen.opentd.common.codec.TowerComponent;
+import hungteen.opentd.common.codec.*;
 import hungteen.opentd.common.entity.ai.*;
 import hungteen.opentd.common.event.events.ShootBulletEvent;
 import hungteen.opentd.common.impl.tower.HTTowerComponents;
 import hungteen.opentd.util.EntityUtil;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.FriendlyByteBuf;
@@ -31,6 +29,7 @@ import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.RandomSwimmingGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.ai.navigation.WaterBoundPathNavigation;
+import net.minecraft.world.entity.monster.Guardian;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
@@ -69,6 +68,7 @@ public abstract class TowerEntity extends PathfinderMob implements IAnimatable, 
     private static final EntityDataAccessor<Integer> ATTACK_TICK = SynchedEntityData.defineId(TowerEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> INSTANT_TICK = SynchedEntityData.defineId(TowerEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> RESTING = SynchedEntityData.defineId(TowerEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Integer> ATTACK_TARGET = SynchedEntityData.defineId(TowerEntity.class, EntityDataSerializers.INT);
     private final AnimationFactory factory = GeckoLibUtil.createFactory(this);
     private CompoundTag componentTag = new CompoundTag();
     private ResourceLocation towerTexture = null;
@@ -82,6 +82,9 @@ public abstract class TowerEntity extends PathfinderMob implements IAnimatable, 
     public int growAnimTick = 0;
     private GenGoalSetting.GenSetting genSetting;
     private boolean updated = false;
+    @javax.annotation.Nullable
+    private LivingEntity clientSideCachedAttackTarget;
+    private int clientSideAttackTime;
 
     public TowerEntity(EntityType<? extends PathfinderMob> entityType, Level level) {
         super(entityType, level);
@@ -97,6 +100,7 @@ public abstract class TowerEntity extends PathfinderMob implements IAnimatable, 
         entityData.define(ATTACK_TICK, 0);
         entityData.define(INSTANT_TICK, 0);
         entityData.define(RESTING, false);
+        entityData.define(ATTACK_TARGET, 0);
     }
 
     @Override
@@ -110,6 +114,7 @@ public abstract class TowerEntity extends PathfinderMob implements IAnimatable, 
             this.goalSelector.addGoal(2, new TowerShootGoal(this));
             this.goalSelector.addGoal(2, new TowerGenGoal(this));
             this.goalSelector.addGoal(1, new TowerAttackGoal(this));
+            this.goalSelector.addGoal(2, new TowerLaserAttackGoal(this));
             this.getComponent().movementSetting().ifPresent(movementSetting -> {
                 movementSetting.navigationSetting().ifPresent(t -> {
                     if (t.canFloat()) { // 可以漂浮在水面上。
@@ -221,6 +226,17 @@ public abstract class TowerEntity extends PathfinderMob implements IAnimatable, 
                 }
             }
         }
+    }
+
+    @Override
+    public void aiStep() {
+        if (this.level.isClientSide && this.isAlive() && this.hasActiveAttackTarget() && this.getLaserSetting() != null) {
+            if (this.clientSideAttackTime < this.getLaserSetting().duration()) {
+                ++this.clientSideAttackTime;
+            }
+        }
+
+        super.aiStep();
     }
 
     public void startShootAttack(LivingEntity target) {
@@ -339,7 +355,7 @@ public abstract class TowerEntity extends PathfinderMob implements IAnimatable, 
             if (event.isMoving() && this.getComponent() != null && this.getComponent().movementSetting().isPresent()) {
                 builder.addAnimation("move", ILoopType.EDefaultLoopTypes.LOOP);
             }
-            if (this.getShootTick() > 0) {
+            if (this.getShootTick() > 0 || this.hasActiveAttackTarget()) {
                 builder.addAnimation("shoot", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
             } else if (this.getGenTick() > 0) {
                 builder.addAnimation("gen", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
@@ -357,6 +373,16 @@ public abstract class TowerEntity extends PathfinderMob implements IAnimatable, 
         });
         event.getController().setAnimation(builder);
         return PlayState.CONTINUE;
+    }
+
+    @Override
+    public void onSyncedDataUpdated(EntityDataAccessor<?> accessor) {
+        super.onSyncedDataUpdated(accessor);
+        if (ATTACK_TARGET.equals(accessor)) {
+            this.clientSideAttackTime = 0;
+            this.clientSideCachedAttackTarget = null;
+        }
+
     }
 
     @Override
@@ -428,6 +454,10 @@ public abstract class TowerEntity extends PathfinderMob implements IAnimatable, 
         return List.of();
     }
 
+    public LaserGoalSetting getLaserSetting(){
+        return this.getComponent() == null ? null : this.getComponent().laserGoalSetting().orElse(null);
+    }
+
     public <T> void parseComponent(Codec<T> codec, Consumer<T> consumer) {
         codec.parse(NbtOps.INSTANCE, this.componentTag)
                 .resultOrPartial(msg -> {
@@ -440,6 +470,10 @@ public abstract class TowerEntity extends PathfinderMob implements IAnimatable, 
                         this.discard();
                     }
                 });
+    }
+
+    public float getAttackAnimationScale(LaserGoalSetting setting, float partialTick) {
+        return ((float) this.clientSideAttackTime + partialTick) / (float) setting.duration();
     }
 
     @Override
@@ -607,6 +641,35 @@ public abstract class TowerEntity extends PathfinderMob implements IAnimatable, 
 
     public boolean isResting() {
         return entityData.get(RESTING);
+    }
+
+    public void setActiveAttackTarget(int id) {
+        this.entityData.set(ATTACK_TARGET, id);
+    }
+
+    public boolean hasActiveAttackTarget() {
+        return this.entityData.get(ATTACK_TARGET) != 0;
+    }
+
+    @javax.annotation.Nullable
+    public LivingEntity getActiveAttackTarget() {
+        if (!this.hasActiveAttackTarget()) {
+            return null;
+        } else if (this.level.isClientSide) {
+            if (this.clientSideCachedAttackTarget != null) {
+                return this.clientSideCachedAttackTarget;
+            } else {
+                Entity entity = this.level.getEntity(this.entityData.get(ATTACK_TARGET));
+                if (entity instanceof LivingEntity) {
+                    this.clientSideCachedAttackTarget = (LivingEntity) entity;
+                    return this.clientSideCachedAttackTarget;
+                } else {
+                    return null;
+                }
+            }
+        } else {
+            return this.getTarget();
+        }
     }
 
     @Nullable

@@ -131,6 +131,7 @@ public class HTTowerComponents {
                     Optional.empty(),
                     Optional.empty(),
                     Optional.empty(),
+                    Optional.empty(),
                     Arrays.asList(),
                     Optional.empty(),
                     Optional.empty()
@@ -159,6 +160,7 @@ public class HTTowerComponents {
                                     )
                             )
                     ),
+                    Optional.empty(),
                     Optional.empty(),
                     Optional.empty(),
                     Arrays.asList(

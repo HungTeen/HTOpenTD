@@ -39,6 +39,7 @@ public class PVZPlantComponent extends TowerComponent {
             Codec.optionalField("shoot_goal", ShootGoalSetting.CODEC).forGetter(PVZPlantComponent::shootGoalSetting),
             Codec.optionalField("gen_goal", GenGoalSetting.CODEC).forGetter(PVZPlantComponent::genGoalSetting),
             Codec.optionalField("attack_goal", AttackGoalSetting.CODEC).forGetter(PVZPlantComponent::attackGoalSetting),
+            Codec.optionalField("laser_goal", LaserGoalSetting.CODEC).forGetter(PVZPlantComponent::laserGoalSetting),
             Codec.optionalField("instant_setting", CloseInstantEffectSetting.CODEC).forGetter(PVZPlantComponent::instantEffectSetting),
             ConstantAffectSetting.CODEC.listOf().optionalFieldOf("constant_settings", Arrays.asList()).forGetter(PVZPlantComponent::constantAffectSettings),
             Codec.optionalField("hurt_effect", HTEffectComponents.getCodec()).forGetter(PVZPlantComponent::hurtEffect),
@@ -46,8 +47,8 @@ public class PVZPlantComponent extends TowerComponent {
     ).apply(instance, PVZPlantComponent::new)).codec();
     private final PlantSetting plantSetting;
 
-    public PVZPlantComponent(PlantSetting plantSetting, List<TargetSetting> targetSettings, Optional<ShootGoalSetting> shootGoalSetting, Optional<GenGoalSetting> genGoalSetting, Optional<AttackGoalSetting> attackGoalSetting, Optional<CloseInstantEffectSetting> instantEffectSetting, List<ConstantAffectSetting> constantAffectSettings, Optional<IEffectComponent> hurtEffect, Optional<IEffectComponent> dieEffect) {
-        super(targetSettings, Optional.empty(), shootGoalSetting, genGoalSetting, attackGoalSetting, instantEffectSetting, constantAffectSettings, hurtEffect, dieEffect);
+    public PVZPlantComponent(PlantSetting plantSetting, List<TargetSetting> targetSettings, Optional<ShootGoalSetting> shootGoalSetting, Optional<GenGoalSetting> genGoalSetting, Optional<AttackGoalSetting> attackGoalSetting, Optional<LaserGoalSetting> laserGoalSetting, Optional<CloseInstantEffectSetting> instantEffectSetting, List<ConstantAffectSetting> constantAffectSettings, Optional<IEffectComponent> hurtEffect, Optional<IEffectComponent> dieEffect) {
+        super(targetSettings, Optional.empty(), shootGoalSetting, genGoalSetting, attackGoalSetting, laserGoalSetting, instantEffectSetting, constantAffectSettings, hurtEffect, dieEffect);
         this.plantSetting = plantSetting;
     }
 

@@ -33,17 +33,19 @@ public abstract class TowerComponent implements ITowerComponent {
     private final Optional<ShootGoalSetting> shootGoalSetting;
     private final Optional<GenGoalSetting> genGoalSetting;
     private final Optional<AttackGoalSetting> attackGoalSetting;
+    private final Optional<LaserGoalSetting> laserGoalSetting;
     private final Optional<CloseInstantEffectSetting> instantEffectSetting;
     private final List<ConstantAffectSetting> constantAffectSettings;
     private final Optional<IEffectComponent> hurtEffect;
     private final Optional<IEffectComponent> dieEffect;
 
-    public TowerComponent(List<TargetSetting> targetSettings, Optional<MovementSetting> movementSetting, Optional<ShootGoalSetting> shootGoalSetting, Optional<GenGoalSetting> genGoalSetting, Optional<AttackGoalSetting> attackGoalSetting, Optional<CloseInstantEffectSetting> instantEffectSetting, List<ConstantAffectSetting> constantAffectSettings, Optional<IEffectComponent> hurtEffect, Optional<IEffectComponent> dieEffect) {
+    public TowerComponent(List<TargetSetting> targetSettings, Optional<MovementSetting> movementSetting, Optional<ShootGoalSetting> shootGoalSetting, Optional<GenGoalSetting> genGoalSetting, Optional<AttackGoalSetting> attackGoalSetting, Optional<LaserGoalSetting> laserGoalSetting, Optional<CloseInstantEffectSetting> instantEffectSetting, List<ConstantAffectSetting> constantAffectSettings, Optional<IEffectComponent> hurtEffect, Optional<IEffectComponent> dieEffect) {
         this.targetSettings = targetSettings;
         this.movementSetting = movementSetting;
         this.shootGoalSetting = shootGoalSetting;
         this.genGoalSetting = genGoalSetting;
         this.attackGoalSetting = attackGoalSetting;
+        this.laserGoalSetting = laserGoalSetting;
         this.instantEffectSetting = instantEffectSetting;
         this.constantAffectSettings = constantAffectSettings;
         this.hurtEffect = hurtEffect;
@@ -84,6 +86,10 @@ public abstract class TowerComponent implements ITowerComponent {
 
     public Optional<AttackGoalSetting> attackGoalSetting() {
         return attackGoalSetting;
+    }
+
+    public Optional<LaserGoalSetting> laserGoalSetting() {
+        return laserGoalSetting;
     }
 
     public Optional<CloseInstantEffectSetting> instantEffectSetting() {
