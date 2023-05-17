@@ -41,8 +41,9 @@ public class PlantHeroEntity extends TowerEntity {
 
     @Override
     public PlantHeroComponent getComponent() {
-        if (component == null) {
+        if (component == null || this.componentDirty) {
             this.parseComponent(PlantHeroComponent.CODEC, t -> this.component = t);
+            this.componentDirty = false;
         }
         return component;
     }

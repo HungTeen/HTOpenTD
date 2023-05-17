@@ -80,6 +80,7 @@ public abstract class TowerEntity extends PathfinderMob implements IAnimatable, 
     public int preAttackTick = 0;
     protected int shootCount = 0;
     public int growAnimTick = 0;
+    protected boolean componentDirty = false;
     private GenGoalSetting.GenSetting genSetting;
     private boolean updated = false;
     @javax.annotation.Nullable
@@ -711,6 +712,13 @@ public abstract class TowerEntity extends PathfinderMob implements IAnimatable, 
 
     public void setCurrentAnimation(String currentAnimation) {
         this.currentAnimation = currentAnimation;
+    }
+
+    public void updateTowerComponent(CompoundTag tag){
+        this.componentTag.merge(tag);
+        this.componentDirty = true;
+        this.getComponent();
+        this.updateComponent();
     }
 
     @Override

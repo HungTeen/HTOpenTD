@@ -24,8 +24,7 @@ public class PlantEntityRender extends TowerEntityRender<PlantEntity> {
     }
 
     @Override
-    protected void applyRotations(PlantEntity animatable, PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTick) {
-        super.applyRotations(animatable, poseStack, ageInTicks, rotationYaw, partialTick);
+    protected float getScale(PlantEntity animatable) {
         if (animatable.getComponent() != null) {
             double tmp;
             if(animatable.oldAge != animatable.getAge()){
@@ -35,9 +34,9 @@ public class PlantEntityRender extends TowerEntityRender<PlantEntity> {
             } else{
                 tmp = animatable.getGrowSettings().scales().get(animatable.getAge());
             }
-            final float scale = (float) (tmp * animatable.getComponent().plantSetting().renderSetting().scale());
-            poseStack.scale(scale, scale, scale);
+            return  (float) (tmp * animatable.getComponent().plantSetting().renderSetting().scale());
         }
+        return 1F;
     }
 
 }

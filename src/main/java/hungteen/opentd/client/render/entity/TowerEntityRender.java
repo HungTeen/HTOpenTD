@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix3f;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
+import hungteen.htlib.util.helper.MathHelper;
 import hungteen.opentd.common.entity.PlantEntity;
 import hungteen.opentd.common.entity.TowerEntity;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -35,6 +36,19 @@ public class TowerEntityRender<T extends TowerEntity> extends GeoEntityRenderer<
 
     public TowerEntityRender(EntityRendererProvider.Context renderManager, AnimatedGeoModel<T> modelProvider) {
         super(renderManager, modelProvider);
+    }
+
+    @Override
+    protected void applyRotations(T animatable, PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTick) {
+        super.applyRotations(animatable, poseStack, ageInTicks, rotationYaw, partialTick);
+        if (animatable.getComponent() != null) {
+            final float scale = getScale(animatable);
+            poseStack.scale(scale, scale, scale);
+        }
+    }
+
+    protected float getScale(T animatable){
+        return animatable.getRenderSetting() == null ? 1F : animatable.getRenderSetting().scale();
     }
 
     public boolean shouldRender(T p_114836_, Frustum p_114837_, double p_114838_, double p_114839_, double p_114840_) {

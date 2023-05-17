@@ -248,8 +248,9 @@ public class PlantEntity extends TowerEntity {
 
     @Override
     public PVZPlantComponent getComponent() {
-        if (component == null) {
+        if (component == null || this.componentDirty) {
             this.parseComponent(PVZPlantComponent.CODEC, t -> this.component = t);
+            this.componentDirty = false;
         }
         return component;
     }
