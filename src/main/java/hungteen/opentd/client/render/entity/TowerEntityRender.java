@@ -73,7 +73,7 @@ public class TowerEntityRender<T extends TowerEntity> extends GeoEntityRenderer<
     public void render(GeoModel model, T animatable, float partialTick, RenderType type, PoseStack poseStack, @Nullable MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
         if (animatable.getComponent() != null) {
             super.render(model, animatable, partialTick, type, poseStack, bufferSource, buffer, packedLight, packedOverlay, red, green, blue, alpha);
-            this.renderLaser(animatable, partialTick, poseStack, bufferSource);
+//            this.renderLaser(animatable, partialTick, poseStack, bufferSource);
         }
     }
 
@@ -81,6 +81,7 @@ public class TowerEntityRender<T extends TowerEntity> extends GeoEntityRenderer<
     public void render(T animatable, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
         if (animatable.getComponent() != null) {
             super.render(animatable, entityYaw, partialTick, poseStack, bufferSource, packedLight);
+            this.renderLaser(animatable, partialTick, poseStack, bufferSource);
         }
     }
 

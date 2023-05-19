@@ -132,7 +132,7 @@ public class SummonTowerItem extends Item {
             itemstack.hurtAndBreak(1, player, (p) -> {
                 player.broadcastBreakEvent(hand);
             });
-            getItemSettings(itemstack).requirements().forEach(l -> l.consume(level, player));
+            getItemSettings(itemstack).requirement().consume(level, player);
         }
 
         PlayerUtil.addCooldown(player, itemstack, getItemSettings(itemstack).coolDown());
@@ -142,13 +142,11 @@ public class SummonTowerItem extends Item {
     }
 
     public boolean canPlace(ServerLevel level, Player player, ItemStack stack, Entity entity){
-        return getItemSettings(stack).requirements().stream()
-                .allMatch(r -> r.allowOn(level, player, entity, true));
+        return getItemSettings(stack).requirement().allowOn(level, player, entity, true);
     }
 
     public boolean canPlace(ServerLevel level, Player player, ItemStack stack, BlockState state, BlockPos pos){
-        return getItemSettings(stack).requirements().stream()
-                .allMatch(r -> r.allowOn(level, player, state, pos, true));
+        return getItemSettings(stack).requirement().allowOn(level, player, state, pos, true);
     }
 
     @Override

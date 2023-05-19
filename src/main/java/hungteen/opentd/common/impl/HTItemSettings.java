@@ -10,6 +10,7 @@ import hungteen.opentd.api.interfaces.ISummonRequirement;
 import hungteen.opentd.common.impl.filter.EntityPredicateFilter;
 import hungteen.opentd.common.impl.requirement.AroundEntityRequirement;
 import hungteen.opentd.common.impl.requirement.HTSummonRequirements;
+import hungteen.opentd.common.impl.requirement.NoRequirement;
 import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.advancements.critereon.NbtPredicate;
 import net.minecraft.nbt.CompoundTag;
@@ -71,7 +72,7 @@ public class HTItemSettings {
         private int maxDamage = 0;
         private int coolDown = 5;
         private List<String> textComponents = new ArrayList<>();
-        private List<ISummonRequirement> requirements = new ArrayList<>();
+        private ISummonRequirement requirement = new NoRequirement();
 
         public Builder name(String name){
             this.name = name;
@@ -108,21 +109,16 @@ public class HTItemSettings {
         }
 
         public Builder requirement(ISummonRequirement requirement){
-            this.requirements.add(requirement);
-            return this;
-        }
-
-        public Builder requirements(List<ISummonRequirement> requirements){
-            this.requirements = requirements;
+            this.requirement = requirement;
             return this;
         }
 
         public ItemSetting build(){
-            return new ItemSetting(Optional.ofNullable(name), model, maxStackSize, maxDamage, coolDown, textComponents, requirements);
+            return new ItemSetting(Optional.ofNullable(name), model, maxStackSize, maxDamage, coolDown, textComponents, requirement);
         }
     }
 
-    public record ItemSetting(Optional<String> name, ResourceLocation model, int maxStackSize, int maxDamage, int coolDown, List<String> textComponents, List<ISummonRequirement> requirements) {
+    public record ItemSetting(Optional<String> name, ResourceLocation model, int maxStackSize, int maxDamage, int coolDown, List<String> textComponents, ISummonRequirement requirement) {
         public static final Codec<ItemSetting> CODEC = RecordCodecBuilder.<ItemSetting>mapCodec(instance -> instance.group(
                 Codec.optionalField("name", Codec.STRING).forGetter(ItemSetting::name),
                 ResourceLocation.CODEC.fieldOf("model").forGetter(ItemSetting::model),
@@ -130,7 +126,7 @@ public class HTItemSettings {
                 Codec.intRange(0, 65535).optionalFieldOf("max_damage", 0).forGetter(ItemSetting::maxDamage),
                 Codec.intRange(5, 1000000).optionalFieldOf("cool_down", 5).forGetter(ItemSetting::coolDown),
                 Codec.STRING.listOf().optionalFieldOf("texts", new ArrayList<>()).forGetter(ItemSetting::textComponents),
-                HTSummonRequirements.getCodec().listOf().optionalFieldOf("requirements", new ArrayList<>()).forGetter(ItemSetting::requirements)
+                HTSummonRequirements.getCodec().optionalFieldOf("requirement", new NoRequirement()).forGetter(ItemSetting::requirement)
         ).apply(instance, ItemSetting::new)).codec();
     }
 

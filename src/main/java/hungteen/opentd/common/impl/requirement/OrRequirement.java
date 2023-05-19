@@ -53,6 +53,7 @@ public record OrRequirement(List<ISummonRequirement> requirements, Optional<Stri
 
     @Override
     public void consume(ServerLevel level, Player player) {
+        // No consume.
     }
 
     public Component getTip() {

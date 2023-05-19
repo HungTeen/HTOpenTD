@@ -47,6 +47,7 @@ public record AndRequirement(List<ISummonRequirement> requirements, Optional<Str
 
     @Override
     public void consume(ServerLevel level, Player player) {
+        requirements().forEach(r -> r.consume(level, player));
     }
 
     public Component getTip() {

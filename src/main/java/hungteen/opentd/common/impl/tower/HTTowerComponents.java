@@ -25,6 +25,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -147,7 +148,13 @@ public class HTTowerComponents {
                             false,
                             RenderSetting.make(0.8F, 1F, 1F, "sun_flower")
                     ),
-                    Arrays.asList(),
+                    List.of(new TargetSetting(1, 0.2F, true, 10000,
+                            new RangeFinder(true, 40, 40,
+                                    new TypeTargetFilter(List.of(
+                                            EntityType.CREEPER
+                                    ))
+                            ))
+                    ),
                     Optional.empty(),
                     Optional.of(
                             new GenGoalSetting(
@@ -161,7 +168,15 @@ public class HTTowerComponents {
                             )
                     ),
                     Optional.empty(),
-                    Optional.empty(),
+                    Optional.of(
+                            new LaserGoalSetting(
+                                    50, 100, 20,new TypeTargetFilter(List.of(
+                                    EntityType.CREEPER
+                            )), new DamageEffectComponent(false, 1F, 0),
+                                    new DamageEffectComponent(false, 10F, 0),
+                                    1F, 10F, 20D, false, Optional.empty()
+                                    )
+                    ),
                     Optional.empty(),
                     Arrays.asList(
                             new ConstantAffectSetting(
