@@ -69,12 +69,9 @@ public abstract class TowerEntity extends PathfinderMob implements IAnimatable, 
     private static final EntityDataAccessor<Integer> INSTANT_TICK = SynchedEntityData.defineId(TowerEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> RESTING = SynchedEntityData.defineId(TowerEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> ATTACK_TARGET = SynchedEntityData.defineId(TowerEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<ClientTowerResource> CLIENT_RES = SynchedEntityData.defineId(TowerEntity.class, OTDSerializers.CLIENT_TOWER_RES.get());
     private final AnimationFactory factory = GeckoLibUtil.createFactory(this);
     private CompoundTag componentTag = new CompoundTag();
-    private ResourceLocation towerTexture = null;
-    private ResourceLocation towerModel = null;
-    private ResourceLocation towerAnimation = null;
-    private String currentAnimation = null;
     public int preShootTick = 0;
     public int preGenTick = 0;
     public int preAttackTick = 0;
@@ -102,6 +99,7 @@ public abstract class TowerEntity extends PathfinderMob implements IAnimatable, 
         entityData.define(INSTANT_TICK, 0);
         entityData.define(RESTING, false);
         entityData.define(ATTACK_TARGET, 0);
+        entityData.define(CLIENT_RES, new ClientTowerResource());
     }
 
     @Override
@@ -348,32 +346,40 @@ public abstract class TowerEntity extends PathfinderMob implements IAnimatable, 
         }
     }
 
-    protected PlayState predicateAnimation(AnimationEvent<?> event) {
+    protected PlayState idleOrMove(AnimationEvent<?> event) {
         final AnimationBuilder builder = new AnimationBuilder();
-        this.getCurrentAnimation().ifPresentOrElse(name -> {
-            builder.addAnimation(name, ILoopType.EDefaultLoopTypes.PLAY_ONCE);
-        }, () -> {
-            if (event.isMoving() && this.getComponent() != null && this.getComponent().movementSetting().isPresent()) {
-                builder.addAnimation("move", ILoopType.EDefaultLoopTypes.LOOP);
-            }
-            if (this.getShootTick() > 0 || this.hasActiveAttackTarget()) {
-                builder.addAnimation("shoot", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
-            } else if (this.getGenTick() > 0) {
-                builder.addAnimation("gen", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
-            } else if (this.getAttackTick() > 0) {
-                builder.addAnimation("attack", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
-            } else if (this.getInstantTick() > 0) {
-                builder.addAnimation("instant", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
-            } else {
-                if (this.isResting()) {
-                    builder.addAnimation("rest", ILoopType.EDefaultLoopTypes.LOOP);
-                } else {
-                    builder.addAnimation("idle", ILoopType.EDefaultLoopTypes.LOOP);
-                }
-            }
-        });
+        if (this.isResting()) {
+            builder.addAnimation("rest", ILoopType.EDefaultLoopTypes.LOOP);
+        } else if (event.isMoving() && this.getComponent() != null && this.getComponent().movementSetting().isPresent()) {
+            builder.addAnimation("move", ILoopType.EDefaultLoopTypes.LOOP);
+        } else {
+            builder.addAnimation("idle", ILoopType.EDefaultLoopTypes.LOOP);
+        }
         event.getController().setAnimation(builder);
         return PlayState.CONTINUE;
+    }
+
+    protected PlayState predicateWorks(AnimationEvent<?> event) {
+        final AnimationBuilder builder = new AnimationBuilder();
+        if (this.getShootTick() > 0 || this.hasActiveAttackTarget()) {
+            builder.addAnimation("shoot", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
+        } else if (this.getGenTick() > 0) {
+            builder.addAnimation("gen", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
+        } else if (this.getAttackTick() > 0) {
+            builder.addAnimation("attack", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
+        } else if (this.getInstantTick() > 0) {
+            builder.addAnimation("instant", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
+        }
+        event.getController().setAnimation(builder);
+        return builder.getRawAnimationList().isEmpty() ? PlayState.STOP : PlayState.CONTINUE;
+    }
+
+    protected PlayState specificAnimation(AnimationEvent<?> event) {
+        if (this.getCurrentAnimation().isPresent()){
+            event.getController().setAnimation(new AnimationBuilder().addAnimation(this.getCurrentAnimation().get(), ILoopType.EDefaultLoopTypes.PLAY_ONCE));
+            return PlayState.CONTINUE;
+        }
+        return PlayState.STOP;
     }
 
     @Override
@@ -455,7 +461,7 @@ public abstract class TowerEntity extends PathfinderMob implements IAnimatable, 
         return List.of();
     }
 
-    public LaserGoalSetting getLaserSetting(){
+    public LaserGoalSetting getLaserSetting() {
         return this.getComponent() == null ? null : this.getComponent().laserGoalSetting().orElse(null);
     }
 
@@ -652,6 +658,14 @@ public abstract class TowerEntity extends PathfinderMob implements IAnimatable, 
         return this.entityData.get(ATTACK_TARGET) != 0;
     }
 
+    public ClientTowerResource getClientResource() {
+        return entityData.get(CLIENT_RES);
+    }
+
+    public void setClientResource(ClientTowerResource clientTowerResource) {
+        entityData.set(CLIENT_RES, clientTowerResource);
+    }
+
     @javax.annotation.Nullable
     public LivingEntity getActiveAttackTarget() {
         if (!this.hasActiveAttackTarget()) {
@@ -683,38 +697,41 @@ public abstract class TowerEntity extends PathfinderMob implements IAnimatable, 
     }
 
     public Optional<ResourceLocation> getTowerModel() {
-        return Optional.ofNullable(towerModel);
+        return Optional.ofNullable(getClientResource().getTowerModel());
     }
 
     public Optional<ResourceLocation> getTowerTexture() {
-        return Optional.ofNullable(towerTexture);
+        return Optional.ofNullable(getClientResource().getTowerTexture());
     }
 
     public Optional<ResourceLocation> getTowerAnimation() {
-        return Optional.ofNullable(towerAnimation);
+        return Optional.ofNullable(getClientResource().getTowerAnimation());
     }
 
     public Optional<String> getCurrentAnimation() {
-        return Optional.ofNullable(currentAnimation);
+        return Optional.ofNullable(getClientResource().getCurrentAnimation());
     }
 
     public void setTowerModel(ResourceLocation towerModel) {
-        this.towerModel = towerModel;
+        this.setClientResource(new ClientTowerResource().from(this.getClientResource()).setTowerModel(towerModel));
     }
 
     public void setTowerTexture(ResourceLocation towerTexture) {
-        this.towerTexture = towerTexture;
+        this.setClientResource(new ClientTowerResource().from(this.getClientResource()).setTowerTexture(towerTexture));
     }
 
     public void setTowerAnimation(ResourceLocation towerAnimation) {
-        this.towerAnimation = towerAnimation;
+        this.setClientResource(new ClientTowerResource().from(this.getClientResource()).setTowerAnimation(towerAnimation));
     }
 
     public void setCurrentAnimation(String currentAnimation) {
-        this.currentAnimation = currentAnimation;
+        this.setClientResource(new ClientTowerResource().from(this.getClientResource()).setCurrentAnimation(currentAnimation));
     }
 
-    public void updateTowerComponent(CompoundTag tag){
+    /**
+     * KubeJs Compat.
+     */
+    public void updateTowerComponent(CompoundTag tag) {
         this.componentTag.merge(tag);
         this.componentDirty = true;
         this.getComponent();
@@ -725,9 +742,21 @@ public abstract class TowerEntity extends PathfinderMob implements IAnimatable, 
     public void registerControllers(AnimationData animationData) {
         animationData.addAnimationController(new AnimationController<>(
                 this,
-                "controller",
+                "move_or_idle",
                 0,
-                this::predicateAnimation
+                this::idleOrMove
+        ));
+        animationData.addAnimationController(new AnimationController<>(
+                this,
+                "works",
+                0,
+                this::predicateWorks
+        ));
+        animationData.addAnimationController(new AnimationController<>(
+                this,
+                "specific",
+                0,
+                this::specificAnimation
         ));
     }
 
@@ -739,5 +768,87 @@ public abstract class TowerEntity extends PathfinderMob implements IAnimatable, 
     @Override
     public Packet<?> getAddEntityPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
+    }
+
+    public static class ClientTowerResource {
+        private ResourceLocation towerTexture = null;
+        private ResourceLocation towerModel = null;
+        private ResourceLocation towerAnimation = null;
+        private String currentAnimation = null;
+
+        public ClientTowerResource from(ClientTowerResource resource){
+            this.setTowerTexture(resource.getTowerTexture());
+            this.setTowerModel(resource.getTowerModel());
+            this.setTowerAnimation(resource.getTowerAnimation());
+            this.setCurrentAnimation(resource.getCurrentAnimation());
+            return this;
+        }
+
+        public CompoundTag saveTo(CompoundTag tag){
+            if(this.getTowerTexture() != null){
+                tag.putString("TowerTexture", this.getTowerTexture().toString());
+            }
+            if(this.getTowerModel() != null){
+                tag.putString("TowerModel", this.getTowerModel().toString());
+            }
+            if(this.getTowerAnimation() != null){
+                tag.putString("TowerAnimation", this.getTowerAnimation().toString());
+            }
+            if(this.getCurrentAnimation() != null){
+                tag.putString("CurrentAnimation", this.getCurrentAnimation());
+            }
+            return tag;
+        }
+
+        public void readFrom(CompoundTag tag){
+            if(tag.contains("TowerTexture")){
+                this.setTowerTexture(new ResourceLocation(tag.getString("TowerTexture")));
+            }
+            if(tag.contains("TowerModel")){
+                this.setTowerModel(new ResourceLocation(tag.getString("TowerModel")));
+            }
+            if(tag.contains("TowerAnimation")){
+                this.setTowerAnimation(new ResourceLocation(tag.getString("TowerAnimation")));
+            }
+            if(tag.contains("CurrentAnimation")){
+                this.setCurrentAnimation(tag.getString("CurrentAnimation"));
+            }
+        }
+
+        public String getCurrentAnimation() {
+            return currentAnimation;
+        }
+
+        public ClientTowerResource setCurrentAnimation(String currentAnimation) {
+            this.currentAnimation = currentAnimation;
+            return this;
+        }
+
+        public ResourceLocation getTowerAnimation() {
+            return towerAnimation;
+        }
+
+        public ClientTowerResource setTowerAnimation(ResourceLocation towerAnimation) {
+            this.towerAnimation = towerAnimation;
+            return this;
+        }
+
+        public ResourceLocation getTowerModel() {
+            return towerModel;
+        }
+
+        public ClientTowerResource setTowerModel(ResourceLocation towerModel) {
+            this.towerModel = towerModel;
+            return this;
+        }
+
+        public ResourceLocation getTowerTexture() {
+            return towerTexture;
+        }
+
+        public ClientTowerResource setTowerTexture(ResourceLocation towerTexture) {
+            this.towerTexture = towerTexture;
+            return this;
+        }
     }
 }

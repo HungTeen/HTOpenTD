@@ -6,6 +6,7 @@ import hungteen.htlib.util.helper.StringHelper;
 import hungteen.opentd.common.OpenTDSounds;
 import hungteen.opentd.common.capability.OpenTDCapabilities;
 import hungteen.opentd.common.effect.OpenTDEffects;
+import hungteen.opentd.common.entity.OTDSerializers;
 import hungteen.opentd.common.entity.OpenTDEntities;
 import hungteen.opentd.common.impl.HTPathNavigations;
 import hungteen.opentd.common.item.OpenTDItems;
@@ -53,6 +54,7 @@ public class OpenTD {
         OpenTDEntities.register(modBus);
         OpenTDEffects.register(modBus);
         OpenTDSounds.register(modBus);
+        OTDSerializers.register(modBus);
 
         final IEventBus forgeBus = MinecraftForge.EVENT_BUS;
         forgeBus.addGenericListener(Entity.class, OpenTDCapabilities::attachCapabilities);
