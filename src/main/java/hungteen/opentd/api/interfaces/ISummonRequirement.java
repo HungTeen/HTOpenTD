@@ -14,9 +14,9 @@ import net.minecraft.world.level.block.state.BlockState;
  **/
 public interface ISummonRequirement {
 
-    boolean allowOn(ServerLevel level, Player player, Entity entity);
+    boolean allowOn(ServerLevel level, Player player, Entity entity, boolean sendMessage);
 
-    boolean allowOn(ServerLevel level, Player player, BlockState state, BlockPos pos);
+    boolean allowOn(ServerLevel level, Player player, BlockState state, BlockPos pos, boolean sendMessage);
 
     void consume(ServerLevel level, Player player);
 

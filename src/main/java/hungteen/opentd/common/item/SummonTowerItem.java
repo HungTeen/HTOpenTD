@@ -143,12 +143,12 @@ public class SummonTowerItem extends Item {
 
     public boolean canPlace(ServerLevel level, Player player, ItemStack stack, Entity entity){
         return getItemSettings(stack).requirements().stream()
-                .allMatch(r -> r.allowOn(level, player, entity));
+                .allMatch(r -> r.allowOn(level, player, entity, true));
     }
 
     public boolean canPlace(ServerLevel level, Player player, ItemStack stack, BlockState state, BlockPos pos){
         return getItemSettings(stack).requirements().stream()
-                .allMatch(r -> r.allowOn(level, player, state, pos));
+                .allMatch(r -> r.allowOn(level, player, state, pos, true));
     }
 
     @Override

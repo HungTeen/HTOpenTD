@@ -34,22 +34,22 @@ public record BlockRequirement(Optional<String> tip, Optional<BlockState> blockS
     ).apply(instance, BlockRequirement::new)).codec();
 
     @Override
-    public boolean allowOn(ServerLevel level, Player player, Entity entity) {
+    public boolean allowOn(ServerLevel level, Player player, Entity entity, boolean sendMessage) {
         return false;
     }
 
     @Override
-    public boolean allowOn(ServerLevel level, Player player, BlockState state, BlockPos pos) {
+    public boolean allowOn(ServerLevel level, Player player, BlockState state, BlockPos pos, boolean sendMessage) {
         if(blockState().isPresent() && blockState().get() != state){
-            PlayerHelper.sendTipTo(player, getTip());
+            if(sendMessage) PlayerHelper.sendTipTo(player, getTip());
             return false;
         }
         if(blockTag().isPresent() && ! state.is(blockTag().get())){
-            PlayerHelper.sendTipTo(player, getTip());
+            if(sendMessage) PlayerHelper.sendTipTo(player, getTip());
             return false;
         }
         if(blocks().isPresent() && ! blocks().get().contains(state.getBlock())){
-            PlayerHelper.sendTipTo(player, getTip());
+            if(sendMessage) PlayerHelper.sendTipTo(player, getTip());
             return false;
         }
         return true;

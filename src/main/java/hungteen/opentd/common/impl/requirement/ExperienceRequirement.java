@@ -31,13 +31,13 @@ public record ExperienceRequirement(Optional<String> tip, int experience, int le
     ).apply(instance, ExperienceRequirement::new)).codec();
 
     @Override
-    public boolean allowOn(ServerLevel level, Player player, Entity entity) {
-        return enoughXp(player);
+    public boolean allowOn(ServerLevel level, Player player, Entity entity, boolean sendMessage) {
+        return enoughXp(player, sendMessage);
     }
 
     @Override
-    public boolean allowOn(ServerLevel level, Player player, BlockState state, BlockPos pos) {
-        return enoughXp(player);
+    public boolean allowOn(ServerLevel level, Player player, BlockState state, BlockPos pos, boolean sendMessage) {
+        return enoughXp(player, sendMessage);
     }
 
     @Override
@@ -46,11 +46,11 @@ public record ExperienceRequirement(Optional<String> tip, int experience, int le
         player.giveExperienceLevels(-costLevel());
     }
 
-    public boolean enoughXp(Player player) {
+    public boolean enoughXp(Player player, boolean sendMessage) {
         if(player.experienceLevel >= level() && player.totalExperience >= experience() && player.experienceLevel >= costLevel() && player.totalExperience >= costExperience()){
             return true;
         } else{
-            PlayerHelper.sendTipTo(player, getTip());
+            if(sendMessage) PlayerHelper.sendTipTo(player, getTip());
             return false;
         }
     }

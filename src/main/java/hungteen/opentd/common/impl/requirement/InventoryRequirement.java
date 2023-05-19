@@ -31,16 +31,16 @@ public record InventoryRequirement(Optional<String> tip, List<ItemStack> ownItem
     ).apply(instance, InventoryRequirement::new)).codec();
 
     @Override
-    public boolean allowOn(ServerLevel level, Player player, Entity entity) {
-        return check(player);
+    public boolean allowOn(ServerLevel level, Player player, Entity entity, boolean sendMessage) {
+        return check(player, sendMessage);
     }
 
     @Override
-    public boolean allowOn(ServerLevel level, Player player, BlockState state, BlockPos pos) {
-        return check(player);
+    public boolean allowOn(ServerLevel level, Player player, BlockState state, BlockPos pos, boolean sendMessage) {
+        return check(player, sendMessage);
     }
 
-    private boolean check(Player player){
+    private boolean check(Player player, boolean sendMessage){
         if( this.ownItems().stream().allMatch(stack -> {
             return stack.getCount() <= PlayerUtil.getItemCount(player, stack);
         }) && this.consumeItems().stream().allMatch(stack -> {
@@ -48,7 +48,7 @@ public record InventoryRequirement(Optional<String> tip, List<ItemStack> ownItem
         })){
             return true;
         } else{
-            PlayerHelper.sendTipTo(player, getTip());
+            if(sendMessage) PlayerHelper.sendTipTo(player, getTip());
             return false;
         }
     }

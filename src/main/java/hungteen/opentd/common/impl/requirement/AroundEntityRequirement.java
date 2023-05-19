@@ -37,20 +37,20 @@ public record AroundEntityRequirement(double width, double height, int minCount,
     ).apply(instance, AroundEntityRequirement::new)).codec();
 
     @Override
-    public boolean allowOn(ServerLevel level, Player player, Entity entity) {
-        return check(level, player, entity.position());
+    public boolean allowOn(ServerLevel level, Player player, Entity entity, boolean sendMessage) {
+        return check(level, player, entity.position(), sendMessage);
     }
 
     @Override
-    public boolean allowOn(ServerLevel level, Player player, BlockState state, BlockPos pos) {
-        return check(level, player, MathHelper.toVec3(pos));
+    public boolean allowOn(ServerLevel level, Player player, BlockState state, BlockPos pos, boolean sendMessage) {
+        return check(level, player, MathHelper.toVec3(pos), sendMessage);
     }
 
-    public boolean check(ServerLevel level, Player player, Vec3 pos){
+    public boolean check(ServerLevel level, Player player, Vec3 pos, boolean sendMessage){
         final AABB aabb = MathHelper.getAABB(pos, width(), height());
         final int size = EntityHelper.getPredicateEntities(player, aabb, Entity.class, l -> filter().match(level, player, l)).size();
         if(size < minCount() || size > maxCount()){
-            PlayerHelper.sendTipTo(player, getTip());
+            if(sendMessage) PlayerHelper.sendTipTo(player, getTip());
             return false;
         }
         return true;

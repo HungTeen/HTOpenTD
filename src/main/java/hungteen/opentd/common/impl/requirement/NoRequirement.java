@@ -23,12 +23,12 @@ public class NoRequirement implements ISummonRequirement {
     });
 
     @Override
-    public boolean allowOn(ServerLevel level, Player player, Entity entity) {
+    public boolean allowOn(ServerLevel level, Player player, Entity entity, boolean sendMessage) {
         return true;
     }
 
     @Override
-    public boolean allowOn(ServerLevel level, Player player, BlockState state, BlockPos pos) {
+    public boolean allowOn(ServerLevel level, Player player, BlockState state, BlockPos pos, boolean sendMessage) {
         return true;
     }
 

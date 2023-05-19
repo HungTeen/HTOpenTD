@@ -23,6 +23,8 @@ public class HTSummonRequirements {
     /* Requirement types */
 
     public static final ISummonRequirementType<NoRequirement> NO_REQUIREMENT = new DefaultRequirement<>("no",  NoRequirement.CODEC);
+    public static final ISummonRequirementType<OrRequirement> OR_REQUIREMENT = new DefaultRequirement<>("or",  OrRequirement.CODEC);
+    public static final ISummonRequirementType<AndRequirement> AND_REQUIREMENT = new DefaultRequirement<>("and",  AndRequirement.CODEC);
     public static final ISummonRequirementType<ExperienceRequirement> EXPERIENCE_REQUIREMENT = new DefaultRequirement<>("experience",  ExperienceRequirement.CODEC);
     public static final ISummonRequirementType<BlockRequirement> BLOCK_REQUIREMENT = new DefaultRequirement<>("block",  BlockRequirement.CODEC);
     public static final ISummonRequirementType<EntityRequirement> ENTITY_REQUIREMENT = new DefaultRequirement<>("entity",  EntityRequirement.CODEC);
@@ -35,7 +37,7 @@ public class HTSummonRequirements {
      * {@link OpenTD#OpenTD()}
      */
     public static void registerStuffs(){
-        Arrays.asList(NO_REQUIREMENT, EXPERIENCE_REQUIREMENT, BLOCK_REQUIREMENT, ENTITY_REQUIREMENT, AROUND_ENTITY_REQUIREMENT, INVENTORY_REQUIREMENT).forEach(HTSummonRequirements::registerTowerType);
+        Arrays.asList(NO_REQUIREMENT, OR_REQUIREMENT, AND_REQUIREMENT, EXPERIENCE_REQUIREMENT, BLOCK_REQUIREMENT, ENTITY_REQUIREMENT, AROUND_ENTITY_REQUIREMENT, INVENTORY_REQUIREMENT).forEach(HTSummonRequirements::registerTowerType);
     }
 
     public static void registerTowerType(ISummonRequirementType<?> type){
