@@ -75,6 +75,7 @@ public abstract class TowerEntity extends PathfinderMob implements IAnimatable, 
     public int preShootTick = 0;
     public int preGenTick = 0;
     public int preAttackTick = 0;
+    public int preLaserTick = 0;
     protected int shootCount = 0;
     public int growAnimTick = 0;
     protected boolean componentDirty = false;
@@ -504,6 +505,7 @@ public abstract class TowerEntity extends PathfinderMob implements IAnimatable, 
         tag.putInt("PreGenTick", this.preGenTick);
         tag.putInt("AttackTick", this.getAttackTick());
         tag.putInt("PreAttackTick", this.preAttackTick);
+        tag.putInt("PreLaserTick", this.preLaserTick);
         tag.putInt("InstantTick", this.getInstantTick());
         tag.putBoolean("Resting", this.isResting());
         if (this.genSetting != null) {
@@ -575,6 +577,9 @@ public abstract class TowerEntity extends PathfinderMob implements IAnimatable, 
         }
         if (tag.contains("PreAttackTick")) {
             this.preAttackTick = tag.getInt("PreAttackTick");
+        }
+        if (tag.contains("PreLaserTick")) {
+            this.preLaserTick = tag.getInt("PreLaserTick");
         }
         if (tag.contains("InstantTick")) {
             this.setInstantTick(tag.getInt("InstantTick"));

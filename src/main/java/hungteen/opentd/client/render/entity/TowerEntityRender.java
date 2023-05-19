@@ -6,6 +6,7 @@ import com.mojang.math.Matrix3f;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
 import hungteen.htlib.util.helper.MathHelper;
+import hungteen.opentd.common.codec.LaserGoalSetting;
 import hungteen.opentd.common.entity.PlantEntity;
 import hungteen.opentd.common.entity.TowerEntity;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -59,7 +60,7 @@ public class TowerEntityRender<T extends TowerEntity> extends GeoEntityRenderer<
                 LivingEntity livingentity = p_114836_.getActiveAttackTarget();
                 if (livingentity != null) {
                     Vec3 vec3 = this.getPosition(livingentity, (double)livingentity.getBbHeight() * 0.5D, 1.0F);
-                    Vec3 vec31 = this.getPosition(p_114836_, (double)p_114836_.getEyeHeight(), 1.0F);
+                    Vec3 vec31 = this.getPosition(p_114836_, p_114836_.getEyeHeight(), 1.0F);
                     return p_114837_.isVisible(new AABB(vec31.x, vec31.y, vec31.z, vec3.x, vec3.y, vec3.z));
                 }
             }
@@ -92,10 +93,10 @@ public class TowerEntityRender<T extends TowerEntity> extends GeoEntityRenderer<
             float f3 = towerEntity.getEyeHeight();
             stack.pushPose();
             stack.translate(0.0D, f3, 0.0D);
-            Vec3 vec3 = this.getPosition(livingentity, (double)livingentity.getBbHeight() * 0.5D, partialTick);
+            Vec3 vec3 = this.getPosition(livingentity, livingentity.getEyeHeight(), partialTick);
             Vec3 vec31 = this.getPosition(towerEntity, f3, partialTick);
             Vec3 vec32 = vec3.subtract(vec31);
-            float f4 = (float)(vec32.length() + 1.0D);
+            float f4 = (float) towerEntity.getLaserSetting().laserDistance() + 1;
             vec32 = vec32.normalize();
             float f5 = (float)Math.acos(vec32.y);
             float f6 = (float)Math.atan2(vec32.z, vec32.x);
@@ -129,7 +130,7 @@ public class TowerEntityRender<T extends TowerEntity> extends GeoEntityRenderer<
             float f28 = 0.4999F;
             float f29 = -1.0F + f2;
             float f30 = f4 * 2.5F + f29;
-            VertexConsumer vertexconsumer = bufferSource.getBuffer(BEAM_RENDER_TYPE);
+            VertexConsumer vertexconsumer = bufferSource.getBuffer(getBeamRenderType(towerEntity.getLaserSetting()));
             PoseStack.Pose posestack$pose = stack.last();
             Matrix4f matrix4f = posestack$pose.pose();
             Matrix3f matrix3f = posestack$pose.normal();
@@ -163,5 +164,9 @@ public class TowerEntityRender<T extends TowerEntity> extends GeoEntityRenderer<
         double d1 = Mth.lerp(p_114805_, entity.yOld, entity.getY()) + p_114804_;
         double d2 = Mth.lerp(p_114805_, entity.zOld, entity.getZ());
         return new Vec3(d0, d1, d2);
+    }
+
+    private RenderType getBeamRenderType(LaserGoalSetting setting){
+        return setting.laserTexture().map(RenderType::entityTranslucent).orElse(BEAM_RENDER_TYPE);
     }
 }
