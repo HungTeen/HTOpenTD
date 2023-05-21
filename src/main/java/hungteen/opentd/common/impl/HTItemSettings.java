@@ -8,13 +8,12 @@ import hungteen.htlib.common.registry.HTRegistryManager;
 import hungteen.opentd.OpenTD;
 import hungteen.opentd.api.interfaces.ISummonRequirement;
 import hungteen.opentd.common.impl.filter.EntityPredicateFilter;
-import hungteen.opentd.common.impl.requirement.AroundEntityRequirement;
-import hungteen.opentd.common.impl.requirement.HTSummonRequirements;
-import hungteen.opentd.common.impl.requirement.NoRequirement;
+import hungteen.opentd.common.impl.requirement.*;
 import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.advancements.critereon.NbtPredicate;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
 import java.util.ArrayList;
@@ -42,7 +41,18 @@ public class HTItemSettings {
 
     public static final HTRegistryHolder<ItemSetting> SUN_FLOWER = SUMMON_ITEMS.innerRegister(
             OpenTD.prefix("sun_flower"),
-            new Builder().model(OpenTD.prefix("sun_flower_card")).name("item.opentd.test_sun_flower_card").card().build()
+            new Builder().model(OpenTD.prefix("sun_flower_card"))
+                    .name("item.opentd.test_sun_flower_card")
+                    .card()
+                    .damage(10)
+//                    .requirement(new AndRequirement(
+//                            List.of(
+//                                    new ExperienceRequirement(Optional.empty(), 10, 10, 0, 0),
+//                                    new BlockRequirement(Optional.empty(), Optional.empty(), Optional.empty(), Optional.of(List.of(Blocks.GRASS_BLOCK, Blocks.ANDESITE)))
+//                            ),
+//                            Optional.empty()
+//                    ))
+                    .build()
     );
 
     private static CompoundTag get(){

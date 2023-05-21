@@ -182,6 +182,11 @@ public class SummonTowerItem extends Item {
         return getItemSettings(stack).maxDamage();
     }
 
+    @Override
+    public boolean canBeDepleted() {
+        return true; // Fix Summon Item Unbreakable.
+    }
+
     public static HTItemSettings.ItemSetting getItemSettings(ItemStack stack) {
         return get(stack).map(HTSummonItems.SummonEntry::itemSettings).orElse(HTItemSettings.DEFAULT.getValue());
     }
