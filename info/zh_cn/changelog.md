@@ -14,11 +14,11 @@
 * Mod新版本更新提醒。
 * 激光组件。
 * KubeJS能够通过NBT完成对防御塔组件的任意修改。
-* 新增放置要求组件：and和or。
+* 新增放置要求组件：and和or和not。
 #### Bug修复
 * 塔防生物杀死一个敌人后，如果正好有生物进入他的攻击范围，就会无视冷却立马再打一下。
 * 动画之间存在冲突。
 * 给召唤物设置了耐久，仍然不会消耗。
 #### 其他改变
 * 防御塔类型pvz_plant中movement_setting字段失效。
-* ItemSetting中requirements字段改为requirement。
+* item_setting中requirements字段改为requirement。

@@ -168,15 +168,16 @@ public class HTTowerComponents {
                             )
                     ),
                     Optional.empty(),
-                    Optional.of(
-                            new LaserGoalSetting(
-                                    50, 100, 20,new TypeTargetFilter(List.of(
-                                    EntityType.CREEPER
-                            )), new DamageEffectComponent(false, 1F, 0),
-                                    new DamageEffectComponent(false, 10F, 0),
-                                    1F, 10F, 20D, false, Optional.empty()
-                                    )
-                    ),
+                    Optional.empty(),
+//                    Optional.of(
+//                            new LaserGoalSetting(
+//                                    50, 100, 20,new TypeTargetFilter(List.of(
+//                                    EntityType.CREEPER
+//                            )), new DamageEffectComponent(false, 1F, 0),
+//                                    new DamageEffectComponent(false, 10F, 0),
+//                                    1F, 10F, 20D, false, Optional.empty()
+//                                    )
+//                    ),
                     Optional.empty(),
                     Arrays.asList(
                             new ConstantAffectSetting(

@@ -8,11 +8,13 @@ import hungteen.htlib.common.registry.HTRegistryManager;
 import hungteen.opentd.OpenTD;
 import hungteen.opentd.api.interfaces.ISummonRequirement;
 import hungteen.opentd.common.impl.filter.EntityPredicateFilter;
+import hungteen.opentd.common.impl.filter.TypeTargetFilter;
 import hungteen.opentd.common.impl.requirement.*;
 import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.advancements.critereon.NbtPredicate;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
@@ -47,15 +49,26 @@ public class HTItemSettings {
                     .damage(10)
 //                    .requirement(new AndRequirement(
 //                            List.of(
-//                                    new ExperienceRequirement(Optional.empty(), 10, 10, 0, 0),
-//                                    new BlockRequirement(Optional.empty(), Optional.empty(), Optional.empty(), Optional.of(List.of(Blocks.GRASS_BLOCK, Blocks.ANDESITE)))
+//                                    new OrRequirement(
+//                                            List.of(
+//                                                    new BlockRequirement(Optional.empty(), Optional.empty(), Optional.empty(), Optional.of(List.of(Blocks.GRASS_BLOCK, Blocks.ANDESITE))),
+//                                                    new EntityRequirement(Optional.empty(), new TypeTargetFilter(
+//                                                            List.of(EntityType.CREEPER)
+//                                                    ))
+//                                            ),
+//                                            Optional.empty()
+//                                    ),
+//                                    new NotRequirement(
+//                                            new BlockRequirement(Optional.empty(), Optional.empty(), Optional.empty(), Optional.of(List.of(Blocks.IRON_BLOCK))),
+//                                            Optional.empty()
+//                                    )
 //                            ),
 //                            Optional.empty()
 //                    ))
                     .build()
     );
 
-    private static CompoundTag get(){
+    private static CompoundTag get() {
         CompoundTag tag = new CompoundTag();
         {
             CompoundTag tmp = new CompoundTag();
@@ -72,7 +85,7 @@ public class HTItemSettings {
     /**
      * {@link OpenTD#setUp(FMLCommonSetupEvent)} ()}
      */
-    public static void registerStuffs(){
+    public static void registerStuffs() {
     }
 
     public static class Builder {
@@ -84,12 +97,12 @@ public class HTItemSettings {
         private List<String> textComponents = new ArrayList<>();
         private ISummonRequirement requirement = new NoRequirement();
 
-        public Builder name(String name){
+        public Builder name(String name) {
             this.name = name;
             return this;
         }
 
-        public Builder card(){
+        public Builder card() {
             return this.stack(64).damage(0).cd(20);
         }
 
@@ -108,27 +121,28 @@ public class HTItemSettings {
             return this;
         }
 
-        public Builder cd(int coolDown){
+        public Builder cd(int coolDown) {
             this.coolDown = coolDown;
             return this;
         }
 
-        public Builder texts(List<String> textComponents){
+        public Builder texts(List<String> textComponents) {
             this.textComponents = textComponents;
             return this;
         }
 
-        public Builder requirement(ISummonRequirement requirement){
+        public Builder requirement(ISummonRequirement requirement) {
             this.requirement = requirement;
             return this;
         }
 
-        public ItemSetting build(){
+        public ItemSetting build() {
             return new ItemSetting(Optional.ofNullable(name), model, maxStackSize, maxDamage, coolDown, textComponents, requirement);
         }
     }
 
-    public record ItemSetting(Optional<String> name, ResourceLocation model, int maxStackSize, int maxDamage, int coolDown, List<String> textComponents, ISummonRequirement requirement) {
+    public record ItemSetting(Optional<String> name, ResourceLocation model, int maxStackSize, int maxDamage,
+                              int coolDown, List<String> textComponents, ISummonRequirement requirement) {
         public static final Codec<ItemSetting> CODEC = RecordCodecBuilder.<ItemSetting>mapCodec(instance -> instance.group(
                 Codec.optionalField("name", Codec.STRING).forGetter(ItemSetting::name),
                 ResourceLocation.CODEC.fieldOf("model").forGetter(ItemSetting::model),

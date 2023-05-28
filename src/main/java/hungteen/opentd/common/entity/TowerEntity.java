@@ -370,6 +370,8 @@ public abstract class TowerEntity extends PathfinderMob implements IAnimatable, 
             builder.addAnimation("attack", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
         } else if (this.getInstantTick() > 0) {
             builder.addAnimation("instant", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
+        } else {
+            event.getController().markNeedsReload();
         }
         event.getController().setAnimation(builder);
         return PlayState.CONTINUE;
@@ -379,6 +381,8 @@ public abstract class TowerEntity extends PathfinderMob implements IAnimatable, 
         final AnimationBuilder builder = new AnimationBuilder();
         if (this.getCurrentAnimation().isPresent()){
             builder.addAnimation(this.getCurrentAnimation().get(), ILoopType.EDefaultLoopTypes.PLAY_ONCE);
+        } else {
+            event.getController().markNeedsReload();
         }
         event.getController().setAnimation(builder);
         return PlayState.CONTINUE;
