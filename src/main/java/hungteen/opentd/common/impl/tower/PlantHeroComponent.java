@@ -39,12 +39,13 @@ public class PlantHeroComponent extends TowerComponent {
             Codec.optionalField("instant_setting", CloseInstantEffectSetting.CODEC).forGetter(PlantHeroComponent::instantEffectSetting),
             ConstantAffectSetting.CODEC.listOf().optionalFieldOf("constant_settings", Arrays.asList()).forGetter(PlantHeroComponent::constantAffectSettings),
             Codec.optionalField("hurt_effect", HTEffectComponents.getCodec()).forGetter(PlantHeroComponent::hurtEffect),
-            Codec.optionalField("die_effect", HTEffectComponents.getCodec()).forGetter(PlantHeroComponent::dieEffect)
+            Codec.optionalField("die_effect", HTEffectComponents.getCodec()).forGetter(PlantHeroComponent::dieEffect),
+            Codec.optionalField("boss_bar_setting", BossBarSetting.CODEC).forGetter(PlantHeroComponent::bossBarSetting)
     ).apply(instance, PlantHeroComponent::new)).codec();
     private final HeroSetting heroSetting;
 
-    public PlantHeroComponent(HeroSetting heroSetting, Optional<MovementSetting> movementSetting, List<TargetSetting> targetSettings, Optional<ShootGoalSetting> shootGoalSetting, Optional<GenGoalSetting> genGoalSetting, Optional<AttackGoalSetting> attackGoalSetting, Optional<LaserGoalSetting> laserGoalSetting, Optional<CloseInstantEffectSetting> instantEffectSetting, List<ConstantAffectSetting> constantAffectSettings, Optional<IEffectComponent> hurtEffect, Optional<IEffectComponent> dieEffect) {
-        super(targetSettings, movementSetting, shootGoalSetting, genGoalSetting, attackGoalSetting, laserGoalSetting, instantEffectSetting, constantAffectSettings, hurtEffect, dieEffect);
+    public PlantHeroComponent(HeroSetting heroSetting, Optional<MovementSetting> movementSetting, List<TargetSetting> targetSettings, Optional<ShootGoalSetting> shootGoalSetting, Optional<GenGoalSetting> genGoalSetting, Optional<AttackGoalSetting> attackGoalSetting, Optional<LaserGoalSetting> laserGoalSetting, Optional<CloseInstantEffectSetting> instantEffectSetting, List<ConstantAffectSetting> constantAffectSettings, Optional<IEffectComponent> hurtEffect, Optional<IEffectComponent> dieEffect, Optional<BossBarSetting> bossBarSetting) {
+        super(targetSettings, movementSetting, shootGoalSetting, genGoalSetting, attackGoalSetting, laserGoalSetting, instantEffectSetting, constantAffectSettings, hurtEffect, dieEffect, bossBarSetting);
         this.heroSetting = heroSetting;
     }
 

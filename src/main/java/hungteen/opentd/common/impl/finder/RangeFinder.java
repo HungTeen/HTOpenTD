@@ -35,7 +35,7 @@ public record RangeFinder(boolean checkSight, float width, float height, ITarget
 
     private boolean checkTarget(Entity entity, Entity target) {
         if(entity instanceof Mob){
-            return (! this.checkSight() || ((Mob) entity).getSensing().hasLineOfSight(target));
+            return (! this.checkSight() || ((Mob) entity).getSensing().hasLineOfSight(target)) || entity.equals(target);
         }
         return true;
     }

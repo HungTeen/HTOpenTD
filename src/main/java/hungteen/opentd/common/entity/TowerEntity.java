@@ -13,13 +13,17 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.OldUsersConverter;
+import net.minecraft.world.BossEvent;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
@@ -70,6 +74,7 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
     private static final EntityDataAccessor<ClientEntityResource> CLIENT_RES = SynchedEntityData.defineId(TowerEntity.class, OTDSerializers.CLIENT_ENTITY_RES.get());
     private final AnimationFactory factory = GeckoLibUtil.createFactory(this);
     private CompoundTag componentTag = new CompoundTag();
+    private ServerBossEvent bossEvent;
     public int preShootTick = 0;
     public int preGenTick = 0;
     public int preAttackTick = 0;
@@ -222,6 +227,26 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
                     this.getShootSettings().stream().filter(l -> !l.plantFoodOnly() && l.shootTick() == count - this.shootCount).forEach(this::performShoot);
                     --this.shootCount;
                 }
+            }
+        }
+    }
+
+    @Override
+    protected void customServerAiStep() {
+        super.customServerAiStep();
+        if (this.getComponent() != null && this.getComponent().bossBarSetting().isPresent()) {
+            BossBarSetting setting = this.getComponent().bossBarSetting().get();
+            if (this.bossEvent == null) {
+                this.bossEvent = new ServerBossEvent(
+                        setting.title().map(Component::translatable).map(Component.class::cast).orElse(this.getDisplayName()),
+                        BossEvent.BossBarColor.byName(setting.color()),
+                        BossEvent.BossBarOverlay.PROGRESS
+                );
+                this.bossEvent.setDarkenScreen(setting.darkenScreen());
+                this.bossEvent.setPlayBossMusic(setting.playBossMusic());
+                this.bossEvent.setCreateWorldFog(setting.createWorldFog());
+            } else {
+                this.bossEvent.setProgress(this.getHealth() / this.getMaxHealth());
             }
         }
     }
@@ -470,6 +495,26 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
 
     public float getAttackAnimationScale(LaserGoalSetting setting, float partialTick) {
         return ((float) this.clientSideAttackTime + partialTick) / (float) setting.duration();
+    }
+
+    @Override
+    public void startSeenByPlayer(ServerPlayer serverPlayer) {
+        super.startSeenByPlayer(serverPlayer);
+        if(this.bossEvent != null){
+            this.bossEvent.addPlayer(serverPlayer);
+        }
+    }
+
+    @Override
+    public void stopSeenByPlayer(ServerPlayer serverPlayer) {
+        super.stopSeenByPlayer(serverPlayer);
+        if(this.bossEvent != null) {
+            this.bossEvent.removePlayer(serverPlayer);
+        }
+    }
+
+    public ServerBossEvent getBossEvent() {
+        return bossEvent;
     }
 
     @Override

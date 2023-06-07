@@ -38,8 +38,9 @@ public abstract class TowerComponent implements ITowerComponent {
     private final List<ConstantAffectSetting> constantAffectSettings;
     private final Optional<IEffectComponent> hurtEffect;
     private final Optional<IEffectComponent> dieEffect;
+    private final Optional<BossBarSetting> bossBarSetting;
 
-    public TowerComponent(List<TargetSetting> targetSettings, Optional<MovementSetting> movementSetting, Optional<ShootGoalSetting> shootGoalSetting, Optional<GenGoalSetting> genGoalSetting, Optional<AttackGoalSetting> attackGoalSetting, Optional<LaserGoalSetting> laserGoalSetting, Optional<CloseInstantEffectSetting> instantEffectSetting, List<ConstantAffectSetting> constantAffectSettings, Optional<IEffectComponent> hurtEffect, Optional<IEffectComponent> dieEffect) {
+    public TowerComponent(List<TargetSetting> targetSettings, Optional<MovementSetting> movementSetting, Optional<ShootGoalSetting> shootGoalSetting, Optional<GenGoalSetting> genGoalSetting, Optional<AttackGoalSetting> attackGoalSetting, Optional<LaserGoalSetting> laserGoalSetting, Optional<CloseInstantEffectSetting> instantEffectSetting, List<ConstantAffectSetting> constantAffectSettings, Optional<IEffectComponent> hurtEffect, Optional<IEffectComponent> dieEffect, Optional<BossBarSetting> bossBarSetting) {
         this.targetSettings = targetSettings;
         this.movementSetting = movementSetting;
         this.shootGoalSetting = shootGoalSetting;
@@ -50,6 +51,7 @@ public abstract class TowerComponent implements ITowerComponent {
         this.constantAffectSettings = constantAffectSettings;
         this.hurtEffect = hurtEffect;
         this.dieEffect = dieEffect;
+        this.bossBarSetting = bossBarSetting;
     }
 
     @Override
@@ -106,5 +108,9 @@ public abstract class TowerComponent implements ITowerComponent {
 
     public Optional<IEffectComponent> dieEffect() {
         return dieEffect;
+    }
+
+    public Optional<BossBarSetting> bossBarSetting(){
+        return bossBarSetting;
     }
 }

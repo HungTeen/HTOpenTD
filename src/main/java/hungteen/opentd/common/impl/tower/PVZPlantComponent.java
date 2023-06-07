@@ -48,7 +48,7 @@ public class PVZPlantComponent extends TowerComponent {
     private final PlantSetting plantSetting;
 
     public PVZPlantComponent(PlantSetting plantSetting, List<TargetSetting> targetSettings, Optional<ShootGoalSetting> shootGoalSetting, Optional<GenGoalSetting> genGoalSetting, Optional<AttackGoalSetting> attackGoalSetting, Optional<LaserGoalSetting> laserGoalSetting, Optional<CloseInstantEffectSetting> instantEffectSetting, List<ConstantAffectSetting> constantAffectSettings, Optional<IEffectComponent> hurtEffect, Optional<IEffectComponent> dieEffect) {
-        super(targetSettings, Optional.empty(), shootGoalSetting, genGoalSetting, attackGoalSetting, laserGoalSetting, instantEffectSetting, constantAffectSettings, hurtEffect, dieEffect);
+        super(targetSettings, Optional.empty(), shootGoalSetting, genGoalSetting, attackGoalSetting, laserGoalSetting, instantEffectSetting, constantAffectSettings, hurtEffect, dieEffect, Optional.empty());
         this.plantSetting = plantSetting;
     }
 
