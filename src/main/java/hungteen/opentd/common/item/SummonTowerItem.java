@@ -183,6 +183,11 @@ public class SummonTowerItem extends Item {
     }
 
     @Override
+    public boolean isDamageable(ItemStack stack) {
+        return getMaxDamage(stack) > 0; // Fix 0 max damage item can break !
+    }
+
+    @Override
     public boolean canBeDepleted() {
         return true; // Fix Summon Item Unbreakable.
     }

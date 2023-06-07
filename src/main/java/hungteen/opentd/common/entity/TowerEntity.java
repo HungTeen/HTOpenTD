@@ -10,7 +10,6 @@ import hungteen.opentd.common.event.events.ShootBulletEvent;
 import hungteen.opentd.common.impl.tower.HTTowerComponents;
 import hungteen.opentd.util.EntityUtil;
 import net.minecraft.core.Direction;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.FriendlyByteBuf;
@@ -29,7 +28,6 @@ import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.RandomSwimmingGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.ai.navigation.WaterBoundPathNavigation;
-import net.minecraft.world.entity.monster.Guardian;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
@@ -58,7 +56,7 @@ import java.util.function.Consumer;
  * @author: HungTeen
  * @create: 2022-12-14 21:12
  **/
-public abstract class TowerEntity extends PathfinderMob implements IAnimatable, IEntityAdditionalSpawnData {
+public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
 
     public static final String TOWER_SETTING = "TowerSettings";
     public static final String YROT = "YRot";
@@ -69,7 +67,7 @@ public abstract class TowerEntity extends PathfinderMob implements IAnimatable, 
     private static final EntityDataAccessor<Integer> INSTANT_TICK = SynchedEntityData.defineId(TowerEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> RESTING = SynchedEntityData.defineId(TowerEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> ATTACK_TARGET = SynchedEntityData.defineId(TowerEntity.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<ClientTowerResource> CLIENT_RES = SynchedEntityData.defineId(TowerEntity.class, OTDSerializers.CLIENT_TOWER_RES.get());
+    private static final EntityDataAccessor<ClientEntityResource> CLIENT_RES = SynchedEntityData.defineId(TowerEntity.class, OTDSerializers.CLIENT_ENTITY_RES.get());
     private final AnimationFactory factory = GeckoLibUtil.createFactory(this);
     private CompoundTag componentTag = new CompoundTag();
     public int preShootTick = 0;
@@ -100,7 +98,7 @@ public abstract class TowerEntity extends PathfinderMob implements IAnimatable, 
         entityData.define(INSTANT_TICK, 0);
         entityData.define(RESTING, false);
         entityData.define(ATTACK_TARGET, 0);
-        entityData.define(CLIENT_RES, new ClientTowerResource());
+        entityData.define(CLIENT_RES, new ClientEntityResource());
     }
 
     @Override
@@ -377,17 +375,6 @@ public abstract class TowerEntity extends PathfinderMob implements IAnimatable, 
         return PlayState.CONTINUE;
     }
 
-    protected PlayState specificAnimation(AnimationEvent<?> event) {
-        final AnimationBuilder builder = new AnimationBuilder();
-        if (this.getCurrentAnimation().isPresent()){
-            builder.addAnimation(this.getCurrentAnimation().get(), ILoopType.EDefaultLoopTypes.PLAY_ONCE);
-        } else {
-            event.getController().markNeedsReload();
-        }
-        event.getController().setAnimation(builder);
-        return PlayState.CONTINUE;
-    }
-
     @Override
     public void onSyncedDataUpdated(EntityDataAccessor<?> accessor) {
         super.onSyncedDataUpdated(accessor);
@@ -404,8 +391,6 @@ public abstract class TowerEntity extends PathfinderMob implements IAnimatable, 
     }
 
     public abstract TowerComponent getComponent();
-
-    public abstract RenderSetting getRenderSetting();
 
     public boolean canChangeDirection() {
         return true;
@@ -472,17 +457,15 @@ public abstract class TowerEntity extends PathfinderMob implements IAnimatable, 
     }
 
     public <T> void parseComponent(Codec<T> codec, Consumer<T> consumer) {
-        codec.parse(NbtOps.INSTANCE, this.componentTag)
-                .resultOrPartial(msg -> {
-                    if (this.tickCount > 0) {
-                        OpenTD.log().error(msg);
-                    }
-                })
-                .ifPresentOrElse(consumer, () -> {
-                    if (this.tickCount >= 5) {
-                        this.discard();
-                    }
-                });
+        parseComponent(codec, consumer, msg -> {
+            if (this.tickCount > 3) {
+                OpenTD.log().error(msg);
+            }
+        }, () -> {
+            if (this.tickCount >= 5) {
+                this.discard();
+            }
+        });
     }
 
     public float getAttackAnimationScale(LaserGoalSetting setting, float partialTick) {
@@ -518,18 +501,7 @@ public abstract class TowerEntity extends PathfinderMob implements IAnimatable, 
                     .resultOrPartial(msg -> OpenTD.log().error(msg + " [Plant Gen]"))
                     .ifPresent(nbt -> tag.put("Production", nbt));
         }
-        this.getTowerAnimation().ifPresent(res -> {
-            tag.putString("TowerAnimation", res.toString());
-        });
-        this.getTowerModel().ifPresent(res -> {
-            tag.putString("TowerModel", res.toString());
-        });
-        this.getTowerTexture().ifPresent(res -> {
-            tag.putString("TowerTexture", res.toString());
-        });
-        this.getCurrentAnimation().ifPresent(res -> {
-            tag.putString("CurrentAnimation", res);
-        });
+        this.getClientResource().saveTo(tag);
     }
 
     @Override
@@ -597,18 +569,7 @@ public abstract class TowerEntity extends PathfinderMob implements IAnimatable, 
                     .resultOrPartial(msg -> OpenTD.log().error(msg + " [Plant Gen]"))
                     .ifPresent(settings -> this.genSetting = settings);
         }
-        if (tag.contains("TowerAnimation")) {
-            this.setTowerAnimation(new ResourceLocation(tag.getString("TowerAnimation")));
-        }
-        if (tag.contains("TowerModel")) {
-            this.setTowerModel(new ResourceLocation(tag.getString("TowerModel")));
-        }
-        if (tag.contains("TowerTexture")) {
-            this.setTowerTexture(new ResourceLocation(tag.getString("TowerTexture")));
-        }
-        if (tag.contains("CurrentAnimation")) {
-            this.setCurrentAnimation(tag.getString("CurrentAnimation"));
-        }
+        this.setClientResource(this.getClientResource().readFrom(tag));
     }
 
     public Optional<UUID> getOwnerUUID() {
@@ -668,11 +629,13 @@ public abstract class TowerEntity extends PathfinderMob implements IAnimatable, 
         return this.entityData.get(ATTACK_TARGET) != 0;
     }
 
-    public ClientTowerResource getClientResource() {
+    @Override
+    public ClientEntityResource getClientResource() {
         return entityData.get(CLIENT_RES);
     }
 
-    public void setClientResource(ClientTowerResource clientTowerResource) {
+    @Override
+    public void setClientResource(ClientEntityResource clientTowerResource) {
         entityData.set(CLIENT_RES, clientTowerResource);
     }
 
@@ -706,46 +669,17 @@ public abstract class TowerEntity extends PathfinderMob implements IAnimatable, 
         this.genSetting = setting;
     }
 
-    public Optional<ResourceLocation> getTowerModel() {
-        return Optional.ofNullable(getClientResource().getTowerModel());
-    }
-
-    public Optional<ResourceLocation> getTowerTexture() {
-        return Optional.ofNullable(getClientResource().getTowerTexture());
-    }
-
-    public Optional<ResourceLocation> getTowerAnimation() {
-        return Optional.ofNullable(getClientResource().getTowerAnimation());
-    }
-
-    public Optional<String> getCurrentAnimation() {
-        return Optional.ofNullable(getClientResource().getCurrentAnimation());
-    }
-
-    public void setTowerModel(ResourceLocation towerModel) {
-        this.setClientResource(new ClientTowerResource().from(this.getClientResource()).setTowerModel(towerModel));
-    }
-
-    public void setTowerTexture(ResourceLocation towerTexture) {
-        this.setClientResource(new ClientTowerResource().from(this.getClientResource()).setTowerTexture(towerTexture));
-    }
-
-    public void setTowerAnimation(ResourceLocation towerAnimation) {
-        this.setClientResource(new ClientTowerResource().from(this.getClientResource()).setTowerAnimation(towerAnimation));
-    }
-
-    public void setCurrentAnimation(String currentAnimation) {
-        this.setClientResource(new ClientTowerResource().from(this.getClientResource()).setCurrentAnimation(currentAnimation));
-    }
-
-    /**
-     * KubeJs Compat.
-     */
+    @Override
     public void updateTowerComponent(CompoundTag tag) {
         this.componentTag.merge(tag);
         this.componentDirty = true;
         this.getComponent();
         this.updateComponent();
+    }
+
+    @Override
+    public CompoundTag getComponentTag() {
+        return componentTag;
     }
 
     @Override
@@ -780,85 +714,5 @@ public abstract class TowerEntity extends PathfinderMob implements IAnimatable, 
         return NetworkHooks.getEntitySpawningPacket(this);
     }
 
-    public static class ClientTowerResource {
-        private ResourceLocation towerTexture = null;
-        private ResourceLocation towerModel = null;
-        private ResourceLocation towerAnimation = null;
-        private String currentAnimation = null;
 
-        public ClientTowerResource from(ClientTowerResource resource){
-            this.setTowerTexture(resource.getTowerTexture());
-            this.setTowerModel(resource.getTowerModel());
-            this.setTowerAnimation(resource.getTowerAnimation());
-            this.setCurrentAnimation(resource.getCurrentAnimation());
-            return this;
-        }
-
-        public CompoundTag saveTo(CompoundTag tag){
-            if(this.getTowerTexture() != null){
-                tag.putString("TowerTexture", this.getTowerTexture().toString());
-            }
-            if(this.getTowerModel() != null){
-                tag.putString("TowerModel", this.getTowerModel().toString());
-            }
-            if(this.getTowerAnimation() != null){
-                tag.putString("TowerAnimation", this.getTowerAnimation().toString());
-            }
-            if(this.getCurrentAnimation() != null){
-                tag.putString("CurrentAnimation", this.getCurrentAnimation());
-            }
-            return tag;
-        }
-
-        public void readFrom(CompoundTag tag){
-            if(tag.contains("TowerTexture")){
-                this.setTowerTexture(new ResourceLocation(tag.getString("TowerTexture")));
-            }
-            if(tag.contains("TowerModel")){
-                this.setTowerModel(new ResourceLocation(tag.getString("TowerModel")));
-            }
-            if(tag.contains("TowerAnimation")){
-                this.setTowerAnimation(new ResourceLocation(tag.getString("TowerAnimation")));
-            }
-            if(tag.contains("CurrentAnimation")){
-                this.setCurrentAnimation(tag.getString("CurrentAnimation"));
-            }
-        }
-
-        public String getCurrentAnimation() {
-            return currentAnimation;
-        }
-
-        public ClientTowerResource setCurrentAnimation(String currentAnimation) {
-            this.currentAnimation = currentAnimation;
-            return this;
-        }
-
-        public ResourceLocation getTowerAnimation() {
-            return towerAnimation;
-        }
-
-        public ClientTowerResource setTowerAnimation(ResourceLocation towerAnimation) {
-            this.towerAnimation = towerAnimation;
-            return this;
-        }
-
-        public ResourceLocation getTowerModel() {
-            return towerModel;
-        }
-
-        public ClientTowerResource setTowerModel(ResourceLocation towerModel) {
-            this.towerModel = towerModel;
-            return this;
-        }
-
-        public ResourceLocation getTowerTexture() {
-            return towerTexture;
-        }
-
-        public ClientTowerResource setTowerTexture(ResourceLocation towerTexture) {
-            this.towerTexture = towerTexture;
-            return this;
-        }
-    }
 }

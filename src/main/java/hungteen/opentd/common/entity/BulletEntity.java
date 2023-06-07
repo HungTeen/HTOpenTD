@@ -1,11 +1,13 @@
 package hungteen.opentd.common.entity;
 
+import com.mojang.serialization.Codec;
 import hungteen.htlib.util.helper.MathHelper;
 import hungteen.htlib.util.helper.registry.EntityHelper;
 import hungteen.opentd.OpenTD;
 import hungteen.opentd.api.interfaces.IEffectComponent;
 import hungteen.opentd.common.codec.BulletSetting;
 import hungteen.opentd.common.codec.ParticleSetting;
+import hungteen.opentd.common.codec.RenderSetting;
 import hungteen.opentd.common.codec.ShootGoalSetting;
 import hungteen.opentd.common.event.events.BulletHitEvent;
 import hungteen.opentd.common.impl.tower.PVZPlantComponent;
@@ -16,6 +18,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -34,9 +38,7 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.entity.IEntityAdditionalSpawnData;
 import net.minecraftforge.network.NetworkHooks;
-import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.PlayState;
 import software.bernie.geckolib3.core.builder.AnimationBuilder;
 import software.bernie.geckolib3.core.builder.ILoopType;
@@ -49,24 +51,27 @@ import software.bernie.geckolib3.util.GeckoLibUtil;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.function.Consumer;
 
 /**
  * @program: HTOpenTD
  * @author: HungTeen
  * @create: 2022-12-20 14:22
  **/
-public class BulletEntity extends Projectile implements IEntityAdditionalSpawnData, IAnimatable {
+public class BulletEntity extends Projectile implements IOTDEntity {
 
+    private static final EntityDataAccessor<ClientEntityResource> CLIENT_RES = SynchedEntityData.defineId(BulletEntity.class, OTDSerializers.CLIENT_ENTITY_RES.get());
     private final AnimationFactory factory = GeckoLibUtil.createFactory(this);
-    private BulletSetting setting;
+    private CompoundTag componentTag = new CompoundTag();
+    private BulletSetting component;
     private IntOpenHashSet hitSet = new IntOpenHashSet();
     protected Optional<Entity> lockTarget = Optional.empty();
     protected Optional<BlockPos> lockPos = Optional.empty();
+    protected boolean componentDirty = false;
     private boolean isParabola = false;
     private double pultHeight = 10;
     private int hitCount = 0;
     private boolean canExist = true;
-
 
     public BulletEntity(EntityType<? extends Projectile> entityType, Level level) {
         super(entityType, level);
@@ -74,17 +79,34 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
 
     @Override
     protected void defineSynchedData() {
-
+        entityData.define(CLIENT_RES, new ClientEntityResource());
     }
 
     public void summonBy(Entity owner, ShootGoalSetting.ShootSetting shootSetting) {
         this.setOwner(owner);
         this.setParabola(shootSetting.isParabola());
         this.pultHeight = shootSetting.pultHeight();
-        this.setting = shootSetting.bulletSetting();
+        this.component = shootSetting.bulletSetting();
+        BulletSetting.CODEC.encodeStart(NbtOps.INSTANCE, shootSetting.bulletSetting())
+                .resultOrPartial(msg -> OpenTD.log().error(msg + " [Bullet] !"))
+                .ifPresent(settings -> this.componentTag = (CompoundTag) settings);
         final double d0 = this.getDeltaMovement().horizontalDistance();
         this.setYRot((float)(Mth.atan2(this.getDeltaMovement().x, this.getDeltaMovement().z) * (double)(180F / (float)Math.PI)));
         this.setXRot((float)(Mth.atan2(this.getDeltaMovement().y, d0) * (double)(180F / (float)Math.PI)));
+    }
+
+    @Override
+    public void writeSpawnData(FriendlyByteBuf buffer) {
+        buffer.writeBoolean(this.isParabola);
+        buffer.writeDouble(this.pultHeight);
+        buffer.writeNbt(this.componentTag);
+    }
+
+    @Override
+    public void readSpawnData(FriendlyByteBuf additionalData) {
+        this.isParabola = additionalData.readBoolean();
+        this.pultHeight = additionalData.readDouble();
+        this.componentTag = additionalData.readNbt();
     }
 
     public void tick() {
@@ -363,34 +385,17 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
     }
 
     protected Optional<IEffectComponent> getEffect() {
-        return this.bulletSetting() == null ? Optional.empty() : Optional.ofNullable(this.bulletSetting().effect());
+        return this.bulletSetting() == null ? Optional.empty() : Optional.of(this.bulletSetting().effect());
+    }
+
+    @Override
+    public RenderSetting getRenderSetting() {
+        return getComponent() == null ? RenderSetting.DEFAULT : getComponent().renderSettings();
     }
 
     @Nullable
     public BulletSetting bulletSetting() {
-        return this.setting;
-    }
-
-    @Override
-    public void writeSpawnData(FriendlyByteBuf buffer) {
-        buffer.writeBoolean(this.isParabola);
-        buffer.writeDouble(this.pultHeight);
-        if (this.setting != null) {
-            BulletSetting.CODEC.encodeStart(NbtOps.INSTANCE, this.setting)
-                    .resultOrPartial(msg -> OpenTD.log().error(msg + " [Bullet] "))
-                    .ifPresent(tag -> buffer.writeNbt((CompoundTag) tag));
-        } else {
-            buffer.writeNbt(new CompoundTag());
-        }
-    }
-
-    @Override
-    public void readSpawnData(FriendlyByteBuf additionalData) {
-        this.isParabola = additionalData.readBoolean();
-        this.pultHeight = additionalData.readDouble();
-        BulletSetting.CODEC.parse(NbtOps.INSTANCE, additionalData.readNbt())
-                .resultOrPartial(msg -> OpenTD.log().error(msg + " [Bullet] "))
-                .ifPresent(settings -> this.setting = settings);
+        return this.getComponent();
     }
 
     public void addAdditionalSaveData(CompoundTag compound) {
@@ -399,12 +404,12 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
         this.lockTarget.ifPresent(entity -> compound.putInt("LockTargetEntity", entity.getId()));
         this.lockPos.ifPresent(pos -> compound.putLong("LockTargetPos", pos.asLong()));
         compound.putDouble("PultHeight", this.pultHeight);
-        if (this.setting != null) {
-            BulletSetting.CODEC.encodeStart(NbtOps.INSTANCE, this.setting)
+        if (this.component != null) {
+            BulletSetting.CODEC.encodeStart(NbtOps.INSTANCE, this.component)
                     .resultOrPartial(msg -> OpenTD.log().error(msg + " [Bullet] "))
                     .ifPresent(tag -> compound.put("BulletSettings", tag));
         }
-
+        this.getClientResource().saveTo(compound);
     }
 
     /**
@@ -429,8 +434,55 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
         if (compound.contains("BulletSettings")) {
             BulletSetting.CODEC.parse(NbtOps.INSTANCE, compound.get("BulletSettings"))
                     .resultOrPartial(msg -> OpenTD.log().error(msg + " [Bullet] "))
-                    .ifPresent(settings -> this.setting = settings);
+                    .ifPresent(settings -> this.component = settings);
         }
+        this.setClientResource(this.getClientResource().readFrom(compound));
+    }
+
+    @Override
+    public ClientEntityResource getClientResource() {
+        return entityData.get(CLIENT_RES);
+    }
+
+    @Override
+    public void setClientResource(ClientEntityResource clientTowerResource) {
+        entityData.set(CLIENT_RES, clientTowerResource);
+    }
+
+    @Override
+    public void updateTowerComponent(CompoundTag tag) {
+        this.componentTag.merge(tag);
+        this.componentDirty = true;
+        this.getComponent();
+    }
+
+    @Override
+    public CompoundTag getComponentTag() {
+        return componentTag;
+    }
+
+    @Nullable
+    public BulletSetting getComponent() {
+        if (component == null || this.componentDirty) {
+            this.parseComponent(BulletSetting.CODEC, t -> this.component = t);
+            this.componentDirty = false;
+        }
+        return component;
+    }
+
+    /**
+     * Copy from {@link TowerEntity#parseComponent(Codec, Consumer)}
+     */
+    public <T> void parseComponent(Codec<T> codec, Consumer<T> consumer) {
+        parseComponent(codec, consumer, msg -> {
+            if (this.tickCount > 3) {
+                OpenTD.log().error(msg);
+            }
+        }, () -> {
+            if (this.tickCount >= 5) {
+                this.discard();
+            }
+        });
     }
 
     public Optional<UUID> getOwnerUUID() {
@@ -440,22 +492,7 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
         return Optional.empty();
     }
 
-    @Override
-    public Packet<?> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
-
-    @Override
-    public void registerControllers(AnimationData animationData) {
-        animationData.addAnimationController(new AnimationController<>(
-                this,
-                "controller",
-                0,
-                this::predicateAnimation
-        ));
-    }
-
-    protected PlayState predicateAnimation(AnimationEvent<?> event) {
+    protected PlayState idleOrMove(AnimationEvent<?> event) {
         final AnimationBuilder builder = new AnimationBuilder();
         builder.addAnimation("idle", ILoopType.EDefaultLoopTypes.LOOP);
         event.getController().setAnimation(builder);
@@ -463,8 +500,29 @@ public class BulletEntity extends Projectile implements IEntityAdditionalSpawnDa
     }
 
     @Override
+    public void registerControllers(AnimationData animationData) {
+        animationData.addAnimationController(new AnimationController<>(
+                this,
+                "move_or_idle",
+                0,
+                this::idleOrMove
+        ));
+        animationData.addAnimationController(new AnimationController<>(
+                this,
+                "specific",
+                0,
+                this::specificAnimation
+        ));
+    }
+
+    @Override
     public AnimationFactory getFactory() {
         return factory;
+    }
+
+    @Override
+    public Packet<?> getAddEntityPacket() {
+        return NetworkHooks.getEntitySpawningPacket(this);
     }
 
 }

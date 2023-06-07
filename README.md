@@ -22,7 +22,7 @@ OpenTD requires the following dependencies :
 
 | Version |   Status   | Stable | Latest |
 |:-------:|:----------:|:------:|:------:|
-| 1.19.2  | Developing | 1.0.0  | 1.1.0  |
+| 1.19.2  | Developing | 1.1.0  | 1.2.0  |
 |  1.20   |  Waiting   |  None  |  None  |
 
 ---
