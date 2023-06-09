@@ -39,8 +39,9 @@ public abstract class TowerComponent implements ITowerComponent {
     private final Optional<IEffectComponent> hurtEffect;
     private final Optional<IEffectComponent> dieEffect;
     private final Optional<BossBarSetting> bossBarSetting;
+    private final Optional<FollowGoalSetting> followGoalSetting;
 
-    public TowerComponent(List<TargetSetting> targetSettings, Optional<MovementSetting> movementSetting, Optional<ShootGoalSetting> shootGoalSetting, Optional<GenGoalSetting> genGoalSetting, Optional<AttackGoalSetting> attackGoalSetting, Optional<LaserGoalSetting> laserGoalSetting, Optional<CloseInstantEffectSetting> instantEffectSetting, List<ConstantAffectSetting> constantAffectSettings, Optional<IEffectComponent> hurtEffect, Optional<IEffectComponent> dieEffect, Optional<BossBarSetting> bossBarSetting) {
+    public TowerComponent(List<TargetSetting> targetSettings, Optional<MovementSetting> movementSetting, Optional<ShootGoalSetting> shootGoalSetting, Optional<GenGoalSetting> genGoalSetting, Optional<AttackGoalSetting> attackGoalSetting, Optional<LaserGoalSetting> laserGoalSetting, Optional<CloseInstantEffectSetting> instantEffectSetting, List<ConstantAffectSetting> constantAffectSettings, Optional<IEffectComponent> hurtEffect, Optional<IEffectComponent> dieEffect, Optional<BossBarSetting> bossBarSetting, Optional<FollowGoalSetting> followGoalSetting) {
         this.targetSettings = targetSettings;
         this.movementSetting = movementSetting;
         this.shootGoalSetting = shootGoalSetting;
@@ -52,6 +53,7 @@ public abstract class TowerComponent implements ITowerComponent {
         this.hurtEffect = hurtEffect;
         this.dieEffect = dieEffect;
         this.bossBarSetting = bossBarSetting;
+        this.followGoalSetting = followGoalSetting;
     }
 
     @Override
@@ -112,5 +114,9 @@ public abstract class TowerComponent implements ITowerComponent {
 
     public Optional<BossBarSetting> bossBarSetting(){
         return bossBarSetting;
+    }
+
+    public Optional<FollowGoalSetting> followGoalSetting(){
+        return followGoalSetting;
     }
 }

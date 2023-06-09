@@ -49,6 +49,11 @@ public class PlantHeroEntity extends TowerEntity {
     }
 
     @Override
+    public boolean sameTeamWithOwner() {
+        return getComponent() != null && getComponent().heroSetting().sameTeamWithOwner();
+    }
+
+    @Override
     public RenderSetting getRenderSetting() {
         return getComponent() != null ? getComponent().heroSetting().renderSetting() : RenderSetting.DEFAULT;
     }

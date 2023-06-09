@@ -286,6 +286,11 @@ public class PlantEntity extends TowerEntity {
     }
 
     @Override
+    public boolean sameTeamWithOwner() {
+        return getComponent() != null && getComponent().plantSetting().sameTeamWithOwner();
+    }
+
+    @Override
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
         tag.putInt("CreatureAge", this.getAge());

@@ -40,12 +40,13 @@ public class PlantHeroComponent extends TowerComponent {
             ConstantAffectSetting.CODEC.listOf().optionalFieldOf("constant_settings", Arrays.asList()).forGetter(PlantHeroComponent::constantAffectSettings),
             Codec.optionalField("hurt_effect", HTEffectComponents.getCodec()).forGetter(PlantHeroComponent::hurtEffect),
             Codec.optionalField("die_effect", HTEffectComponents.getCodec()).forGetter(PlantHeroComponent::dieEffect),
-            Codec.optionalField("boss_bar_setting", BossBarSetting.CODEC).forGetter(PlantHeroComponent::bossBarSetting)
+            Codec.optionalField("boss_bar_setting", BossBarSetting.CODEC).forGetter(PlantHeroComponent::bossBarSetting),
+            Codec.optionalField("follow_goal", FollowGoalSetting.CODEC).forGetter(PlantHeroComponent::followGoalSetting)
     ).apply(instance, PlantHeroComponent::new)).codec();
     private final HeroSetting heroSetting;
 
-    public PlantHeroComponent(HeroSetting heroSetting, Optional<MovementSetting> movementSetting, List<TargetSetting> targetSettings, Optional<ShootGoalSetting> shootGoalSetting, Optional<GenGoalSetting> genGoalSetting, Optional<AttackGoalSetting> attackGoalSetting, Optional<LaserGoalSetting> laserGoalSetting, Optional<CloseInstantEffectSetting> instantEffectSetting, List<ConstantAffectSetting> constantAffectSettings, Optional<IEffectComponent> hurtEffect, Optional<IEffectComponent> dieEffect, Optional<BossBarSetting> bossBarSetting) {
-        super(targetSettings, movementSetting, shootGoalSetting, genGoalSetting, attackGoalSetting, laserGoalSetting, instantEffectSetting, constantAffectSettings, hurtEffect, dieEffect, bossBarSetting);
+    public PlantHeroComponent(HeroSetting heroSetting, Optional<MovementSetting> movementSetting, List<TargetSetting> targetSettings, Optional<ShootGoalSetting> shootGoalSetting, Optional<GenGoalSetting> genGoalSetting, Optional<AttackGoalSetting> attackGoalSetting, Optional<LaserGoalSetting> laserGoalSetting, Optional<CloseInstantEffectSetting> instantEffectSetting, List<ConstantAffectSetting> constantAffectSettings, Optional<IEffectComponent> hurtEffect, Optional<IEffectComponent> dieEffect, Optional<BossBarSetting> bossBarSetting, Optional<FollowGoalSetting> followGoalSetting) {
+        super(targetSettings, movementSetting, shootGoalSetting, genGoalSetting, attackGoalSetting, laserGoalSetting, instantEffectSetting, constantAffectSettings, hurtEffect, dieEffect, bossBarSetting, followGoalSetting);
         this.heroSetting = heroSetting;
     }
 
@@ -68,11 +69,12 @@ public class PlantHeroComponent extends TowerComponent {
         return heroSetting().extraNBT();
     }
 
-    public record HeroSetting(CompoundTag extraNBT, ResourceLocation id, RenderSetting renderSetting) {
+    public record HeroSetting(CompoundTag extraNBT, ResourceLocation id, boolean sameTeamWithOwner, RenderSetting renderSetting) {
 
         public static final Codec<HeroSetting> CODEC = RecordCodecBuilder.<HeroSetting>mapCodec(instance -> instance.group(
                 CompoundTag.CODEC.optionalFieldOf("extra_nbt", new CompoundTag()).forGetter(HeroSetting::extraNBT),
                 ResourceLocation.CODEC.fieldOf("id").forGetter(HeroSetting::id),
+                Codec.BOOL.optionalFieldOf("same_team_with_owner", true).forGetter(HeroSetting::sameTeamWithOwner),
                 RenderSetting.CODEC.fieldOf("render_setting").forGetter(HeroSetting::renderSetting)
         ).apply(instance, HeroSetting::new)).codec();
     }

@@ -36,6 +36,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.scores.Team;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.entity.IEntityAdditionalSpawnData;
 import net.minecraftforge.network.NetworkHooks;
@@ -118,6 +119,9 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
             this.goalSelector.addGoal(2, new TowerGenGoal(this));
             this.goalSelector.addGoal(1, new TowerAttackGoal(this));
             this.goalSelector.addGoal(2, new TowerLaserAttackGoal(this));
+            this.getComponent().followGoalSetting().ifPresent(setting -> {
+                this.goalSelector.addGoal(4, new TowerFollowGoal(this, setting));
+            });
             this.getComponent().movementSetting().ifPresent(movementSetting -> {
                 movementSetting.navigationSetting().ifPresent(t -> {
                     if (t.canFloat()) { // 可以漂浮在水面上。
@@ -521,6 +525,49 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
     protected boolean shouldDespawnInPeaceful() {
         return false;
     }
+
+    @javax.annotation.Nullable
+    public LivingEntity getOwner() {
+        try {
+            return this.getOwnerUUID().isEmpty() ? null : this.level.getPlayerByUUID(this.getOwnerUUID().get());
+        } catch (IllegalArgumentException illegalargumentexception) {
+            return null;
+        }
+    }
+
+    @Override
+    public Team getTeam() {
+        if (this.shouldSyncTeam()) {
+            LivingEntity livingentity = this.getOwner();
+            if (livingentity != null) {
+                return livingentity.getTeam();
+            }
+        }
+
+        return super.getTeam();
+    }
+
+    @Override
+    public boolean isAlliedTo(Entity entity) {
+        if (this.shouldSyncTeam()) {
+            LivingEntity owner = this.getOwner();
+            if (entity == owner) {
+                return true;
+            }
+
+            if (owner != null) {
+                return owner.isAlliedTo(entity);
+            }
+        }
+
+        return super.isAlliedTo(entity);
+    }
+
+    protected boolean shouldSyncTeam(){
+        return this.getOwnerUUID().isPresent() && this.sameTeamWithOwner();
+    }
+
+    public abstract boolean sameTeamWithOwner();
 
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {

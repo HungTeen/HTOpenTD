@@ -34,6 +34,7 @@ public class HTTargetFilters {
     public static final ITargetFilterType<NBTTargetFilter> NBT_FILTER = new DefaultFilter<>("nbt",  NBTTargetFilter.CODEC);
     public static final ITargetFilterType<EventFilter> EVENT_FILTER = new DefaultFilter<>("event",  EventFilter.CODEC);
     public static final ITargetFilterType<SelfFilter> SELF_FILTER = new DefaultFilter<>("self",  SelfFilter.CODEC);
+    public static final ITargetFilterType<TeamFilter> TEAM_FILTER = new DefaultFilter<>("team",  TeamFilter.CODEC);
 
     /* Towers */
 
@@ -41,7 +42,7 @@ public class HTTargetFilters {
      * {@link OpenTD#setUp(FMLCommonSetupEvent)} ()}
      */
     public static void registerStuffs(){
-        Arrays.asList(TAG_FILTER, TYPE_FILTER, OR_FILTER, AND_FILTER, ENTITY_PREDICATE_FILTER, ALWAYS_TRUE, NOT_FILTER, CLASS_FILTER, NBT_FILTER, EVENT_FILTER, SELF_FILTER).forEach(HTTargetFilters::registerFilterType);
+        Arrays.asList(TAG_FILTER, TYPE_FILTER, OR_FILTER, AND_FILTER, ENTITY_PREDICATE_FILTER, ALWAYS_TRUE, NOT_FILTER, CLASS_FILTER, NBT_FILTER, EVENT_FILTER, SELF_FILTER, TEAM_FILTER).forEach(HTTargetFilters::registerFilterType);
     }
 
     public static void registerFilterType(ITargetFilterType<?> type){

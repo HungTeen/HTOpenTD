@@ -43,12 +43,13 @@ public class PVZPlantComponent extends TowerComponent {
             Codec.optionalField("instant_setting", CloseInstantEffectSetting.CODEC).forGetter(PVZPlantComponent::instantEffectSetting),
             ConstantAffectSetting.CODEC.listOf().optionalFieldOf("constant_settings", Arrays.asList()).forGetter(PVZPlantComponent::constantAffectSettings),
             Codec.optionalField("hurt_effect", HTEffectComponents.getCodec()).forGetter(PVZPlantComponent::hurtEffect),
-            Codec.optionalField("die_effect", HTEffectComponents.getCodec()).forGetter(PVZPlantComponent::dieEffect)
+            Codec.optionalField("die_effect", HTEffectComponents.getCodec()).forGetter(PVZPlantComponent::dieEffect),
+            Codec.optionalField("follow_goal", FollowGoalSetting.CODEC).forGetter(PVZPlantComponent::followGoalSetting)
     ).apply(instance, PVZPlantComponent::new)).codec();
     private final PlantSetting plantSetting;
 
-    public PVZPlantComponent(PlantSetting plantSetting, List<TargetSetting> targetSettings, Optional<ShootGoalSetting> shootGoalSetting, Optional<GenGoalSetting> genGoalSetting, Optional<AttackGoalSetting> attackGoalSetting, Optional<LaserGoalSetting> laserGoalSetting, Optional<CloseInstantEffectSetting> instantEffectSetting, List<ConstantAffectSetting> constantAffectSettings, Optional<IEffectComponent> hurtEffect, Optional<IEffectComponent> dieEffect) {
-        super(targetSettings, Optional.empty(), shootGoalSetting, genGoalSetting, attackGoalSetting, laserGoalSetting, instantEffectSetting, constantAffectSettings, hurtEffect, dieEffect, Optional.empty());
+    public PVZPlantComponent(PlantSetting plantSetting, List<TargetSetting> targetSettings, Optional<ShootGoalSetting> shootGoalSetting, Optional<GenGoalSetting> genGoalSetting, Optional<AttackGoalSetting> attackGoalSetting, Optional<LaserGoalSetting> laserGoalSetting, Optional<CloseInstantEffectSetting> instantEffectSetting, List<ConstantAffectSetting> constantAffectSettings, Optional<IEffectComponent> hurtEffect, Optional<IEffectComponent> dieEffect, Optional<FollowGoalSetting> followGoalSetting) {
+        super(targetSettings, Optional.empty(), shootGoalSetting, genGoalSetting, attackGoalSetting, laserGoalSetting, instantEffectSetting, constantAffectSettings, hurtEffect, dieEffect, Optional.empty(), followGoalSetting);
         this.plantSetting = plantSetting;
     }
 
@@ -71,7 +72,7 @@ public class PVZPlantComponent extends TowerComponent {
         return plantSetting().extraNBT();
     }
 
-    public record PlantSetting(CompoundTag extraNBT, GrowSettings growSetting, ResourceLocation id, int maxExistTick, boolean changeDirection, boolean pushable, boolean canFloat, RenderSetting renderSetting) {
+    public record PlantSetting(CompoundTag extraNBT, GrowSettings growSetting, ResourceLocation id, int maxExistTick, boolean changeDirection, boolean pushable, boolean canFloat, boolean sameTeamWithOwner, RenderSetting renderSetting) {
 
         public static final Codec<PlantSetting> CODEC = RecordCodecBuilder.<PlantSetting>mapCodec(instance -> instance.group(
                 CompoundTag.CODEC.optionalFieldOf("extra_nbt", new CompoundTag()).forGetter(PlantSetting::extraNBT),
@@ -81,6 +82,7 @@ public class PVZPlantComponent extends TowerComponent {
                 Codec.BOOL.optionalFieldOf("change_direction", true).forGetter(PlantSetting::changeDirection),
                 Codec.BOOL.optionalFieldOf("pushable", false).forGetter(PlantSetting::pushable),
                 Codec.BOOL.optionalFieldOf("can_float", false).forGetter(PlantSetting::canFloat),
+                Codec.BOOL.optionalFieldOf("same_team_with_owner", true).forGetter(PlantSetting::sameTeamWithOwner),
                 RenderSetting.CODEC.fieldOf("render_setting").forGetter(PlantSetting::renderSetting)
         ).apply(instance, PlantSetting::new)).codec();
     }
