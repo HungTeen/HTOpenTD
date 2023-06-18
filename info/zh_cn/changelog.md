@@ -10,8 +10,10 @@
 * 新增team过滤器。
 #### Bug修复
 * 召唤物不能无限耐久。
+* 召唤出来的防御塔没有保存召唤者信息。
 #### 其他改变
-* plant_setting和hero_setting中添加same_team_with_owner字段，自动同步召唤者的队伍。
+* plant_setting, bullet_setting和hero_setting中添加same_team_with_owner字段，自动同步召唤者的队伍。
+* 给塔防实体增加fly_speed属性。
 ### 1.19.2-1.1.0
 #### 新内容
 * 为召唤卡添加了独立的创造物品栏，并支持搜索。

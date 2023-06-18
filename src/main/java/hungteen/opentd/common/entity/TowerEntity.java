@@ -27,6 +27,8 @@ import net.minecraft.world.BossEvent;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.RandomSwimmingGoal;
@@ -92,6 +94,17 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
     public TowerEntity(EntityType<? extends PathfinderMob> entityType, Level level) {
         super(entityType, level);
         this.refreshDimensions();
+    }
+
+    public static AttributeSupplier.Builder createAttributes() {
+        return Mob.createMobAttributes()
+                .add(Attributes.MAX_HEALTH, 20D)
+                .add(Attributes.ATTACK_DAMAGE, 1D)
+                .add(Attributes.ATTACK_KNOCKBACK, 0D)
+                .add(Attributes.KNOCKBACK_RESISTANCE, 1D)
+                .add(Attributes.FOLLOW_RANGE, 40D)
+                .add(Attributes.MOVEMENT_SPEED, 0D)
+                .add(Attributes.FLYING_SPEED);
     }
 
     @Override

@@ -2,6 +2,7 @@ package hungteen.opentd.common.item;
 
 import hungteen.opentd.api.interfaces.ISummonRequirement;
 import hungteen.opentd.api.interfaces.ITowerComponent;
+import hungteen.opentd.common.entity.TowerEntity;
 import hungteen.opentd.common.event.events.PostSummonTowerEvent;
 import hungteen.opentd.common.event.events.SummonTowerEvent;
 import hungteen.opentd.common.impl.HTItemSettings;
@@ -133,6 +134,10 @@ public class SummonTowerItem extends Item {
                 player.broadcastBreakEvent(hand);
             });
             getItemSettings(itemstack).requirement().consume(level, player);
+        }
+
+        if(entity instanceof TowerEntity tower){
+            tower.setOwnerUUID(player.getUUID());
         }
 
         PlayerUtil.addCooldown(player, itemstack, getItemSettings(itemstack).coolDown());

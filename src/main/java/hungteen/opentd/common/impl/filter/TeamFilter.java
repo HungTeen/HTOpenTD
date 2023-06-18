@@ -28,7 +28,10 @@ public record TeamFilter(Optional<String> teamName, boolean same) implements ITa
     @Override
     public boolean match(ServerLevel level, Entity owner, Entity target) {
         final Team team = teamName().isPresent() ? level.getScoreboard().getPlayerTeam(teamName().get()) : owner.getTeam();
-        return (team != null && team.isAlliedTo(team)) == same();
+        if(team != null && target.getTeam() != null){
+            return team.isAlliedTo(target.getTeam()) == same();
+        }
+        return false;
     }
 
     @Override

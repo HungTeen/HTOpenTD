@@ -24,6 +24,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
@@ -37,6 +38,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.scores.Team;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.network.NetworkHooks;
 import software.bernie.geckolib3.core.PlayState;
@@ -396,6 +398,35 @@ public class BulletEntity extends Projectile implements IOTDEntity {
     @Nullable
     public BulletSetting bulletSetting() {
         return this.getComponent();
+    }
+
+    protected boolean shouldSyncTeam(){
+        return this.getOwnerUUID().isPresent() && this.bulletSetting() != null && this.bulletSetting().sameTeamWithOwner();
+    }
+
+    @Override
+    public Team getTeam() {
+        if (this.shouldSyncTeam()) {
+            Entity livingentity = this.getOwner();
+            if (livingentity != null) {
+                return livingentity.getTeam();
+            }
+        }
+        return super.getTeam();
+    }
+
+    @Override
+    public boolean isAlliedTo(Entity entity) {
+        if (this.shouldSyncTeam()) {
+            Entity owner = this.getOwner();
+            if (entity == owner) {
+                return true;
+            }
+            if (owner != null) {
+                return owner.isAlliedTo(entity);
+            }
+        }
+        return super.isAlliedTo(entity);
     }
 
     public void addAdditionalSaveData(CompoundTag compound) {

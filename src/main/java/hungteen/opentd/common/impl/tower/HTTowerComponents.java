@@ -62,51 +62,30 @@ public class HTTowerComponents {
                                     new OrTargetFilter(
                                             Arrays.asList(
                                                     new TypeTargetFilter(Arrays.asList(
-                                                            EntityType.CREEPER,
-                                                            EntityType.LLAMA,
-                                                            EntityType.PANDA,
-                                                            EntityType.BEE,
-                                                            EntityType.SKELETON,
-                                                            EntityType.PIG,
-                                                            EntityType.CHICKEN,
-                                                            EntityType.TRADER_LLAMA,
-                                                            EntityType.VILLAGER,
-                                                            EntityType.AXOLOTL,
-                                                            EntityType.BAT,
-                                                            EntityType.TURTLE,
-                                                            EntityType.VEX,
-                                                            EntityType.TROPICAL_FISH,
-                                                            EntityType.ARMOR_STAND,
-                                                            EntityType.SPIDER,
-                                                            EntityType.MAGMA_CUBE
-                                                    )),
-                                                    new TypeTargetFilter(Arrays.asList(
-                                                            EntityType.WITHER,
-                                                            EntityType.WITCH,
-                                                            EntityType.ALLAY,
-                                                            EntityType.ENDER_DRAGON,
-                                                            EntityType.ENDERMAN,
-                                                            EntityType.ENDERMITE,
-                                                            EntityType.ZOMBIE_VILLAGER,
-                                                            EntityType.VINDICATOR
+                                                            EntityType.CREEPER
                                                     )),
                                                     new TagTargetFilter(
                                                             EntityTypeTags.SKELETONS
-                                                    )
+                                                    ),
+                                                    new TeamFilter(Optional.empty(), false)
                                             )
                                     )
                             )
                     )),
-//                    Optional.of(
-//                            new MovementSetting(true, 1D, 0.3D, 0.7D)
-//                    ),
                     Optional.of(new ShootGoalSetting(
                             0, 20, 10, 4, false, Optional.of(SoundEvents.SNOW_GOLEM_SHOOT),
                             Arrays.asList(
                                     new ShootGoalSetting.ShootSetting(
                                             false, false, 0, Vec3.ZERO, 10, 0, 10,
                                             new BulletSetting(
-                                                    new ClassFilter(ClassFilter.ENEMY),
+                                                    new OrTargetFilter(
+                                                            Arrays.asList(
+                                                                    new TypeTargetFilter(Arrays.asList(
+                                                                            EntityType.CREEPER
+                                                                    )),
+                                                                    new TeamFilter(Optional.empty(), false)
+                                                            )
+                                                    ),
                                                     new ListEffectComponent(Arrays.asList(
                                                             new DamageEffectComponent(false, 5F, 0),
                                                             new SplashEffectComponent(5, 5, true, new OrTargetFilter(Arrays.asList()), new DamageEffectComponent(false, 2F, 0.1F)),
@@ -118,7 +97,7 @@ public class HTTowerComponents {
                                                                     )
                                                             ))
                                                     )),
-                                                    0.2F, 1, 300, 0.0001F, 0.99999F, false, true,
+                                                    0.2F, 1, 300, 0.0001F, 0.99999F, false, true, true,
                                                     RenderSetting.make(0.5F, 0.5F, 0.6F, "pea_shooter"),
                                                     Optional.empty(),
                                                     Optional.of(
@@ -134,7 +113,7 @@ public class HTTowerComponents {
                     Optional.empty(),
                     Optional.empty(),
                     Optional.empty(),
-                    Arrays.asList(),
+                    List.of(),
                     Optional.empty(),
                     Optional.empty(),
                     Optional.empty()

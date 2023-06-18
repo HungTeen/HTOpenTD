@@ -30,7 +30,7 @@ public class PlantHeroEntity extends TowerEntity {
     }
 
     public static AttributeSupplier.Builder createAttributes() {
-        return Mob.createMobAttributes()
+        return TowerEntity.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 50D)
                 .add(Attributes.ATTACK_DAMAGE, 4D)
                 .add(Attributes.ATTACK_KNOCKBACK, 0D)
