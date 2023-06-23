@@ -56,6 +56,11 @@ public class PlantHeroComponent extends TowerComponent {
     }
 
     @Override
+    public TowerSetting towerSetting() {
+        return heroSetting().towerSetting();
+    }
+
+    @Override
     public ITowerComponentType<?> getType() {
         return HTTowerComponents.PLANT_HERO;
     }
@@ -69,9 +74,10 @@ public class PlantHeroComponent extends TowerComponent {
         return heroSetting().extraNBT();
     }
 
-    public record HeroSetting(CompoundTag extraNBT, ResourceLocation id, boolean sameTeamWithOwner, RenderSetting renderSetting) {
+    public record HeroSetting(TowerSetting towerSetting, CompoundTag extraNBT, ResourceLocation id, boolean sameTeamWithOwner, RenderSetting renderSetting) {
 
         public static final Codec<HeroSetting> CODEC = RecordCodecBuilder.<HeroSetting>mapCodec(instance -> instance.group(
+                TowerSetting.CODEC.optionalFieldOf("tower_setting", TowerSetting.DEFAULT).forGetter(HeroSetting::towerSetting),
                 CompoundTag.CODEC.optionalFieldOf("extra_nbt", new CompoundTag()).forGetter(HeroSetting::extraNBT),
                 ResourceLocation.CODEC.fieldOf("id").forGetter(HeroSetting::id),
                 Codec.BOOL.optionalFieldOf("same_team_with_owner", true).forGetter(HeroSetting::sameTeamWithOwner),

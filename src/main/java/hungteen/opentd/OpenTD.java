@@ -8,6 +8,7 @@ import hungteen.opentd.common.capability.OpenTDCapabilities;
 import hungteen.opentd.common.effect.OpenTDEffects;
 import hungteen.opentd.common.entity.OTDSerializers;
 import hungteen.opentd.common.entity.OpenTDEntities;
+import hungteen.opentd.common.impl.HTBulletSettings;
 import hungteen.opentd.common.impl.HTPathNavigations;
 import hungteen.opentd.common.item.OpenTDItems;
 import hungteen.opentd.common.network.NetworkHandler;
@@ -70,6 +71,7 @@ public class OpenTD {
             HTTargetFilters.registerStuffs();
             HTTargetFinders.registerStuffs();
             HTItemSettings.registerStuffs();
+            HTBulletSettings.registerStuffs();
             HTSummonItems.registerStuffs();
         });
         NetworkHandler.init();

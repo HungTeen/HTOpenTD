@@ -8,9 +8,18 @@
 * 防御塔新增follow_goal字段，可以使防御塔跟随召唤者。
 * 新增self过滤器，可以保留自身不被过滤。
 * 新增team过滤器。
+* 子弹实体新增setLockTarget方法，设置锁定目标。
+* 增加bullet_settings数据包文件夹。
+* 子弹支持ComponentLocation。
+* 自定义死亡动画。
+* 植物英雄指定移动位置。
+* 植物英雄支持setMoveTo指定移动地点。
+* 防御塔增加can_ride_in_water字段。
+* Tag过滤器支持对原版实体tag进行过滤。
 #### Bug修复
 * 召唤物不能无限耐久。
 * 召唤出来的防御塔没有保存召唤者信息。
+* 击退组件extra_speed无效。
 #### 其他改变
 * plant_setting, bullet_setting和hero_setting中添加same_team_with_owner字段，自动同步召唤者的队伍。
 * 给塔防实体增加fly_speed属性。

@@ -45,6 +45,7 @@ public record KnockbackEffectComponent (boolean self, boolean horizontalOnly, fl
                 target.setDeltaMovement(originSpeed.x * affectPercent() - speed.x, Math.min(0.4D, originSpeed.y * affectPercent() - speed.y), originSpeed.z  * affectPercent() - speed.z);
             }
         }
+        target.setDeltaMovement(target.getDeltaMovement().add(extraSpeed()));
     }
 
     @Override

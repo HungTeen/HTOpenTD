@@ -101,7 +101,7 @@ public class PlantEntity extends TowerEntity {
     }
 
     public static AttributeSupplier.Builder createAttributes() {
-        return TowerEntity.createMobAttributes()
+        return TowerEntity.createAttributes()
                 .add(Attributes.MAX_HEALTH, 20D)
                 .add(Attributes.ATTACK_DAMAGE, 1D)
                 .add(Attributes.ATTACK_KNOCKBACK, 0D)
@@ -113,9 +113,6 @@ public class PlantEntity extends TowerEntity {
     @Override
     public void tick() {
         super.tick();
-        if (this.getComponent() != null && this.tickCount <= 5) {
-            this.refreshDimensions();
-        }
         if (this.level instanceof ServerLevel) {
             // 植物生长。
             if (this.isAlive()) {

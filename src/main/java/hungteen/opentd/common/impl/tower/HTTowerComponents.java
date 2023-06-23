@@ -49,6 +49,7 @@ public class HTTowerComponents {
     public static final HTRegistryHolder<ITowerComponent> PEA_SHOOTER = TOWERS.innerRegister(
             OpenTD.prefix("pea_shooter_test"), new PVZPlantComponent(
                     new PVZPlantComponent.PlantSetting(
+                            TowerSetting.DEFAULT,
                             get1(),
                             PVZPlantComponent.GrowSettings.DEFAULT,
                             OpenTD.prefix("pea_shooter_test"), 0, true, false,
@@ -65,7 +66,8 @@ public class HTTowerComponents {
                                                             EntityType.CREEPER
                                                     )),
                                                     new TagTargetFilter(
-                                                            EntityTypeTags.SKELETONS
+                                                            Optional.of(EntityTypeTags.SKELETONS),
+                                                            Optional.empty()
                                                     ),
                                                     new TeamFilter(Optional.empty(), false)
                                             )
@@ -123,6 +125,7 @@ public class HTTowerComponents {
     public static final HTRegistryHolder<ITowerComponent> SUN_FLOWER = TOWERS.innerRegister(
             OpenTD.prefix("sun_flower_test"), new PVZPlantComponent(
                     new PVZPlantComponent.PlantSetting(
+                            TowerSetting.DEFAULT,
                             new CompoundTag(),
                             PVZPlantComponent.GrowSettings.DEFAULT,
                             OpenTD.prefix("sun_flower_test"), 2000, false, false,

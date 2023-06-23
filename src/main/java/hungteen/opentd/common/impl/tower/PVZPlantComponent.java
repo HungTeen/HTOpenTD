@@ -72,9 +72,15 @@ public class PVZPlantComponent extends TowerComponent {
         return plantSetting().extraNBT();
     }
 
-    public record PlantSetting(CompoundTag extraNBT, GrowSettings growSetting, ResourceLocation id, int maxExistTick, boolean changeDirection, boolean pushable, boolean canFloat, boolean sameTeamWithOwner, RenderSetting renderSetting) {
+    @Override
+    public TowerSetting towerSetting() {
+        return plantSetting().towerSetting();
+    }
+
+    public record PlantSetting(TowerSetting towerSetting, CompoundTag extraNBT, GrowSettings growSetting, ResourceLocation id, int maxExistTick, boolean changeDirection, boolean pushable, boolean canFloat, boolean sameTeamWithOwner, RenderSetting renderSetting) {
 
         public static final Codec<PlantSetting> CODEC = RecordCodecBuilder.<PlantSetting>mapCodec(instance -> instance.group(
+                TowerSetting.CODEC.optionalFieldOf("tower_setting", TowerSetting.DEFAULT).forGetter(PlantSetting::towerSetting),
                 CompoundTag.CODEC.optionalFieldOf("extra_nbt", new CompoundTag()).forGetter(PlantSetting::extraNBT),
                 GrowSettings.CODEC.optionalFieldOf("grow_setting", GrowSettings.DEFAULT).forGetter(PlantSetting::growSetting),
                 ResourceLocation.CODEC.fieldOf("id").forGetter(PlantSetting::id),

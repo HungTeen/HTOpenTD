@@ -2,19 +2,27 @@ package hungteen.opentd.common.entity;
 
 import hungteen.opentd.common.codec.RenderSetting;
 import hungteen.opentd.common.codec.TowerComponent;
+import hungteen.opentd.common.entity.ai.TowerAttackGoal;
+import hungteen.opentd.common.entity.ai.TowerMoveToGoal;
 import hungteen.opentd.common.impl.tower.PVZPlantComponent;
 import hungteen.opentd.common.impl.tower.PlantHeroComponent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.goal.MoveToBlockGoal;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 import software.bernie.geckolib3.util.GeckoLibUtil;
+
+import java.util.Optional;
 
 /**
  * @program: HTOpenTD
@@ -24,19 +32,26 @@ import software.bernie.geckolib3.util.GeckoLibUtil;
 public class PlantHeroEntity extends TowerEntity {
 
     private PlantHeroComponent component;
+    private BlockPos moveTo = null;
 
     public PlantHeroEntity(EntityType<? extends PathfinderMob> entityType, Level level) {
         super(entityType, level);
     }
 
     public static AttributeSupplier.Builder createAttributes() {
-        return TowerEntity.createMobAttributes()
+        return TowerEntity.createAttributes()
                 .add(Attributes.MAX_HEALTH, 50D)
                 .add(Attributes.ATTACK_DAMAGE, 4D)
                 .add(Attributes.ATTACK_KNOCKBACK, 0D)
                 .add(Attributes.KNOCKBACK_RESISTANCE, 0D)
                 .add(Attributes.FOLLOW_RANGE, 40D)
                 .add(Attributes.MOVEMENT_SPEED, 0.32D);
+    }
+
+    @Override
+    protected void registerGoals() {
+        super.registerGoals();
+        this.goalSelector.addGoal(1, new TowerMoveToGoal(this));
     }
 
     @Override
@@ -49,6 +64,20 @@ public class PlantHeroEntity extends TowerEntity {
     }
 
     @Override
+    public void addAdditionalSaveData(CompoundTag tag) {
+        super.addAdditionalSaveData(tag);
+        this.getMoveTo().ifPresent(pos -> tag.putLong("MoveToPos", pos.asLong()));
+    }
+
+    @Override
+    public void readAdditionalSaveData(CompoundTag tag) {
+        super.readAdditionalSaveData(tag);
+        if(tag.contains("MoveToPos")){
+            this.setMoveTo(BlockPos.of(tag.getLong("MoveToPos")));
+        }
+    }
+
+    @Override
     public boolean sameTeamWithOwner() {
         return getComponent() != null && getComponent().heroSetting().sameTeamWithOwner();
     }
@@ -56,6 +85,14 @@ public class PlantHeroEntity extends TowerEntity {
     @Override
     public RenderSetting getRenderSetting() {
         return getComponent() != null ? getComponent().heroSetting().renderSetting() : RenderSetting.DEFAULT;
+    }
+
+    public Optional<BlockPos> getMoveTo() {
+        return Optional.ofNullable(moveTo);
+    }
+
+    public void setMoveTo(BlockPos moveTo) {
+        this.moveTo = moveTo;
     }
 
 }

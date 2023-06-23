@@ -72,6 +72,8 @@ public abstract class TowerComponent implements ITowerComponent {
 
     public abstract EntityType<? extends Entity> getEntityType();
 
+    public abstract TowerSetting towerSetting();
+
     public List<TargetSetting> targetSettings() {
         return targetSettings;
     }

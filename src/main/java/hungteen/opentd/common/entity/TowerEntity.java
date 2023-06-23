@@ -402,7 +402,9 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
 
     protected PlayState predicateWorks(AnimationEvent<?> event) {
         final AnimationBuilder builder = new AnimationBuilder();
-        if (this.getShootTick() > 0 || this.hasActiveAttackTarget()) {
+        if(this.getComponent() != null && this.getComponent().towerSetting().customDeath() && this.isDeadOrDying()){
+            builder.addAnimation("dead", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
+        } else if (this.getShootTick() > 0 || this.hasActiveAttackTarget()) {
             builder.addAnimation("shoot", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
         } else if (this.getGenTick() > 0) {
             builder.addAnimation("gen", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
@@ -424,7 +426,21 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
             this.clientSideAttackTime = 0;
             this.clientSideCachedAttackTarget = null;
         }
+    }
 
+    @Override
+    protected void tickDeath() {
+        if(this.getComponent() != null && this.getComponent().towerSetting().customDeath()){
+            if(!this.level.isClientSide()){
+                ++ this.deathTime; // Escape vanilla death effects.
+                if (this.deathTime == this.getComponent().towerSetting().deathDuration()) {
+                    this.level.broadcastEntityEvent(this, (byte)60);
+                    this.remove(Entity.RemovalReason.KILLED);
+                }
+            }
+        } else {
+            super.tickDeath();
+        }
     }
 
     @Override
@@ -581,6 +597,11 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
     }
 
     public abstract boolean sameTeamWithOwner();
+
+    @Override
+    public boolean rideableUnderWater() {
+        return this.getComponent() != null ? this.getComponent().towerSetting().canRideInWater() : super.rideableUnderWater();
+    }
 
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {

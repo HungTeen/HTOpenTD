@@ -10,6 +10,8 @@ import hungteen.opentd.common.codec.ParticleSetting;
 import hungteen.opentd.common.codec.RenderSetting;
 import hungteen.opentd.common.codec.ShootGoalSetting;
 import hungteen.opentd.common.event.events.BulletHitEvent;
+import hungteen.opentd.common.impl.HTBulletSettings;
+import hungteen.opentd.common.impl.tower.HTTowerComponents;
 import hungteen.opentd.common.impl.tower.PVZPlantComponent;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import net.minecraft.core.BlockPos;
@@ -20,6 +22,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -285,7 +288,6 @@ public class BulletEntity extends Projectile implements IOTDEntity {
         return null;
     }
 
-
     /**
      * attack bullet such as pea or spore
      */
@@ -357,6 +359,10 @@ public class BulletEntity extends Projectile implements IOTDEntity {
 
     public Entity getOwnerOrSelf() {
         return this.getOwner() == null ? this : this.getOwner();
+    }
+
+    public void setLockTarget(@Nullable Entity target){
+        this.lockTarget = Optional.ofNullable(target);
     }
 
     /**
@@ -447,6 +453,12 @@ public class BulletEntity extends Projectile implements IOTDEntity {
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
     public void readAdditionalSaveData(CompoundTag compound) {
+        // 专门用于NBT召唤特定子弹。
+        if (compound.contains("ComponentLocation")) {
+            final ResourceLocation location = new ResourceLocation(compound.getString("ComponentLocation"));
+            HTBulletSettings.SETTINGS.getValue(location).flatMap(l -> BulletSetting.CODEC.encodeStart(NbtOps.INSTANCE, l)
+                    .resultOrPartial(msg -> OpenTD.log().error(msg + " [Read Bullet]"))).ifPresent(nbt -> this.componentTag = (CompoundTag) nbt);
+        }
         if (compound.contains("TickCount")) {
             this.tickCount = compound.getInt("TickCount");
         }
