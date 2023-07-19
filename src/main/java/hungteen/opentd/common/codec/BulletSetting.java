@@ -17,7 +17,7 @@ import java.util.Optional;
  * @create: 2023-05-10 22:21
  **/
 public record BulletSetting(ITargetFilter targetFilter, IEffectComponent effect, float bulletSpeed,
-                             int maxHitCount, int maxExistTick, float gravity, float slowDown, boolean ignoreBlock,
+                             int maxHitCount, int maxExistTick, float gravity, float slowDown, float waterSlowDown, boolean ignoreBlock,
                              boolean lockToTarget, boolean sameTeamWithOwner, RenderSetting renderSettings, Optional<ParticleSetting> hitParticle, Optional<ParticleSetting> trailParticle) {
 
     public static final Codec<BulletSetting> CODEC = RecordCodecBuilder.<BulletSetting>mapCodec(instance -> instance.group(
@@ -28,6 +28,7 @@ public record BulletSetting(ITargetFilter targetFilter, IEffectComponent effect,
             Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("max_exist_tick", 50).forGetter(BulletSetting::maxExistTick),
             Codec.floatRange(0, Float.MAX_VALUE).optionalFieldOf("gravity", 0.03F).forGetter(BulletSetting::gravity),
             Codec.floatRange(0, 1F).optionalFieldOf("slow_down", 0.99F).forGetter(BulletSetting::slowDown),
+            Codec.floatRange(0, 1F).optionalFieldOf("water_slow_down", 0.8F).forGetter(BulletSetting::waterSlowDown),
             Codec.BOOL.optionalFieldOf("ignore_block", false).forGetter(BulletSetting::ignoreBlock),
             Codec.BOOL.optionalFieldOf("lock_to_target", false).forGetter(BulletSetting::lockToTarget),
             Codec.BOOL.optionalFieldOf("same_team_with_owner", true).forGetter(BulletSetting::sameTeamWithOwner),

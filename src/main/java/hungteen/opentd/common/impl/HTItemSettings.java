@@ -8,14 +8,13 @@ import hungteen.htlib.common.registry.HTRegistryManager;
 import hungteen.opentd.OpenTD;
 import hungteen.opentd.api.interfaces.ISummonRequirement;
 import hungteen.opentd.common.impl.filter.EntityPredicateFilter;
-import hungteen.opentd.common.impl.filter.TypeTargetFilter;
 import hungteen.opentd.common.impl.requirement.*;
 import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.advancements.critereon.NbtPredicate;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
 import java.util.ArrayList;
@@ -47,24 +46,10 @@ public class HTItemSettings {
                     .name("item.opentd.test_sun_flower_card")
                     .card()
                     .damage(10)
-//                    .requirement(new AndRequirement(
-//                            List.of(
-//                                    new OrRequirement(
-//                                            List.of(
-//                                                    new BlockRequirement(Optional.empty(), Optional.empty(), Optional.empty(), Optional.of(List.of(Blocks.GRASS_BLOCK, Blocks.ANDESITE))),
-//                                                    new EntityRequirement(Optional.empty(), new TypeTargetFilter(
-//                                                            List.of(EntityType.CREEPER)
-//                                                    ))
-//                                            ),
-//                                            Optional.empty()
-//                                    ),
-//                                    new NotRequirement(
-//                                            new BlockRequirement(Optional.empty(), Optional.empty(), Optional.empty(), Optional.of(List.of(Blocks.IRON_BLOCK))),
-//                                            Optional.empty()
-//                                    )
-//                            ),
-//                            Optional.empty()
-//                    ))
+                    .requirement(new AndRequirement(
+                            List.of(),
+                            Optional.empty()
+                    ))
                     .build()
     );
 

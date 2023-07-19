@@ -199,7 +199,7 @@ public class BulletEntity extends Projectile implements IOTDEntity {
                 this.level.addParticle(ParticleTypes.BUBBLE, d2 - vec3.x * 0.25D, d0 - vec3.y * 0.25D, d1 - vec3.z * 0.25D, vec3.x, vec3.y, vec3.z);
             }
 
-            f = 0.8F;
+            f = this.bulletSetting().waterSlowDown();
         }
 
         this.setDeltaMovement(vec3.scale(f));

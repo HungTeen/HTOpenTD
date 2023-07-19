@@ -16,6 +16,7 @@
 * 植物英雄支持setMoveTo指定移动地点。
 * 防御塔增加can_ride_in_water字段。
 * Tag过滤器支持对原版实体tag进行过滤。
+* 子弹设置增加water_slow_down。
 #### Bug修复
 * 召唤物不能无限耐久。
 * 召唤出来的防御塔没有保存召唤者信息。

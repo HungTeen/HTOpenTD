@@ -69,7 +69,7 @@ public class HTTowerComponents {
                                                             Optional.of(EntityTypeTags.SKELETONS),
                                                             Optional.empty()
                                                     ),
-                                                    new TeamFilter(Optional.empty(), false)
+                                                    new TeamFilter(Optional.empty(), false, false, true)
                                             )
                                     )
                             )
@@ -85,7 +85,7 @@ public class HTTowerComponents {
                                                                     new TypeTargetFilter(Arrays.asList(
                                                                             EntityType.CREEPER
                                                                     )),
-                                                                    new TeamFilter(Optional.empty(), false)
+                                                                    new TeamFilter(Optional.empty(), false, false, true)
                                                             )
                                                     ),
                                                     new ListEffectComponent(Arrays.asList(
@@ -99,7 +99,7 @@ public class HTTowerComponents {
                                                                     )
                                                             ))
                                                     )),
-                                                    0.2F, 1, 300, 0.0001F, 0.99999F, false, true, true,
+                                                    0.2F, 1, 300, 0.0001F, 0.99999F, 0.8F, false, true, true,
                                                     RenderSetting.make(0.5F, 0.5F, 0.6F, "pea_shooter"),
                                                     Optional.empty(),
                                                     Optional.of(
@@ -125,7 +125,7 @@ public class HTTowerComponents {
     public static final HTRegistryHolder<ITowerComponent> SUN_FLOWER = TOWERS.innerRegister(
             OpenTD.prefix("sun_flower_test"), new PVZPlantComponent(
                     new PVZPlantComponent.PlantSetting(
-                            TowerSetting.DEFAULT,
+                            new TowerSetting(false, true, 30),
                             new CompoundTag(),
                             PVZPlantComponent.GrowSettings.DEFAULT,
                             OpenTD.prefix("sun_flower_test"), 2000, false, false,
