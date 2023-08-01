@@ -9,6 +9,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraftforge.event.ForgeEventFactory;
 
 /**
@@ -16,30 +17,31 @@ import net.minecraftforge.event.ForgeEventFactory;
  * @author: HungTeen
  * @create: 2023-01-07 19:50
  **/
-public record ExplosionEffectComponent(boolean canBreak, boolean destroyMode, float power) implements IEffectComponent {
+public record ExplosionEffectComponent(boolean canBreak, boolean destroyMode, float power, boolean self) implements IEffectComponent {
 
     public static final Codec<ExplosionEffectComponent> CODEC = RecordCodecBuilder.<ExplosionEffectComponent>mapCodec(instance -> instance.group(
             Codec.BOOL.optionalFieldOf("can_break", true).forGetter(ExplosionEffectComponent::canBreak),
             Codec.BOOL.optionalFieldOf("destroy_mode", true).forGetter(ExplosionEffectComponent::destroyMode),
-            Codec.floatRange(0, Float.MAX_VALUE).fieldOf("power").forGetter(ExplosionEffectComponent::power)
-    ).apply(instance, ExplosionEffectComponent::new)).codec();
+            Codec.floatRange(0, Float.MAX_VALUE).fieldOf("power").forGetter(ExplosionEffectComponent::power),
+            Codec.BOOL.optionalFieldOf("self", true).forGetter(ExplosionEffectComponent::self)
+            ).apply(instance, ExplosionEffectComponent::new)).codec();
 
     @Override
     public void effectTo(ServerLevel serverLevel, Entity owner, Entity entity) {
-        explode(owner.level, entity);
+        explode(owner.level, owner, self() ? owner.blockPosition() : entity.blockPosition());
     }
 
     @Override
     public void effectTo(ServerLevel serverLevel, Entity owner, BlockPos pos) {
-
+        explode(owner.level, owner, self() ? owner.blockPosition() : pos);
     }
 
-    private void explode(Level level, Entity entity){
+    private void explode(Level level, Entity entity, BlockPos pos){
         Explosion.BlockInteraction interaction = Explosion.BlockInteraction.NONE;
         if(canBreak() && ForgeEventFactory.getMobGriefingEvent(level, entity)){
             interaction = destroyMode() ? Explosion.BlockInteraction.DESTROY : Explosion.BlockInteraction.BREAK;
         }
-        level.explode(entity, entity.getX(), entity.getY(), entity.getZ(), power(), interaction);
+        level.explode(entity, pos.getX(), pos.getY(), pos.getZ(), power(), interaction);
     }
 
     @Override
