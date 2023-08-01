@@ -8,13 +8,17 @@ import hungteen.htlib.common.registry.HTRegistryManager;
 import hungteen.opentd.OpenTD;
 import hungteen.opentd.api.interfaces.ISummonRequirement;
 import hungteen.opentd.common.impl.filter.EntityPredicateFilter;
+import hungteen.opentd.common.impl.filter.TypeTargetFilter;
 import hungteen.opentd.common.impl.requirement.*;
 import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.advancements.critereon.NbtPredicate;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
 import java.util.ArrayList;
@@ -47,7 +51,25 @@ public class HTItemSettings {
                     .card()
                     .damage(10)
                     .requirement(new AndRequirement(
-                            List.of(),
+                            List.of(
+                                    new OrRequirement(
+                                            List.of(
+                                                    new EntityRequirement(
+                                                            Optional.of("Entity Not Fit !"),
+                                                            new TypeTargetFilter(List.of(EntityType.CREEPER))
+                                                    ),
+                                                    new BlockRequirement(
+                                                            Optional.of("Block Not Fit !"),
+                                                            Optional.empty(),
+                                                            Optional.empty(),
+                                                            Optional.of(List.of(
+                                                                    Blocks.GRASS_BLOCK
+                                                            ))
+                                                    )
+                                            ),
+                                            Optional.empty()
+                                    )
+                            ),
                             Optional.empty()
                     ))
                     .build()

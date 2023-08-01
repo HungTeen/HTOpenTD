@@ -14,7 +14,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.state.BlockState;
 
-import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -27,12 +26,12 @@ public record EntityRequirement(Optional<String> tip, ITargetFilter filter) impl
     public static final Codec<EntityRequirement> CODEC = RecordCodecBuilder.<EntityRequirement>mapCodec(instance -> instance.group(
             Codec.optionalField("tip", Codec.STRING).forGetter(EntityRequirement::tip),
             HTTargetFilters.getCodec().fieldOf("filter").forGetter(EntityRequirement::filter)
-            ).apply(instance, EntityRequirement::new)).codec();
+    ).apply(instance, EntityRequirement::new)).codec();
 
     @Override
     public boolean allowOn(ServerLevel level, Player player, Entity entity, boolean sendMessage) {
-        if(! filter().match(level, player, entity)){
-            if(sendMessage) PlayerHelper.sendTipTo(player, getTip());
+        if (!filter().match(level, player, entity)) {
+            if (sendMessage) PlayerHelper.sendTipTo(player, getTip());
             return false;
         }
         return true;

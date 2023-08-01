@@ -109,21 +109,24 @@ public class SummonTowerItem extends Item {
     }
 
     public static void use(PlayerInteractEvent.EntityInteractSpecific event){
-        if (event.getLevel() instanceof ServerLevel
-                && event.getItemStack().getItem() instanceof SummonTowerItem
-                && ! PlayerUtil.isOnCooldown(event.getEntity(), event.getItemStack())
-                && Level.isInSpawnableBounds(event.getTarget().blockPosition())
-                && ((SummonTowerItem) event.getItemStack().getItem()).canPlace((ServerLevel) event.getLevel(), event.getEntity(), event.getItemStack(), event.getTarget())) {
-            if(! MinecraftForge.EVENT_BUS.post(new SummonTowerEvent(event.getEntity(), event.getItemStack(), event.getHand(), event.getTarget()))) {
+        if (event.getLevel() instanceof ServerLevel && event.getItemStack().getItem() instanceof SummonTowerItem){
+            if(PlayerUtil.isOnCooldown(event.getEntity(), event.getItemStack()) || ! Level.isInSpawnableBounds(event.getTarget().blockPosition())){
+                event.setCancellationResult(InteractionResult.FAIL);
+                return;
+            }
+            if(((SummonTowerItem) event.getItemStack().getItem()).canPlace((ServerLevel) event.getLevel(), event.getEntity(), event.getItemStack(), event.getTarget()) & ! MinecraftForge.EVENT_BUS.post(new SummonTowerEvent(event.getEntity(), event.getItemStack(), event.getHand(), event.getTarget()))) {
                 Entity entity = getTowerSettings(event.getItemStack()).createEntity((ServerLevel) event.getLevel(), event.getEntity(), event.getItemStack(), event.getTarget().blockPosition());
                 if (entity != null) {
                     //TODO 骑乘
                     MinecraftForge.EVENT_BUS.post(new PostSummonTowerEvent(event.getEntity(), event.getItemStack(), event.getHand(), event.getTarget(), entity));
                     ((SummonTowerItem) event.getItemStack().getItem()).consume((ServerLevel) event.getLevel(), event.getEntity(), entity, event.getItemStack(), event.getHand());
-                    event.setCancellationResult(InteractionResult.SUCCESS);
+                    event.setCancellationResult(InteractionResult.CONSUME);
                 } else {
                     event.setCancellationResult(InteractionResult.PASS);
                 }
+            } else {
+                PlayerUtil.addCooldown(event.getEntity(), event.getItemStack(), 10);
+                event.setCancellationResult(InteractionResult.SUCCESS);
             }
         }
     }
