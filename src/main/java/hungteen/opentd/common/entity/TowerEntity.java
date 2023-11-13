@@ -310,6 +310,7 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
 
     public void gen(GenGoalSetting.GenSetting genSetting) {
         if (genSetting != null && this.getComponent() != null && this.getComponent().genGoalSetting().isPresent()) {
+            for(int i = 0; i < genSetting.count(); ++ i)
             if (this.level instanceof ServerLevel serverlevel && Level.isInSpawnableBounds(this.blockPosition())) {
                 CompoundTag compoundtag = genSetting.nbt().copy();
                 compoundtag.putString("id", EntityHelper.get().getKey(genSetting.entityType()).toString());
@@ -601,6 +602,11 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
     @Override
     public boolean rideableUnderWater() {
         return this.getComponent() != null ? this.getComponent().towerSetting().canRideInWater() : super.rideableUnderWater();
+    }
+
+    @Override
+    public boolean isPersistenceRequired() {
+        return this.getComponent() != null ? this.getComponent().towerSetting().persistent() : super.isPersistenceRequired();
     }
 
     @Override

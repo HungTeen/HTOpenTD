@@ -113,12 +113,6 @@ minecraft {
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 repositories {
-    flatDir {
-        dir 'F:\\projects\\idea\\HTLib\\build\\libs'
-    }
-}
-
-repositories {
     mavenCentral()
     maven {
         url "https://maven.blamejared.com"
@@ -164,8 +158,7 @@ dependencies {
 
     implementation fg.deobf("curse.maven:configured-457570:${configured_version}")
 
-    implementation fg.deobf("hungteen:htlib:${htlib_version}")
-    implementation fg.deobf("hungteen:htlib:${htlib_version}")
+    implementation fg.deobf("curse.maven:htlib-794622:${htlib_version}")
 
     implementation fg.deobf("curse.maven:geckolib-388172:${geckolib_version}")
 

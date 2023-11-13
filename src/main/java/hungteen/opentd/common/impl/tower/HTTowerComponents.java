@@ -100,7 +100,7 @@ public class HTTowerComponents {
                                                             ))
                                                     )),
                                                     0.2F, 1, 300, 0.0001F, 0.99999F, 0.8F, false, true, true,
-                                                    RenderSetting.make(0.5F, 0.5F, 0.6F, "pea_shooter"),
+                                                    RenderSetting.make(0.5F, 0.5F, 0.6F, false, "pea_shooter"),
                                                     Optional.empty(),
                                                     Optional.of(
                                                             new ParticleSetting(
@@ -125,12 +125,12 @@ public class HTTowerComponents {
     public static final HTRegistryHolder<ITowerComponent> SUN_FLOWER = TOWERS.innerRegister(
             OpenTD.prefix("sun_flower_test"), new PVZPlantComponent(
                     new PVZPlantComponent.PlantSetting(
-                            new TowerSetting(false, true, 30),
+                            new TowerSetting(false, true, true, 30),
                             new CompoundTag(),
                             PVZPlantComponent.GrowSettings.DEFAULT,
                             OpenTD.prefix("sun_flower_test"), 2000, false, false,
                             false, true,
-                            RenderSetting.make(0.8F, 1F, 1F, "sun_flower")
+                            RenderSetting.make(0.8F, 1F, 1F, false, "sun_flower")
                     ),
                     List.of(new TargetSetting(1, 0.2F, true, 10000,
                             new RangeFinder(true, 40, 40,

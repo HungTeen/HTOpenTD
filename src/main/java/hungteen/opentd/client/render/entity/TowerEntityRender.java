@@ -5,9 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix3f;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
-import hungteen.htlib.util.helper.MathHelper;
 import hungteen.opentd.common.codec.LaserGoalSetting;
-import hungteen.opentd.common.entity.PlantEntity;
 import hungteen.opentd.common.entity.TowerEntity;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -17,7 +15,6 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.monster.Guardian;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
@@ -83,6 +80,14 @@ public class TowerEntityRender<T extends TowerEntity> extends GeoEntityRenderer<
             super.render(animatable, entityYaw, partialTick, poseStack, bufferSource, packedLight);
             this.renderLaser(animatable, partialTick, poseStack, bufferSource);
         }
+    }
+
+    @Override
+    public RenderType getRenderType(T animatable, float partialTick, PoseStack poseStack, @Nullable MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, int packedLight, ResourceLocation texture) {
+        if (animatable.getRenderSetting() != null && animatable.getRenderSetting().translucent()) {
+            return RenderType.entityTranslucent(getTextureLocation(animatable));
+        }
+        return super.getRenderType(animatable, partialTick, poseStack, bufferSource, buffer, packedLight, texture);
     }
 
     private void renderLaser(T towerEntity, float partialTick, PoseStack stack, MultiBufferSource bufferSource){
