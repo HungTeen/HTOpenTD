@@ -173,7 +173,9 @@ public class HTTowerComponents {
                                     )
                             )
                     ),
-                    Optional.empty(),
+                    Optional.of(
+                            new SummonEffectComponent(1, 5, Optional.of(5), 16, true, true, EntityType.EXPERIENCE_ORB, new CompoundTag())
+                    ),
                     Optional.empty(),
                     Optional.empty()
             )

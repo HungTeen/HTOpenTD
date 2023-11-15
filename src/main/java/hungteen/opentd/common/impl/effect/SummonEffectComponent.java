@@ -14,20 +14,27 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.item.ChorusFruitItem;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.ForgeRegistries;
+
+import java.util.Optional;
 
 /**
  * @program: HTOpenTD
  * @author: HungTeen
  * @create: 2023-01-18 15:24
  **/
-public record SummonEffectComponent(int count, int radius, boolean self, boolean enableDefaultSpawn, EntityType<?> entityType, CompoundTag nbt) implements IEffectComponent {
+public record SummonEffectComponent(int count, int radius, Optional<Integer> maxHeightOffset, int tries, boolean self, boolean enableDefaultSpawn, EntityType<?> entityType, CompoundTag nbt) implements IEffectComponent {
 
     public static final Codec<SummonEffectComponent> CODEC = RecordCodecBuilder.<SummonEffectComponent>mapCodec(instance -> instance.group(
             Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("count", 1).forGetter(SummonEffectComponent::count),
             Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("radius", 1).forGetter(SummonEffectComponent::radius),
+            Codec.optionalField("max_height_offset", Codec.intRange(0, Integer.MAX_VALUE)).forGetter(SummonEffectComponent::maxHeightOffset),
+            Codec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("tries", 16).forGetter(SummonEffectComponent::tries),
             Codec.BOOL.optionalFieldOf("self", true).forGetter(SummonEffectComponent::self),
             Codec.BOOL.optionalFieldOf("enable_default_spawn", true).forGetter(SummonEffectComponent::enableDefaultSpawn),
             ForgeRegistries.ENTITY_TYPES.getCodec().fieldOf("entity_type").forGetter(SummonEffectComponent::entityType),
@@ -55,15 +62,35 @@ public record SummonEffectComponent(int count, int radius, boolean self, boolean
             compoundTag.putString("id", EntityHelper.get().getKey(entityType).toString());
 
             // position.
-            final int dx = RandomHelper.range(summoner.getLevel().getRandom(), radius());
-            final int dz = RandomHelper.range(summoner.getLevel().getRandom(), radius());
-            final int y = WorldHelper.getSurfaceHeight(level, summoner.getX() + dx, summoner.getZ() + dz);
-            final Vec3 position = new Vec3(summoner.getX() + dx, y, summoner.getZ() + dz);
+            Vec3 position = summoner.position(); // 保底。
+            if(maxHeightOffset().isPresent()){
+                int dx = RandomHelper.range(summoner.getLevel().getRandom(), radius());
+                int dz = RandomHelper.range(summoner.getLevel().getRandom(), radius());
+                Optional<Integer> opt = Optional.empty();
+                for(int i = 0; i < tries(); ++ i){
+                    opt = getGroundPos(level, summoner, summoner.getX() + dx, summoner.getY() + RandomHelper.range(summoner.getLevel().getRandom(), maxHeightOffset().get()), summoner.getZ() + dz);
+                    if(opt.isPresent()){
+                        break;
+                    }
+                    dx = RandomHelper.range(summoner.getLevel().getRandom(), radius());
+                    dz = RandomHelper.range(summoner.getLevel().getRandom(), radius());
+                }
+                if(opt.isPresent()){
+                    position = new Vec3(summoner.getX() + dx, opt.get(), summoner.getZ());
+                }
+            } else {
+                int dx = RandomHelper.range(summoner.getLevel().getRandom(), radius());
+                int dz = RandomHelper.range(summoner.getLevel().getRandom(), radius());
+                int y = WorldHelper.getSurfaceHeight(level, summoner.getX() + dx, summoner.getZ() + dz);
+                position = new Vec3(summoner.getX() + dx, y, summoner.getZ());
+            }
 
+            Vec3 finalPosition = position;
             Entity entity = EntityType.loadEntityRecursive(compoundTag, serverlevel, (e) -> {
-                e.moveTo(position.x(), position.y(), position.z(), summoner.getYRot(), summoner.getXRot());
+                e.moveTo(finalPosition.x(), finalPosition.y(), finalPosition.z(), summoner.getYRot(), summoner.getXRot());
                 return e;
             });
+
             if (entity != null) {
                 if (enableDefaultSpawn() && entity instanceof Mob) {
                     ((Mob) entity).finalizeSpawn(serverlevel, serverlevel.getCurrentDifficultyAt(entity.blockPosition()), MobSpawnType.MOB_SUMMONED, null, null);
@@ -72,6 +99,25 @@ public record SummonEffectComponent(int count, int radius, boolean self, boolean
                 serverlevel.tryAddFreshEntityWithPassengers(entity);
             }
         }
+    }
+
+    private Optional<Integer> getGroundPos(Level level, Entity summoner, double x, double y, double z){
+        BlockPos blockpos = new BlockPos(x, y, z);
+        if (level.hasChunkAt(blockpos)) {
+            while(blockpos.getY() > level.getMinBuildHeight()) {
+                BlockPos posBelow = blockpos.below();
+                BlockState blockstate = level.getBlockState(posBelow);
+                if (blockstate.getMaterial().blocksMotion()) {
+                    if (level.noCollision(summoner) && !level.containsAnyLiquid(summoner.getBoundingBox())) {
+                        return Optional.of(blockpos.getY());
+                    }
+                    break;
+                } else {
+                    blockpos = posBelow;
+                }
+            }
+        }
+        return Optional.empty();
     }
 
     @Override

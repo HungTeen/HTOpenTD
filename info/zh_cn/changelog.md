@@ -2,11 +2,14 @@
 ### 1.20.x-1.3.0
 ## 1.19.x
 ### 1.19.2-1.2.2
+#### 新内容
+* tower_setting添加persistent字段，使其不会被自然刷新。
+* render_setting添加translucent字段，可以使其半透明。
+* 联动JEI，将召唤卡配方分别展示。
 #### Bug修复
 * 生产组件bug（count无论何值只生成一个）。
 #### 其他改变
-* tower_setting添加persistent字段，使其不会被自然刷新。
-* render_setting添加translucent字段，可以使其半透明。
+* 召唤作用组件添加max_height_offset和tries字段控制是否生成在地表。
 ### 1.19.2-1.2.1
 #### Bug修复
 * 爆炸效果组件不会对target造成伤害。
