@@ -6,6 +6,7 @@
 * tower_setting添加persistent字段，使其不会被自然刷新。
 * render_setting添加translucent字段，可以使其半透明。
 * 联动JEI，将召唤卡配方分别展示。
+* Kubejs可以调用tower.setIgnoreWorkAnimation(true)屏蔽工作动画。
 #### Bug修复
 * 生产组件bug（count无论何值只生成一个）。
 #### 其他改变

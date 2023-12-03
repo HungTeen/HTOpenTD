@@ -84,6 +84,7 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
     public int preLaserTick = 0;
     protected int shootCount = 0;
     public int growAnimTick = 0;
+    private boolean ignoreWorkAnimation = false;
     protected boolean componentDirty = false;
     private GenGoalSetting.GenSetting genSetting;
     private boolean updated = false;
@@ -403,18 +404,22 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
 
     protected PlayState predicateWorks(AnimationEvent<?> event) {
         final AnimationBuilder builder = new AnimationBuilder();
-        if(this.getComponent() != null && this.getComponent().towerSetting().customDeath() && this.isDeadOrDying()){
-            builder.addAnimation("dead", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
-        } else if (this.getShootTick() > 0 || this.hasActiveAttackTarget()) {
-            builder.addAnimation("shoot", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
-        } else if (this.getGenTick() > 0) {
-            builder.addAnimation("gen", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
-        } else if (this.getAttackTick() > 0) {
-            builder.addAnimation("attack", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
-        } else if (this.getInstantTick() > 0) {
-            builder.addAnimation("instant", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
-        } else {
+        if(this.getCurrentAnimation().isPresent() && this.ignoreWorkAnimation()){
             event.getController().markNeedsReload();
+        } else {
+            if(this.getComponent() != null && this.getComponent().towerSetting().customDeath() && this.isDeadOrDying()){
+                builder.addAnimation("dead", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
+            } else if (this.getShootTick() > 0 || this.hasActiveAttackTarget()) {
+                builder.addAnimation("shoot", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
+            } else if (this.getGenTick() > 0) {
+                builder.addAnimation("gen", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
+            } else if (this.getAttackTick() > 0) {
+                builder.addAnimation("attack", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
+            } else if (this.getInstantTick() > 0) {
+                builder.addAnimation("instant", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
+            } else {
+                event.getController().markNeedsReload();
+            }
         }
         event.getController().setAnimation(builder);
         return PlayState.CONTINUE;
@@ -628,6 +633,7 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
         tag.putInt("PreLaserTick", this.preLaserTick);
         tag.putInt("InstantTick", this.getInstantTick());
         tag.putBoolean("Resting", this.isResting());
+        tag.putBoolean("IgnoreWorkAnimation", this.ignoreWorkAnimation);
         if (this.genSetting != null) {
             GenGoalSetting.GenSetting.CODEC.encodeStart(NbtOps.INSTANCE, this.genSetting)
                     .resultOrPartial(msg -> OpenTD.log().error(msg + " [Plant Gen]"))
@@ -695,6 +701,9 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
         }
         if (tag.contains("Resting")) {
             this.setResting(tag.getBoolean("Resting"));
+        }
+        if(tag.contains("IgnoreWorkAnimation")) {
+            this.setIgnoreWorkAnimation(tag.getBoolean("IgnoreWorkAnimation"));
         }
         if (tag.contains("Production")) {
             GenGoalSetting.GenSetting.CODEC.parse(NbtOps.INSTANCE, tag.get("Production"))
@@ -769,6 +778,14 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
     @Override
     public void setClientResource(ClientEntityResource clientTowerResource) {
         entityData.set(CLIENT_RES, clientTowerResource);
+    }
+
+    public void setIgnoreWorkAnimation(boolean ignoreWorkAnimation) {
+        this.ignoreWorkAnimation = ignoreWorkAnimation;
+    }
+
+    public boolean ignoreWorkAnimation() {
+        return ignoreWorkAnimation;
     }
 
     @javax.annotation.Nullable
