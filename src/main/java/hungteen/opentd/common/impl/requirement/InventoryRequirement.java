@@ -66,6 +66,6 @@ public record InventoryRequirement(Optional<String> tip, List<ItemStack> ownItem
 
     @Override
     public ISummonRequirementType<?> getType() {
-        return HTSummonRequirements.INVENTORY_REQUIREMENT;
+        return OTDRequirementTypes.INVENTORY_REQUIREMENT;
     }
 }

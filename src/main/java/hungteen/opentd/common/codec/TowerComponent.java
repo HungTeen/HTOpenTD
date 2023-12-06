@@ -3,11 +3,9 @@ package hungteen.opentd.common.codec;
 import hungteen.opentd.OpenTD;
 import hungteen.opentd.api.interfaces.IEffectComponent;
 import hungteen.opentd.api.interfaces.ITowerComponent;
-import hungteen.opentd.common.entity.OpenTDEntities;
 import hungteen.opentd.common.entity.PlantEntity;
 import hungteen.opentd.common.entity.TowerEntity;
-import hungteen.opentd.common.impl.tower.HTTowerComponents;
-import hungteen.opentd.common.impl.tower.PVZPlantComponent;
+import hungteen.opentd.common.impl.tower.OTDTowerComponents;
 import hungteen.opentd.common.item.SummonTowerItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.NbtOps;
@@ -60,7 +58,7 @@ public abstract class TowerComponent implements ITowerComponent {
     public Entity createEntity(ServerLevel level, Player player, ItemStack stack, BlockPos pos) {
         final ItemStack itemStack = stack.copy();
         final ITowerComponent towerComponent = SummonTowerItem.getTowerSettings(stack);
-        HTTowerComponents.getCodec().encodeStart(NbtOps.INSTANCE, towerComponent)
+        OTDTowerComponents.getCodec().encodeStart(NbtOps.INSTANCE, towerComponent)
                 .resultOrPartial(msg -> OpenTD.log().error(msg + " [ Create Entity ]"))
                 .ifPresent(tag -> {
                     itemStack.getOrCreateTag().put(TowerEntity.TOWER_SETTING, tag);

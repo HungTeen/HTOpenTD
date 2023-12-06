@@ -39,7 +39,7 @@ public class NoRequirement implements ISummonRequirement {
 
     @Override
     public ISummonRequirementType<?> getType() {
-        return HTSummonRequirements.NO_REQUIREMENT;
+        return OTDRequirementTypes.NO_REQUIREMENT;
     }
 
 }

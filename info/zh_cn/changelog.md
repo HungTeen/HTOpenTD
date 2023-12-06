@@ -1,5 +1,11 @@
 ## 1.20.x
 ### 1.20.x-1.3.0
+#### 新内容
+* 所有OTD数据包支持引用。
+#### Bug修复
+#### 其他改变
+* 召唤卡的item_settings改名item_setting，tower_settings改名tower_setting。
+* 取消item_settings独立数据包文件夹。
 ## 1.19.x
 ### 1.19.2-1.2.2
 #### 新内容

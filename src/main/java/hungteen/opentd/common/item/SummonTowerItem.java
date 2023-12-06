@@ -1,17 +1,16 @@
 package hungteen.opentd.common.item;
 
-import hungteen.opentd.api.interfaces.ISummonRequirement;
 import hungteen.opentd.api.interfaces.ITowerComponent;
 import hungteen.opentd.common.entity.TowerEntity;
 import hungteen.opentd.common.event.events.PostSummonTowerEvent;
 import hungteen.opentd.common.event.events.SummonTowerEvent;
-import hungteen.opentd.common.impl.HTItemSettings;
-import hungteen.opentd.common.impl.HTSummonItems;
-import hungteen.opentd.common.impl.tower.HTTowerComponents;
+import hungteen.opentd.common.impl.OTDSummonEntries;
+import hungteen.opentd.common.impl.tower.OTDTowerComponents;
 import hungteen.opentd.util.PlayerUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.stats.Stats;
@@ -49,11 +48,12 @@ import java.util.function.Predicate;
 public class SummonTowerItem extends Item {
 
     private static final Predicate<Entity> ENTITY_PREDICATE = EntitySelector.NO_SPECTATORS.and(Entity::isPickable);
+    private static final String ITEM_SETTING_TAG = "ItemSetting";
     private static final String SUMMON_TAG = "SummonEntry";
     public static final String ENTITY_TAG = "EntityTag";
 
     public SummonTowerItem() {
-        super(new Properties().tab(OTDTabs.CARDS));
+        super(new Properties());
     }
 
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
@@ -160,7 +160,7 @@ public class SummonTowerItem extends Item {
     @Override
     public void fillItemCategory(CreativeModeTab tab, NonNullList<ItemStack> itemStacks) {
         if (tab == CreativeModeTab.TAB_SEARCH || this.allowedIn(tab)) {
-            HTSummonItems.SUMMON_ITEMS.getIds().forEach(entry -> {
+            OTDSummonEntries.SUMMON_ITEMS.getIds().forEach(entry -> {
                 ItemStack stack = new ItemStack(OpenTDItems.SUMMON_TOWER_ITEM.get());
                 set(stack, entry);
                 itemStacks.add(stack);
@@ -200,16 +200,20 @@ public class SummonTowerItem extends Item {
         return true; // Fix Summon Item Unbreakable.
     }
 
-    public static HTItemSettings.ItemSetting getItemSettings(ItemStack stack) {
-        return get(stack).map(HTSummonItems.SummonEntry::itemSettings).orElse(HTItemSettings.DEFAULT.getValue());
+    public static ItemSetting getItemSettings(Level level, ItemStack stack) {
+        return get(level, stack).map(OTDSummonEntries.SummonEntry::itemSetting).orElse(ItemSetting.DEFAULT);
     }
 
-    public static ITowerComponent getTowerSettings(ItemStack stack) {
-        return get(stack).map(HTSummonItems.SummonEntry::towerSettings).orElse(HTTowerComponents.PEA_SHOOTER.getValue());
+    public static ITowerComponent getTowerSettings(Level level, ItemStack stack) {
+        return get(level, stack).map(OTDSummonEntries.SummonEntry::towerSetting).orElse(OTDTowerComponents.PEA_SHOOTER.getValue());
     }
 
-    public static Optional<HTSummonItems.SummonEntry> get(ItemStack stack) {
-        return HTSummonItems.SUMMON_ITEMS.getValue(stack.getOrCreateTag().getString(SUMMON_TAG));
+    public static Optional<OTDSummonEntries.SummonEntry> get(Level level, ItemStack stack) {
+        return OTDSummonEntries.registry().getOptValue(level, getResourceKey(stack));
+    }
+
+    public static ResourceKey<OTDSummonEntries.SummonEntry> getResourceKey(ItemStack stack) {
+        return OTDSummonEntries.registry().createKey(new ResourceLocation(stack.getOrCreateTag().getString(SUMMON_TAG)));
     }
 
     public static Optional<ResourceLocation> getId(ItemStack stack) {

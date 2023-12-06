@@ -23,7 +23,7 @@ import java.util.Optional;
 public record AndRequirement(List<ISummonRequirement> requirements, Optional<String> tip) implements ISummonRequirement {
 
     public static final Codec<AndRequirement> CODEC = RecordCodecBuilder.<AndRequirement>mapCodec(instance -> instance.group(
-            HTSummonRequirements.getCodec().listOf().fieldOf("requirements").forGetter(AndRequirement::requirements),
+            OTDSummonRequirements.getCodec().listOf().fieldOf("requirements").forGetter(AndRequirement::requirements),
             Codec.optionalField("tip", Codec.STRING).forGetter(AndRequirement::tip)
     ).apply(instance, AndRequirement::new)).codec();
 
@@ -56,6 +56,6 @@ public record AndRequirement(List<ISummonRequirement> requirements, Optional<Str
 
     @Override
     public ISummonRequirementType<?> getType() {
-        return HTSummonRequirements.AND_REQUIREMENT;
+        return OTDRequirementTypes.AND_REQUIREMENT;
     }
 }

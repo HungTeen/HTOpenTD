@@ -1,41 +1,35 @@
 modLoader = "javafml"
-loaderVersion = "[43,)"
-license = "GNU LESSER GENERAL PUBLIC LICENSE"
-issueTrackerURL = "https://github.com/HungTeen/Immortal/issues"
+loaderVersion="${loader_version_range}"
+license="${mod_license}"
+issueTrackerURL = "${mod_issue_url}"
+showAsResourcePack = false
 
 [[mods]]
-modId = "opentd"
-version = "${file.jarVersion}"
-displayName = "HungTeen's Open Tower Defence"
-updateJSONURL="https://hungteen.github.io/minecraft/mods/opentd.json"
-displayURL = "https://space.bilibili.com/362855464"
-logoFile = "logo.png"
-credits = "..."
-authors = "HungTeen, GrassCrap"
-description = '''
-A mod that providers stuffs to play tower defence in minecraft.
-'''
+modId="${mod_id}"
+version="${mod_version}"
+displayName="${mod_display_name}"
+updateJSONURL="${mod_update_url}"
+displayURL = "${mod_display_url}"
+logoFile = "${mod_logo_file}"
+authors="${mod_authors}"
+description='''${mod_description}'''
 
-[[dependencies.opentd]]
+[[dependencies.${mod_id}]]
 modId = "forge"
 mandatory = true
-versionRange = "[43.2.0,)"
-ordering = "NONE"
-side = "BOTH"
+versionRange = "${forge_version_range}"
 
-[[dependencies.opentd]]
+[[dependencies.${mod_id}]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[1.19.2,1.20)"
-ordering = "NONE"
-side = "BOTH"
+versionRange = "${minecraft_version_range}"
 
-[[dependencies.opentd]]
+[[dependencies.${mod_id}]]
 modId = "htlib"
 mandatory = true
-versionRange = "[0.9.0,)"
+versionRange = "${htlib_version_range}"
 
-[[dependencies.opentd]]
+[[dependencies.${mod_id}]]
 modId = "geckolib3"
 mandatory = true
-versionRange = "[3.1.38,)"
+versionRange = "${geckolib_version_range}"

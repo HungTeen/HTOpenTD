@@ -3,19 +3,14 @@ package hungteen.opentd.common.impl.tower;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import hungteen.opentd.api.interfaces.IEffectComponent;
-import hungteen.opentd.api.interfaces.ITowerComponent;
 import hungteen.opentd.api.interfaces.ITowerComponentType;
 import hungteen.opentd.common.codec.*;
 import hungteen.opentd.common.entity.OpenTDEntities;
 import hungteen.opentd.common.impl.effect.HTEffectComponents;
-import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 
 import java.util.Arrays;
 import java.util.List;
@@ -62,7 +57,7 @@ public class PlantHeroComponent extends TowerComponent {
 
     @Override
     public ITowerComponentType<?> getType() {
-        return HTTowerComponents.PLANT_HERO;
+        return OTDTowerTypes.PLANT_HERO;
     }
 
     public HeroSetting heroSetting() {

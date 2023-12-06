@@ -66,6 +66,6 @@ public record AroundEntityRequirement(double width, double height, int minCount,
 
     @Override
     public ISummonRequirementType<?> getType() {
-        return HTSummonRequirements.AROUND_ENTITY_REQUIREMENT;
+        return OTDRequirementTypes.AROUND_ENTITY_REQUIREMENT;
     }
 }

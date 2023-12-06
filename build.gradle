@@ -1,110 +1,65 @@
-buildscript {
-    repositories {
-        maven { url = 'https://maven.minecraftforge.net' }
-        maven {
-            url = 'https://repo.spongepowered.org/repository/maven-public/'
-            content { includeGroup "org.spongepowered" }
-        }
-        mavenCentral()
-    }
-    dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
-        classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
-    }
-}
 plugins {
     id 'idea'
     id 'eclipse'
     id 'maven-publish'
-    id 'net.minecraftforge.gradle' version '5.1.+'
+    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+    id 'org.spongepowered.mixin' version '[0.7,)'
 }
-apply plugin: 'org.spongepowered.mixin'
 
 version = mod_version
-group = "hungteen.${mod_id}"
-archivesBaseName = "${mod_name}-${mc_version}"
+group = mod_group_id
+base {
+    archivesName = "${mod_name}-${minecraft_version}"
+}
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
 minecraft {
 
-    mappings channel: 'official', version: mc_version
+    mappings channel: mapping_channel, version: mapping_version
 
-    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg') // Currently, this location cannot be changed from the default.
+    copyIdeResources = true
+
+    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 
     runs {
-        client {
+        configureEach {
             workingDirectory project.file('run')
 
             property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'info'
-            property 'forge.enabledGameTestNamespaces', '${mod_id}'
+            property 'forge.logging.console.level', 'debug'
 
-            //Curios Required.
+            //Patchouli and Curios Required.
             property 'mixin.env.remapRefMap', 'true'
             property 'mixin.env.refMapRemappingFile', "${buildDir}/createSrgToMcp/output.srg"
 
             mods {
-                opentd {
+                "${mod_id}" {
                     source sourceSets.main
                 }
             }
+        }
+
+        client {
+            property 'forge.enabledGameTestNamespaces', mod_id
         }
 
         server {
-            workingDirectory project.file('run')
-
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
-            property 'forge.enabledGameTestNamespaces', '${mod_id}'
-
-            //Curios Required.
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${buildDir}/createSrgToMcp/output.srg"
-
-            mods {
-                opentd {
-                    source sourceSets.main
-                }
-            }
+            property 'forge.enabledGameTestNamespaces', mod_id
+            args '--nogui'
         }
 
         gameTestServer {
-            workingDirectory project.file('run')
-
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', 'debug'
-
-            property 'forge.enabledGameTestNamespaces', '${mod_id}'
-
-            mods {
-                opentd {
-                    source sourceSets.main
-                }
-            }
+            property 'forge.enabledGameTestNamespaces', mod_id
         }
 
         data {
-            workingDirectory project.file('run')
+            workingDirectory project.file('run-data')
 
-            property 'forge.logging.markers', 'REGISTRIES'
-            property 'forge.logging.console.level', '${mod_id}'
-
-            //Patchouli Required.
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${buildDir}/createSrgToMcp/output.srg"
-
-            args '--mod', 'opentd', '--all',
+            args '--mod', mod_id, '--all',
                     '--output', file('src/generated/resources/'),
-                    '--existing', file('src/main/resources/'),
-                    '--existing', file('src/generated/resources/')
-
-            mods {
-                opentd {
-                    source sourceSets.main
-                }
-            }
+                    '--existing', file('src/main/resources/')
         }
     }
 }
@@ -140,7 +95,7 @@ repositories {
     }
     maven {
         // saps.dev Maven (KubeJS and Rhino)
-        url = "https://maven.saps.dev/minecraft"
+        url = "https://maven.saps.dev/releases"
         content {
             includeGroup "dev.latvian.mods"
         }
@@ -148,15 +103,15 @@ repositories {
 }
 
 dependencies {
-    minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
+    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 
-    compileOnly(fg.deobf("mezz.jei:jei-${mc_version}-common-api:${jei_version}"))
-    compileOnly(fg.deobf("mezz.jei:jei-${mc_version}-forge-api:${jei_version}"))
-    runtimeOnly(fg.deobf("mezz.jei:jei-${mc_version}-forge:${jei_version}"))
+    compileOnly(fg.deobf("mezz.jei:jei-${minecraft_version}-common-api:${jei_version}"))
+    compileOnly(fg.deobf("mezz.jei:jei-${minecraft_version}-forge-api:${jei_version}"))
+    runtimeOnly(fg.deobf("mezz.jei:jei-${minecraft_version}-forge:${jei_version}"))
 
-    implementation fg.deobf("curse.maven:configured-457570:${configured_version}")
+//    implementation fg.deobf("curse.maven:configured-457570:${configured_version}")
 
     implementation fg.deobf("curse.maven:htlib-794622:${htlib_version}")
 
@@ -174,7 +129,7 @@ mixin {
 }
 
 task apiJar(type: Jar) {
-    classifier = 'api'
+    archiveClassifier = 'api'
 
     include 'hungteen/opentd/api/**'
 
@@ -187,27 +142,41 @@ artifacts {
     archives apiJar
 }
 
-jar {
-    manifest {
-        attributes([
-                "Specification-Title"     : project.name,
-                "Specification-Vendor"    : "${mod_owner}",
-                "Specification-Version"   : "${mod_version}",
-                "Implementation-Title"    : project.name,
-                "Implementation-Version"  : "${mod_version}",
-                "Implementation-Vendor"   : "${mod_owner}",
-                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-        ])
+tasks.named('processResources', ProcessResources).configure {
+    var replaceProperties = [
+            minecraft_version: minecraft_version, minecraft_version_range: minecraft_version_range,
+            forge_version: forge_version, forge_version_range: forge_version_range, loader_version_range: loader_version_range,
+            mod_id: mod_id, mod_name: mod_name, mod_display_name: mod_display_name, mod_version: mod_version, mod_authors: mod_authors,
+            mod_license: mod_license, mod_logo_file: mod_logo_file, mod_description: mod_description,
+            mod_issue_url: mod_issue_url, mod_update_url: mod_update_url, mod_display_url: mod_display_url,
+            htlib_version_range: htlib_version_range, geckolib_version_range: geckolib_version_range
+    ]
+    inputs.properties replaceProperties
+
+    filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
+        expand replaceProperties + [project: project]
     }
 }
 
-jar.finalizedBy('reobfJar')
-// However if you are in a multi-project build, dev time needs unobfed jar files, so you can delay the obfuscation until publishing by doing
-// publish.dependsOn('reobfJar')
+tasks.named('jar', Jar).configure {
+    manifest {
+        attributes([
+                'Specification-Title'     : mod_id,
+                'Specification-Vendor'    : mod_authors,
+                'Specification-Version'   : '1', // We are version 1 of ourselves
+                'Implementation-Title'    : project.name,
+                'Implementation-Version'  : project.jar.archiveVersion,
+                'Implementation-Vendor'   : mod_authors,
+                'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
+    }
+
+    finalizedBy 'reobfJar'
+}
 
 publishing {
     publications {
-        mavenJava(MavenPublication) {
+        register('mavenJava', MavenPublication) {
             artifact jar
         }
     }

@@ -66,6 +66,6 @@ public record BlockRequirement(Optional<String> tip, Optional<BlockState> blockS
 
     @Override
     public ISummonRequirementType<?> getType() {
-        return HTSummonRequirements.BLOCK_REQUIREMENT;
+        return OTDRequirementTypes.BLOCK_REQUIREMENT;
     }
 }

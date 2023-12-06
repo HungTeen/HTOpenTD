@@ -12,7 +12,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.state.BlockState;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -23,7 +22,7 @@ import java.util.Optional;
 public record NotRequirement(ISummonRequirement requirement, Optional<String> tip) implements ISummonRequirement {
 
     public static final Codec<NotRequirement> CODEC = RecordCodecBuilder.<NotRequirement>mapCodec(instance -> instance.group(
-            HTSummonRequirements.getCodec().fieldOf("requirement").forGetter(NotRequirement::requirement),
+            OTDSummonRequirements.getCodec().fieldOf("requirement").forGetter(NotRequirement::requirement),
             Codec.optionalField("tip", Codec.STRING).forGetter(NotRequirement::tip)
     ).apply(instance, NotRequirement::new)).codec();
 
@@ -55,6 +54,6 @@ public record NotRequirement(ISummonRequirement requirement, Optional<String> ti
 
     @Override
     public ISummonRequirementType<?> getType() {
-        return HTSummonRequirements.NOT_REQUIREMENT;
+        return OTDRequirementTypes.NOT_REQUIREMENT;
     }
 }

@@ -3,7 +3,7 @@ package hungteen.opentd.common.capability.player;
 import hungteen.htlib.api.interfaces.IPlayerDataManager;
 import hungteen.opentd.common.network.CDPacket;
 import hungteen.opentd.common.network.NetworkHandler;
-import hungteen.opentd.common.impl.HTSummonItems;
+import hungteen.opentd.common.impl.OTDSummonEntries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -36,7 +36,7 @@ public class PlayerDataManager implements IPlayerDataManager {
         CompoundTag tag = new CompoundTag();
         {
             final CompoundTag nbt = new CompoundTag();
-            HTSummonItems.SUMMON_ITEMS.getIds().forEach(id -> {
+            OTDSummonEntries.SUMMON_ITEMS.getIds().forEach(id -> {
                 final CompoundTag tmp = new CompoundTag();
                 tmp.putInt(id.toString() + "_CD", this.getSummonItemCD(id));
                 tmp.putLong(id.toString() + "PT", this.getSummonItemPT(id));
@@ -52,7 +52,7 @@ public class PlayerDataManager implements IPlayerDataManager {
     public void loadFromNBT(CompoundTag tag) {
         if(tag.contains("CoolDowns")){
             final CompoundTag nbt = tag.getCompound("CoolDowns");
-            HTSummonItems.SUMMON_ITEMS.getIds().forEach(id -> {
+            OTDSummonEntries.SUMMON_ITEMS.getIds().forEach(id -> {
                 if(nbt.contains(id.toString())){
                     final CompoundTag tmp = nbt.getCompound(id.toString());
                     this.summonItemCD.put(id, tmp.getInt(id.toString() + "_CD"));
@@ -72,7 +72,7 @@ public class PlayerDataManager implements IPlayerDataManager {
 
     @Override
     public void syncToClient() {
-        HTSummonItems.SUMMON_ITEMS.getIds().forEach(this::sendCDPacket);
+        OTDSummonEntries.SUMMON_ITEMS.getIds().forEach(this::sendCDPacket);
     }
 
     public void setSummonItemCD(ResourceLocation id, int tick) {

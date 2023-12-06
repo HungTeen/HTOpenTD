@@ -1,49 +1,32 @@
 package hungteen.opentd.data;
 
-import com.mojang.serialization.Encoder;
-import hungteen.htlib.common.registry.HTCodecRegistry;
-import hungteen.htlib.common.registry.HTRegistryHolder;
-import hungteen.htlib.data.HTCodecGen;
-import hungteen.opentd.OpenTD;
-import hungteen.opentd.common.impl.HTSummonItems;
-import hungteen.opentd.common.impl.effect.HTEffectComponents;
-import hungteen.opentd.common.impl.filter.ClassFilter;
-import hungteen.opentd.common.impl.filter.HTTargetFilters;
-import hungteen.opentd.common.impl.finder.HTTargetFinders;
-import hungteen.opentd.common.impl.requirement.HTSummonRequirements;
-import hungteen.opentd.common.impl.tower.HTTowerComponents;
-import net.minecraft.data.CachedOutput;
-import net.minecraft.data.DataGenerator;
-import net.minecraft.resources.ResourceLocation;
-
 /**
  * @program: HTOpenTD
  * @author: HungTeen
  * @create: 2023-01-07 20:50
  **/
-public class OpenTDTestGen extends HTCodecGen {
+public class OpenTDTestGen {
 
-    public OpenTDTestGen(DataGenerator generator) {
-        super(generator, OpenTD.MOD_ID);
-    }
-
-    public void run(CachedOutput cache) {
-        ClassFilter.registerClassifiers();
-        HTTowerComponents.registerStuffs();
-        HTSummonRequirements.registerStuffs();
-        HTEffectComponents.registerStuffs();
-        HTTargetFilters.registerStuffs();
-        HTTargetFinders.registerStuffs();
-        this.register(cache, HTSummonItems.SUMMON_ITEMS, HTSummonItems.SummonEntry.CODEC);
-    }
-
-    protected <E, T extends HTRegistryHolder<E>> void register(CachedOutput cache, HTCodecRegistry<E> registry, Encoder<E> encoder) {
-        registry.getEntries().forEach((entry) -> {
-            this.register(this.createPath(this.path, registry.getRegistryName(), (ResourceLocation)entry.getKey()), cache, encoder, entry.getValue());
-        });
-    }
-
-    public String getName() {
-        return this.modId + " test gen";
-    }
+//    public OpenTDTestGen(DataGenerator generator) {
+//        super(generator, OpenTD.MOD_ID);
+//    }
+//
+//    public void run(CachedOutput cache) {
+//        ClassFilter.registerClassifiers();
+//        HTSummonRequirements.registerStuffs();
+//        HTEffectComponents.registerStuffs();
+//        HTTargetFilters.registerStuffs();
+//        HTTargetFinders.registerStuffs();
+//        this.register(cache, HTSummonItems.SUMMON_ITEMS, HTSummonItems.SummonEntry.CODEC);
+//    }
+//
+//    protected <E, T extends HTRegistryHolder<E>> void register(CachedOutput cache, HTCodecRegistry<E> registry, Encoder<E> encoder) {
+//        registry.getEntries().forEach((entry) -> {
+//            this.register(this.createPath(this.path, registry.getRegistryName(), (ResourceLocation)entry.getKey()), cache, encoder, entry.getValue());
+//        });
+//    }
+//
+//    public String getName() {
+//        return this.modId + " test gen";
+//    }
 }

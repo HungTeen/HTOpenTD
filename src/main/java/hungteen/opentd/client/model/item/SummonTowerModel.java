@@ -1,7 +1,7 @@
 package hungteen.opentd.client.model.item;
 
+import hungteen.opentd.common.item.ItemSetting;
 import hungteen.opentd.common.item.SummonTowerItem;
-import hungteen.opentd.common.impl.HTItemSettings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -40,7 +40,7 @@ public class SummonTowerModel implements BakedModel {
             @Override
             public BakedModel resolve(@NotNull BakedModel original, @NotNull ItemStack stack,
                                       @Nullable ClientLevel world, @Nullable LivingEntity entity, int seed) {
-                HTItemSettings.ItemSetting itemSettings = SummonTowerItem.getItemSettings(stack);
+                ItemSetting itemSettings = SummonTowerItem.getItemSettings(stack);
                 if (itemSettings != null) {
                     ModelResourceLocation modelPath = new ModelResourceLocation(itemSettings.model(), "inventory");
                     return Minecraft.getInstance().getModelManager().getModel(modelPath);

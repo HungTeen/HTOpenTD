@@ -52,6 +52,6 @@ public record EntityRequirement(Optional<String> tip, ITargetFilter filter) impl
 
     @Override
     public ISummonRequirementType<?> getType() {
-        return HTSummonRequirements.ENTITY_REQUIREMENT;
+        return OTDRequirementTypes.ENTITY_REQUIREMENT;
     }
 }

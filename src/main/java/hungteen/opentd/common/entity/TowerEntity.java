@@ -7,7 +7,7 @@ import hungteen.opentd.OpenTD;
 import hungteen.opentd.common.codec.*;
 import hungteen.opentd.common.entity.ai.*;
 import hungteen.opentd.common.event.events.ShootBulletEvent;
-import hungteen.opentd.common.impl.tower.HTTowerComponents;
+import hungteen.opentd.common.impl.tower.OTDTowerComponents;
 import hungteen.opentd.util.EntityUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -40,7 +40,6 @@ import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Team;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.entity.IEntityAdditionalSpawnData;
 import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib3.core.IAnimatable;
@@ -666,7 +665,7 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
         // 专门用于NBT召唤特定防御塔。
         if (tag.contains("ComponentLocation")) {
             final ResourceLocation location = new ResourceLocation(tag.getString("ComponentLocation"));
-            HTTowerComponents.TOWERS.getValue(location).flatMap(l -> HTTowerComponents.getCodec().encodeStart(NbtOps.INSTANCE, l)
+            OTDTowerComponents.registry().getValue(level(), location).flatMap(l -> OTDTowerComponents.getCodec().encodeStart(NbtOps.INSTANCE, l)
                     .resultOrPartial(msg -> OpenTD.log().error(msg + " [Read Tower]"))).ifPresent(nbt -> this.componentTag = (CompoundTag) nbt);
         }
         if (this.getComponent() != null) {

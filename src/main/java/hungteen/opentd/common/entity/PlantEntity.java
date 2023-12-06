@@ -1,43 +1,25 @@
 package hungteen.opentd.common.entity;
 
 import com.mojang.datafixers.util.Pair;
-import hungteen.htlib.util.helper.RandomHelper;
-import hungteen.htlib.util.helper.registry.EntityHelper;
-import hungteen.opentd.OpenTD;
-import hungteen.opentd.common.codec.GenGoalSetting;
 import hungteen.opentd.common.codec.RenderSetting;
-import hungteen.opentd.common.entity.ai.*;
-import hungteen.opentd.common.event.events.ShootBulletEvent;
-import hungteen.opentd.common.impl.tower.HTTowerComponents;
 import hungteen.opentd.common.impl.tower.PVZPlantComponent;
-import hungteen.opentd.util.EntityUtil;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
-import net.minecraft.world.DifficultyInstance;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
-import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.MinecraftForge;
-import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib3.core.PlayState;
 import software.bernie.geckolib3.core.builder.AnimationBuilder;
 import software.bernie.geckolib3.core.builder.ILoopType;
@@ -46,10 +28,6 @@ import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 import software.bernie.geckolib3.util.GeckoLibUtil;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
 
 /**
  * @program: HTOpenTD

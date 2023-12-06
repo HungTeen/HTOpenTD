@@ -3,24 +3,15 @@ package hungteen.opentd.common.impl.tower;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import hungteen.opentd.OpenTD;
 import hungteen.opentd.api.interfaces.*;
 import hungteen.opentd.common.codec.*;
 import hungteen.opentd.common.entity.OpenTDEntities;
-import hungteen.opentd.common.entity.PlantEntity;
-import hungteen.opentd.common.item.SummonTowerItem;
 import hungteen.opentd.common.impl.effect.HTEffectComponents;
-import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobSpawnType;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 
 import java.util.Arrays;
 import java.util.List;
@@ -64,7 +55,7 @@ public class PVZPlantComponent extends TowerComponent {
 
     @Override
     public ITowerComponentType<?> getType() {
-        return HTTowerComponents.PVZ_PLANT;
+        return OTDTowerTypes.PVZ_PLANT;
     }
 
     @Override

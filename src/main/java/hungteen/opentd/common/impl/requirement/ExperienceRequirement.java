@@ -61,6 +61,6 @@ public record ExperienceRequirement(Optional<String> tip, int experience, int le
 
     @Override
     public ISummonRequirementType<?> getType() {
-        return HTSummonRequirements.EXPERIENCE_REQUIREMENT;
+        return OTDRequirementTypes.EXPERIENCE_REQUIREMENT;
     }
 }

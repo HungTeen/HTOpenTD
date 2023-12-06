@@ -1,5 +1,6 @@
 package hungteen.opentd.client;
 
+import hungteen.htlib.client.util.ClientHelper;
 import hungteen.opentd.client.model.entity.TowerEntityModel;
 import hungteen.opentd.client.model.item.SummonTowerModel;
 import hungteen.opentd.client.render.entity.BulletEntityRender;
@@ -7,9 +8,9 @@ import hungteen.opentd.client.render.entity.PlantEntityRender;
 import hungteen.opentd.client.render.entity.TowerEntityRender;
 import hungteen.opentd.client.render.item.CoolDownDecorator;
 import hungteen.opentd.common.entity.OpenTDEntities;
+import hungteen.opentd.common.item.ItemSetting;
 import hungteen.opentd.common.item.OpenTDItems;
-import hungteen.opentd.common.impl.HTItemSettings;
-import hungteen.opentd.common.impl.HTSummonItems;
+import hungteen.opentd.common.impl.OTDSummonEntries;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
@@ -45,9 +46,9 @@ public class ClientHandler {
 
     @SubscribeEvent
     public static void bakeModel(ModelEvent.RegisterAdditional event) {
-        HTSummonItems.SUMMON_ITEMS.getValues().stream()
-                .map(HTSummonItems.SummonEntry::itemSettings)
-                .map(HTItemSettings.ItemSetting::model)
+        OTDSummonEntries.registry().getValues(ClientHelper.mc().level).stream()
+                .map(OTDSummonEntries.SummonEntry::itemSetting)
+                .map(ItemSetting::model)
                 .map(model -> new ModelResourceLocation(model, "inventory"))
                 .forEach(event::register);
     }
