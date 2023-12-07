@@ -3,14 +3,14 @@ package hungteen.opentd.common.entity;
 import com.mojang.serialization.Codec;
 import hungteen.htlib.util.helper.MathHelper;
 import hungteen.htlib.util.helper.registry.EntityHelper;
-import hungteen.opentd.OpenTD;
 import hungteen.opentd.api.interfaces.IEffectComponent;
 import hungteen.opentd.common.codec.BulletSetting;
 import hungteen.opentd.common.codec.ParticleSetting;
 import hungteen.opentd.common.codec.RenderSetting;
 import hungteen.opentd.common.codec.ShootGoalSetting;
 import hungteen.opentd.common.event.events.BulletHitEvent;
-import hungteen.opentd.common.impl.HTBulletSettings;
+import hungteen.opentd.common.impl.OTDBulletSettings;
+import hungteen.opentd.util.Util;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -18,8 +18,10 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
@@ -41,18 +43,18 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Team;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.network.NetworkHooks;
-import software.bernie.geckolib3.core.PlayState;
-import software.bernie.geckolib3.core.builder.AnimationBuilder;
-import software.bernie.geckolib3.core.builder.ILoopType;
-import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.core.manager.AnimationData;
-import software.bernie.geckolib3.core.manager.AnimationFactory;
-import software.bernie.geckolib3.util.GeckoLibUtil;
+import software.bernie.geckolib.constant.DefaultAnimations;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.object.PlayState;
+import software.bernie.geckolib.util.GeckoLibUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 /**
@@ -63,7 +65,7 @@ import java.util.function.Consumer;
 public class BulletEntity extends Projectile implements IOTDEntity {
 
     private static final EntityDataAccessor<ClientEntityResource> CLIENT_RES = SynchedEntityData.defineId(BulletEntity.class, OTDSerializers.CLIENT_ENTITY_RES.get());
-    private final AnimationFactory factory = GeckoLibUtil.createFactory(this);
+    private final AnimatableInstanceCache animatableInstanceCache = GeckoLibUtil.createInstanceCache(this);
     private CompoundTag componentTag = new CompoundTag();
     private BulletSetting component;
     private IntOpenHashSet hitSet = new IntOpenHashSet();
@@ -90,7 +92,7 @@ public class BulletEntity extends Projectile implements IOTDEntity {
         this.pultHeight = shootSetting.pultHeight();
         this.component = shootSetting.bulletSetting();
         BulletSetting.CODEC.encodeStart(NbtOps.INSTANCE, shootSetting.bulletSetting())
-                .resultOrPartial(msg -> OpenTD.log().error(msg + " [Bullet] !"))
+                .resultOrPartial(msg -> Util.error("Bullet Entity error : " + msg))
                 .ifPresent(settings -> this.componentTag = (CompoundTag) settings);
         final double d0 = this.getDeltaMovement().horizontalDistance();
         this.setYRot((float)(Mth.atan2(this.getDeltaMovement().x, this.getDeltaMovement().z) * (double)(180F / (float)Math.PI)));
@@ -121,7 +123,7 @@ public class BulletEntity extends Projectile implements IOTDEntity {
             return;
         }
         // reach alive time limit.
-        if (!level.isClientSide) {
+        if (!level().isClientSide) {
             if (this.tickCount >= this.getMaxLiveTick()) {
                 this.discard();
             }
@@ -155,18 +157,18 @@ public class BulletEntity extends Projectile implements IOTDEntity {
             }
         }
         // on hit.
-        HitResult hitresult = ProjectileUtil.getHitResult(this, this::canHitEntity);
+        HitResult hitresult = ProjectileUtil.getHitResultOnMoveVector(this, this::canHitEntity);
         boolean flag = false;
         if (hitresult.getType() == HitResult.Type.BLOCK) {
             BlockPos blockpos = ((BlockHitResult) hitresult).getBlockPos();
-            BlockState blockstate = this.level.getBlockState(blockpos);
+            BlockState blockstate = this.level().getBlockState(blockpos);
             if (blockstate.is(Blocks.NETHER_PORTAL)) {
                 this.handleInsidePortal(blockpos);
                 flag = true;
             } else if (blockstate.is(Blocks.END_GATEWAY)) {
-                BlockEntity blockentity = this.level.getBlockEntity(blockpos);
+                BlockEntity blockentity = this.level().getBlockEntity(blockpos);
                 if (blockentity instanceof TheEndGatewayBlockEntity && TheEndGatewayBlockEntity.canEntityTeleport(this)) {
-                    TheEndGatewayBlockEntity.teleportEntity(this.level, blockpos, blockstate, this, (TheEndGatewayBlockEntity) blockentity);
+                    TheEndGatewayBlockEntity.teleportEntity(this.level(), blockpos, blockstate, this, (TheEndGatewayBlockEntity) blockentity);
                 }
 
                 flag = true;
@@ -193,7 +195,7 @@ public class BulletEntity extends Projectile implements IOTDEntity {
         float f = this.bulletSetting().slowDown();
         if (this.isInWater()) {
             for (int i = 0; i < 4; ++i) {
-                this.level.addParticle(ParticleTypes.BUBBLE, d2 - vec3.x * 0.25D, d0 - vec3.y * 0.25D, d1 - vec3.z * 0.25D, vec3.x, vec3.y, vec3.z);
+                this.level().addParticle(ParticleTypes.BUBBLE, d2 - vec3.x * 0.25D, d0 - vec3.y * 0.25D, d1 - vec3.z * 0.25D, vec3.x, vec3.y, vec3.z);
             }
 
             f = this.bulletSetting().waterSlowDown();
@@ -207,7 +209,7 @@ public class BulletEntity extends Projectile implements IOTDEntity {
         }
 
         if (this.getTrailParticle() != null) {
-            this.getTrailParticle().spawn(this.level, new Vec3(d2, d0 + 0.5D, d1), this.random);
+            this.getTrailParticle().spawn(this.level(), new Vec3(d2, d0 + 0.5D, d1), this.random);
         }
 
         this.setPos(d2, d0, d1);
@@ -225,16 +227,16 @@ public class BulletEntity extends Projectile implements IOTDEntity {
             this.gameEvent(GameEvent.PROJECTILE_LAND, this.getOwner());
         }
         //handle hit and remove.
-        if (!this.level.isClientSide && !this.canExist) {
-            this.level.broadcastEntityEvent(this, (byte) 3);
+        if (!this.level().isClientSide && !this.canExist) {
+            this.level().broadcastEntityEvent(this, (byte) 3);
             this.discard();
         }
 
     }
 
     protected void onHitEntity(EntityHitResult result) {
-        if (this.shouldHit(result.getEntity()) && this.level instanceof ServerLevel) {
-            this.getEffect().ifPresent(l -> l.effectTo((ServerLevel) this.level, this, result.getEntity()));
+        if (this.shouldHit(result.getEntity()) && this.level() instanceof ServerLevel serverLevel) {
+            this.getEffect().ifPresent(l -> l.effectTo(serverLevel, this, result.getEntity()));
             hitSet.add(result.getEntity().getId());
             if (++this.hitCount >= this.getMaxHitCount()) {
                 this.canExist = false;
@@ -244,17 +246,17 @@ public class BulletEntity extends Projectile implements IOTDEntity {
     }
 
     protected void onHitBlock(BlockHitResult result) {
-        if (!this.ignoreBlock() && this.level instanceof ServerLevel) {
-            BlockState blockstate = this.level.getBlockState(result.getBlockPos());
-            blockstate.onProjectileHit(this.level, blockstate, result, this);
-            this.getEffect().ifPresent(l -> l.effectTo((ServerLevel) this.level, this, result.getBlockPos()));
+        if (!this.ignoreBlock() && this.level() instanceof ServerLevel serverLevel) {
+            BlockState blockstate = serverLevel.getBlockState(result.getBlockPos());
+            blockstate.onProjectileHit(serverLevel, blockstate, result, this);
+            this.getEffect().ifPresent(l -> l.effectTo(serverLevel, this, result.getBlockPos()));
             this.canExist = false;
             MinecraftForge.EVENT_BUS.post(new BulletHitEvent(this, result));
         }
     }
 
     protected boolean shouldHit(Entity target) {
-        return (this.bulletSetting() == null || (level instanceof ServerLevel && this.bulletSetting().targetFilter().match((ServerLevel) level, this, target))) && !this.hitSet.contains(target.getId());
+        return (this.bulletSetting() == null || (level() instanceof ServerLevel serverLevel && this.bulletSetting().targetFilter().match(serverLevel, this, target))) && !this.hitSet.contains(target.getId());
     }
 
     /**
@@ -264,7 +266,7 @@ public class BulletEntity extends Projectile implements IOTDEntity {
     public void handleEntityEvent(byte id) {
         if (id == 3) {//die event.
             if (this.getHitParticle() != null) {
-                this.getHitParticle().spawn(this.level, this.position(), this.random);
+                this.getHitParticle().spawn(this.level(), this.position(), this.random);
             }
         }
     }
@@ -440,7 +442,7 @@ public class BulletEntity extends Projectile implements IOTDEntity {
         compound.putDouble("PultHeight", this.pultHeight);
         if (this.component != null) {
             BulletSetting.CODEC.encodeStart(NbtOps.INSTANCE, this.component)
-                    .resultOrPartial(msg -> OpenTD.log().error(msg + " [Bullet] "))
+                    .resultOrPartial(msg -> Util.error("Bullet Entity error : " + msg))
                     .ifPresent(tag -> compound.put("BulletSettings", tag));
         }
         this.getClientResource().saveTo(compound);
@@ -453,8 +455,10 @@ public class BulletEntity extends Projectile implements IOTDEntity {
         // 专门用于NBT召唤特定子弹。
         if (compound.contains("ComponentLocation")) {
             final ResourceLocation location = new ResourceLocation(compound.getString("ComponentLocation"));
-            HTBulletSettings.SETTINGS.getValue(location).flatMap(l -> BulletSetting.CODEC.encodeStart(NbtOps.INSTANCE, l)
-                    .resultOrPartial(msg -> OpenTD.log().error(msg + " [Read Bullet]"))).ifPresent(nbt -> this.componentTag = (CompoundTag) nbt);
+            final ResourceKey<BulletSetting> resourceKey = OTDBulletSettings.registry().createKey(location);
+            OTDBulletSettings.registry().getOptValue(level(), resourceKey).flatMap(l -> BulletSetting.CODEC.encodeStart(NbtOps.INSTANCE, l)
+                            .resultOrPartial(msg -> Util.error("Bullet Entity read error : " + msg))
+                    ).ifPresent(nbt -> this.componentTag = (CompoundTag) nbt);
         }
         if (compound.contains("TickCount")) {
             this.tickCount = compound.getInt("TickCount");
@@ -463,7 +467,7 @@ public class BulletEntity extends Projectile implements IOTDEntity {
             this.hitCount = compound.getInt("HitCount");
         }
         if (compound.contains("LockTargetEntity")) {
-            this.lockTarget = Optional.ofNullable(level.getEntity(compound.getInt("LockTargetEntity")));
+            this.lockTarget = Optional.ofNullable(level().getEntity(compound.getInt("LockTargetEntity")));
         }
         if (compound.contains("LockTargetPos")) {
             this.lockPos = Optional.of(BlockPos.of(compound.getLong("LockTargetPos")));
@@ -473,7 +477,7 @@ public class BulletEntity extends Projectile implements IOTDEntity {
         }
         if (compound.contains("BulletSettings")) {
             BulletSetting.CODEC.parse(NbtOps.INSTANCE, compound.get("BulletSettings"))
-                    .resultOrPartial(msg -> OpenTD.log().error(msg + " [Bullet] "))
+                    .resultOrPartial(msg -> Util.error("Bullet Entity read error : " + msg))
                     .ifPresent(settings -> this.component = settings);
         }
         this.setClientResource(this.getClientResource().readFrom(compound));
@@ -516,7 +520,7 @@ public class BulletEntity extends Projectile implements IOTDEntity {
     public <T> void parseComponent(Codec<T> codec, Consumer<T> consumer) {
         parseComponent(codec, consumer, msg -> {
             if (this.tickCount > 3) {
-                OpenTD.log().error(msg);
+                Util.error("Bullet Entity parse error : " + msg);
             }
         }, () -> {
             if (this.tickCount >= 5) {
@@ -532,37 +536,37 @@ public class BulletEntity extends Projectile implements IOTDEntity {
         return Optional.empty();
     }
 
-    protected PlayState idleOrMove(AnimationEvent<?> event) {
-        final AnimationBuilder builder = new AnimationBuilder();
-        builder.addAnimation("idle", ILoopType.EDefaultLoopTypes.LOOP);
-        event.getController().setAnimation(builder);
-        return PlayState.CONTINUE;
+    protected PlayState idleOrMove(AnimationState<BulletEntity> state) {
+        return state.setAndContinue(DefaultAnimations.IDLE);
     }
 
     @Override
-    public void registerControllers(AnimationData animationData) {
-        animationData.addAnimationController(new AnimationController<>(
-                this,
-                "move_or_idle",
-                0,
-                this::idleOrMove
-        ));
-        animationData.addAnimationController(new AnimationController<>(
-                this,
-                "specific",
-                0,
-                this::specificAnimation
-        ));
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(
+                new AnimationController<>(
+                        this,
+                        "move_or_idle",
+                        0,
+                        this::idleOrMove
+                ),
+                new AnimationController<>(
+                        this,
+                        "specific",
+                        0,
+                        this::specificAnimation
+                )
+        );
     }
 
     @Override
-    public AnimationFactory getFactory() {
-        return factory;
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return animatableInstanceCache;
     }
 
     @Override
-    public Packet<?> getAddEntityPacket() {
+    public Packet<ClientGamePacketListener> getAddEntityPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
+
 
 }

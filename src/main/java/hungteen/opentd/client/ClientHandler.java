@@ -7,9 +7,10 @@ import hungteen.opentd.client.render.entity.BulletEntityRender;
 import hungteen.opentd.client.render.entity.PlantEntityRender;
 import hungteen.opentd.client.render.entity.TowerEntityRender;
 import hungteen.opentd.client.render.item.CoolDownDecorator;
+import hungteen.opentd.common.codec.SummonEntry;
 import hungteen.opentd.common.entity.OpenTDEntities;
-import hungteen.opentd.common.item.ItemSetting;
-import hungteen.opentd.common.item.OpenTDItems;
+import hungteen.opentd.common.codec.ItemSetting;
+import hungteen.opentd.common.item.OTDItems;
 import hungteen.opentd.common.impl.OTDSummonEntries;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
@@ -37,7 +38,7 @@ public class ClientHandler {
 
     @SubscribeEvent
     public static void bakeModel(ModelEvent.BakingCompleted event) {
-        final ModelResourceLocation key = new ModelResourceLocation(OpenTDItems.SUMMON_TOWER_ITEM.getId(), "inventory");
+        final ModelResourceLocation key = new ModelResourceLocation(OTDItems.SUMMON_TOWER_ITEM.getId(), "inventory");
         final BakedModel oldModel = event.getModels().get(key);
         if (oldModel != null) {
             event.getModels().put(key, new SummonTowerModel(oldModel, event.getModelBakery()));
@@ -47,7 +48,7 @@ public class ClientHandler {
     @SubscribeEvent
     public static void bakeModel(ModelEvent.RegisterAdditional event) {
         OTDSummonEntries.registry().getValues(ClientHelper.mc().level).stream()
-                .map(OTDSummonEntries.SummonEntry::itemSetting)
+                .map(SummonEntry::itemSetting)
                 .map(ItemSetting::model)
                 .map(model -> new ModelResourceLocation(model, "inventory"))
                 .forEach(event::register);
@@ -55,7 +56,7 @@ public class ClientHandler {
 
     @SubscribeEvent
     public static void registerItemRender(RegisterItemDecorationsEvent event) {
-        event.register(OpenTDItems.SUMMON_TOWER_ITEM.get(), new CoolDownDecorator());
+        event.register(OTDItems.SUMMON_TOWER_ITEM.get(), new CoolDownDecorator());
     }
 
 }

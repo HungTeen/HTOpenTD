@@ -1,8 +1,6 @@
 package hungteen.opentd.client.model.entity;
 
 import hungteen.opentd.common.entity.BulletEntity;
-import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib3.model.AnimatedGeoModel;
 
 /**
  * @program: HTOpenTD

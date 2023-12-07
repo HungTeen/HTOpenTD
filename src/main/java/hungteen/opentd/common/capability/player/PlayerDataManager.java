@@ -5,9 +5,11 @@ import hungteen.opentd.common.network.CDPacket;
 import hungteen.opentd.common.network.NetworkHandler;
 import hungteen.opentd.common.impl.OTDSummonEntries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,10 +38,11 @@ public class PlayerDataManager implements IPlayerDataManager {
         CompoundTag tag = new CompoundTag();
         {
             final CompoundTag nbt = new CompoundTag();
-            OTDSummonEntries.SUMMON_ITEMS.getIds().forEach(id -> {
+            OTDSummonEntries.registry().getKeys(getLevel()).forEach(key -> {
                 final CompoundTag tmp = new CompoundTag();
-                tmp.putInt(id.toString() + "_CD", this.getSummonItemCD(id));
-                tmp.putLong(id.toString() + "PT", this.getSummonItemPT(id));
+                final ResourceLocation id = key.location();
+                tmp.putInt(id + "_CD", this.getSummonItemCD(id));
+                tmp.putLong(id + "PT", this.getSummonItemPT(id));
                 nbt.put(id.toString(), tmp);
             });
             tag.put("CoolDowns", nbt);
@@ -52,11 +55,12 @@ public class PlayerDataManager implements IPlayerDataManager {
     public void loadFromNBT(CompoundTag tag) {
         if(tag.contains("CoolDowns")){
             final CompoundTag nbt = tag.getCompound("CoolDowns");
-            OTDSummonEntries.SUMMON_ITEMS.getIds().forEach(id -> {
+            OTDSummonEntries.registry().getKeys(getLevel()).forEach(key -> {
+                final ResourceLocation id = key.location();
                 if(nbt.contains(id.toString())){
                     final CompoundTag tmp = nbt.getCompound(id.toString());
-                    this.summonItemCD.put(id, tmp.getInt(id.toString() + "_CD"));
-                    this.summonItemPT.put(id, tmp.getLong(id.toString() + "_PT"));
+                    this.summonItemCD.put(id, tmp.getInt(id + "_CD"));
+                    this.summonItemPT.put(id, tmp.getLong(id + "_PT"));
                 }
             });
         }
@@ -72,7 +76,7 @@ public class PlayerDataManager implements IPlayerDataManager {
 
     @Override
     public void syncToClient() {
-        OTDSummonEntries.SUMMON_ITEMS.getIds().forEach(this::sendCDPacket);
+        OTDSummonEntries.registry().getKeys(getLevel()).stream().map(ResourceKey::location).forEach(this::sendCDPacket);
     }
 
     public void setSummonItemCD(ResourceLocation id, int tick) {
@@ -113,12 +117,16 @@ public class PlayerDataManager implements IPlayerDataManager {
     }
 
     public long getCurrentTick(){
-        return this.getPlayer().level.getGameTime();
+        return this.getLevel().getGameTime();
     }
 
     @Override
     public Player getPlayer() {
         return player;
+    }
+
+    public Level getLevel(){
+        return getPlayer().level();
     }
 
 }

@@ -2,7 +2,6 @@ package hungteen.opentd.api.interfaces;
 
 import com.mojang.serialization.Codec;
 import hungteen.htlib.api.interfaces.ISimpleEntry;
-import hungteen.htlib.api.interfaces.raid.IPlaceComponent;
 
 /**
  * @program: HTOpenTD

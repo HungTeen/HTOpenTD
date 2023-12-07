@@ -3,7 +3,7 @@
   "item.opentd.test_pea_shooter_card": "Peashooter Card (Test)",
   "item.opentd.test_sun_flower_card": "Sunflower Card (Test)",
 
-  "itemGroup.otd_cards": "Open Tower Defence",
+  "itemGroup.otd.summon_cards": "Open Tower Defence",
 
   "tip.opentd.wrong_block": "Can not place on this block",
   "tip.opentd.wrong_entity": "Can not place on this entity",

@@ -38,7 +38,7 @@ import java.util.Optional;
  **/
 public interface OTDTowerComponents {
 
-    HTCodecRegistry<ITowerComponent> TOWERS = HTRegistryManager.create(Util.prefix("tower_settings", OTDTowerTypes::getCodec));
+    HTCodecRegistry<ITowerComponent> TOWERS = HTRegistryManager.create(Util.prefix("tower_settings"), OTDTowerComponents::getDirectCodec);
 
     ResourceKey<ITowerComponent> PEA_SHOOTER = create("pea_shooter");
     ResourceKey<ITowerComponent> SUN_FLOWER = create("sun_flower");

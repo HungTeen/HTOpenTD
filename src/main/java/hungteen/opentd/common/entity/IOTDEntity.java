@@ -5,11 +5,10 @@ import hungteen.opentd.OpenTD;
 import hungteen.opentd.common.codec.RenderSetting;
 import net.minecraft.nbt.NbtOps;
 import net.minecraftforge.entity.IEntityAdditionalSpawnData;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.PlayState;
-import software.bernie.geckolib3.core.builder.AnimationBuilder;
-import software.bernie.geckolib3.core.builder.ILoopType;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
+import software.bernie.geckolib.animatable.GeoEntity;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.object.PlayState;
 
 import java.util.function.Consumer;
 
@@ -18,7 +17,7 @@ import java.util.function.Consumer;
  * @program HTOpenTD
  * @data 2023/6/7 11:12
  */
-public interface IOTDEntity extends IAnimatable, IEntityAdditionalSpawnData, IEntityForKJS{
+public interface IOTDEntity extends GeoEntity, IEntityAdditionalSpawnData, IEntityForKJS{
 
     RenderSetting getRenderSetting();
 
@@ -28,14 +27,13 @@ public interface IOTDEntity extends IAnimatable, IEntityAdditionalSpawnData, IEn
                 .ifPresentOrElse(consumer,emptyRunnable);
     }
 
-    default PlayState specificAnimation(AnimationEvent<?> event) {
-        final AnimationBuilder builder = new AnimationBuilder();
+    default PlayState specificAnimation(AnimationState<?> state) {
         if (this.getCurrentAnimation().isPresent()){
             builder.addAnimation(this.getCurrentAnimation().get(), ILoopType.EDefaultLoopTypes.PLAY_ONCE);
         } else {
-            event.getController().markNeedsReload();
+            state.resetCurrentAnimation();
+            return PlayState.STOP;
         }
-        event.getController().setAnimation(builder);
         return PlayState.CONTINUE;
     }
 }

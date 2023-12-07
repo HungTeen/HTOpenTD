@@ -6,7 +6,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.Nullable;
+
+import javax.annotation.Nullable;
 
 /**
  * @program: HTOpenTD
@@ -15,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
  **/
 public interface ITowerComponent {
 
+    @Nullable
     Entity createEntity(ServerLevel level, Player player, ItemStack stack, BlockPos pos);
 
     default CompoundTag getExtraNBT(){

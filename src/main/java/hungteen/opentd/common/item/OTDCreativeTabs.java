@@ -2,9 +2,11 @@ package hungteen.opentd.common.item;
 
 import hungteen.htlib.util.helper.StringHelper;
 import hungteen.htlib.util.helper.registry.ItemHelper;
+import hungteen.opentd.common.codec.SummonEntry;
+import hungteen.opentd.common.impl.OTDSummonEntries;
 import hungteen.opentd.util.Util;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
@@ -23,21 +25,13 @@ public interface OTDCreativeTabs {
 
     DeferredRegister<CreativeModeTab> TABS = ItemHelper.tab().createRegister(Util.id());
 
-    RegistryObject<CreativeModeTab> MATERIALS = register("materials", builder ->
-                    builder.icon(() -> new ItemStack((IMMBlocks.GANODERMA.get())))
+    RegistryObject<CreativeModeTab> SUMMON_CARDS = register("summon_cards", builder ->
+                    builder.icon(() -> new ItemStack((OTDItems.SUMMON_TOWER_ITEM.get())))
                             .withTabsBefore(CreativeModeTabs.SPAWN_EGGS)
                             .displayItems((parameters, output) -> {
-                                Util.get().filterValues(ItemHelper.get(), item -> {
-//                                    if(itemSet.contains(item)) return false; // 已经被添加，不再考虑。
-//                                    if(item instanceof ElixirItem) return false; // 排除丹药。
-//                                    if(item instanceof SecretManualItem) return false; // 排除秘籍。
-//                                    if(item instanceof IArtifactItem) return false; // 排除物品法器。
-//                                    if(item instanceof BlockItem blockItem) {
-//                                        if (blockItem.getBlock() instanceof IArtifactBlock) return false; // 排除方块法器。
-//                                        if(blockItem.getBlock() instanceof CushionBlock) return false; // 排除坐垫。
-//                                    }
-//                                    if(item instanceof RuneItem) return false;
-                                    return true;
+                                HolderLookup.RegistryLookup<SummonEntry> summonEntries = parameters.holders().lookupOrThrow(OTDSummonEntries.registry().getRegistryKey());
+                                summonEntries.listElementIds().map(key -> {
+                                    return SummonTowerItem.create(key, summonEntries.getOrThrow(key).get());
                                 }).forEach(output::accept);
                             })
     );

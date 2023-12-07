@@ -1,9 +1,7 @@
 package hungteen.opentd.common.item;
 
 import hungteen.opentd.OpenTD;
-import hungteen.opentd.common.OpenTDSounds;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.RecordItem;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -14,7 +12,7 @@ import net.minecraftforge.registries.RegistryObject;
  * @author: HungTeen
  * @create: 2022-12-16 12:08
  **/
-public class OpenTDItems {
+public class OTDItems {
 
     private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, OpenTD.MOD_ID);
 

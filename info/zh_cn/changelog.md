@@ -5,7 +5,7 @@
 #### Bug修复
 #### 其他改变
 * 召唤卡的item_settings改名item_setting，tower_settings改名tower_setting。
-* 取消item_settings独立数据包文件夹。
+* 取消item_settings独立数据包文件夹,item_setting中的requirement字段移动到平级。
 ## 1.19.x
 ### 1.19.2-1.2.2
 #### 新内容

@@ -4,7 +4,6 @@ import hungteen.htlib.util.helper.PlayerHelper;
 import hungteen.opentd.common.capability.OpenTDCapabilities;
 import hungteen.opentd.common.capability.player.PlayerCapability;
 import hungteen.opentd.common.capability.player.PlayerDataManager;
-import hungteen.opentd.common.item.OpenTDItems;
 import hungteen.opentd.common.item.SummonTowerItem;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;

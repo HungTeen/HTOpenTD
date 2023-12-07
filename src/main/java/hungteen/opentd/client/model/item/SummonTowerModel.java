@@ -1,6 +1,6 @@
 package hungteen.opentd.client.model.item;
 
-import hungteen.opentd.common.item.ItemSetting;
+import hungteen.opentd.common.codec.ItemSetting;
 import hungteen.opentd.common.item.SummonTowerItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -9,10 +9,9 @@ import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.ModelBakery;
-import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.resources.model.*;
 import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -22,6 +21,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * @program: HTOpenTD
@@ -36,16 +36,36 @@ public class SummonTowerModel implements BakedModel {
         this.defaultModel = model;
         BlockModel missing = (BlockModel) loader.getModel(ModelBakery.MISSING_MODEL_LOCATION);
 
-        this.itemHandler = new ItemOverrides(loader, missing, id -> missing, Collections.emptyList()) {
+        this.itemHandler = new ItemOverrides(new ModelBaker() {
+
+            @Override
+            public @org.jetbrains.annotations.Nullable BakedModel bake(ResourceLocation location, ModelState state, Function<Material, TextureAtlasSprite> sprites) {
+                return null;
+            }
+
+            @Override
+            public Function<Material, TextureAtlasSprite> getModelTextureGetter() {
+                return null;
+            }
+
+            @Override
+            public UnbakedModel getModel(ResourceLocation p_252194_) {
+                return null;
+            }
+
+            @org.jetbrains.annotations.Nullable
+            @Override
+            public BakedModel bake(ResourceLocation p_250776_, ModelState p_251280_) {
+                return null;
+            }
+
+        }, missing, Collections.emptyList()) {
             @Override
             public BakedModel resolve(@NotNull BakedModel original, @NotNull ItemStack stack,
                                       @Nullable ClientLevel world, @Nullable LivingEntity entity, int seed) {
-                ItemSetting itemSettings = SummonTowerItem.getItemSettings(stack);
-                if (itemSettings != null) {
-                    ModelResourceLocation modelPath = new ModelResourceLocation(itemSettings.model(), "inventory");
-                    return Minecraft.getInstance().getModelManager().getModel(modelPath);
-                }
-                return original;
+                ItemSetting itemSettings = SummonTowerItem.getItemSetting(stack);
+                ModelResourceLocation modelPath = new ModelResourceLocation(itemSettings.model(), "inventory");
+                return Minecraft.getInstance().getModelManager().getModel(modelPath);
             }
         };
     }

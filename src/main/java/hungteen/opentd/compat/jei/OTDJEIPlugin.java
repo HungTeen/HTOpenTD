@@ -1,11 +1,10 @@
 package hungteen.opentd.compat.jei;
 
 import hungteen.opentd.OpenTD;
-import hungteen.opentd.common.item.OpenTDItems;
+import hungteen.opentd.common.item.OTDItems;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.registration.ISubtypeRegistration;
-import net.minecraft.Util;
 import net.minecraft.resources.ResourceLocation;
 
 @JeiPlugin
@@ -15,7 +14,7 @@ public class OTDJEIPlugin implements IModPlugin {
 
     @Override
     public void registerItemSubtypes(ISubtypeRegistration registration) {
-        registration.registerSubtypeInterpreter(OpenTDItems.SUMMON_TOWER_ITEM.get(), SummonCardInterpreter.INSTANCE);
+        registration.registerSubtypeInterpreter(OTDItems.SUMMON_TOWER_ITEM.get(), SummonCardInterpreter.INSTANCE);
     }
 
     @Override

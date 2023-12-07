@@ -49,4 +49,20 @@ public class Util {
     public static String toString(ResourceKey<?> resourceKey){
         return resourceKey.registry() + ":" + resourceKey.location();
     }
+
+    public static void error(String message, Object... arguments){
+        LOGGER.error(message, arguments);
+    }
+
+    public static void debug(String message, Object... arguments){
+        LOGGER.debug(message, arguments);
+    }
+
+    public static void warn(String message, Object... arguments){
+        LOGGER.warn(message, arguments);
+    }
+
+    public static void info(String message, Object... arguments){
+        LOGGER.info(message, arguments);
+    }
 }

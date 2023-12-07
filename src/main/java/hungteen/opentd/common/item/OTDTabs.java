@@ -2,7 +2,6 @@ package hungteen.opentd.common.item;
 
 import hungteen.htlib.util.helper.StringHelper;
 import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 /**
@@ -15,7 +14,7 @@ public class OTDTabs {
     public static final CreativeModeTab CARDS = new CreativeModeTab("otd_cards") {
         @Override
         public ItemStack makeIcon() {
-            return new ItemStack(OpenTDItems.SUMMON_TOWER_ITEM.get());
+            return new ItemStack(OTDItems.SUMMON_TOWER_ITEM.get());
         }
 
         @Override
