@@ -46,7 +46,7 @@ public record EffectEffectComponent(boolean self, List<ParticleSetting> particle
 
     @Override
     public IEffectComponentType<?> getType() {
-        return HTEffectComponents.EFFECT_EFFECT;
+        return OTDEffectComponentTypes.EFFECT_EFFECT;
     }
 
 }

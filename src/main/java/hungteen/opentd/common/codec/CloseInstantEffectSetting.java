@@ -4,9 +4,8 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import hungteen.opentd.api.interfaces.IEffectComponent;
 import hungteen.opentd.api.interfaces.ITargetFilter;
-import hungteen.opentd.common.impl.effect.HTEffectComponents;
-import hungteen.opentd.common.impl.filter.HTTargetFilters;
-import hungteen.opentd.common.impl.tower.PVZPlantComponent;
+import hungteen.opentd.common.impl.effect.OTDEffectComponentTypes;
+import hungteen.opentd.common.impl.filter.OTDTargetFilterTypes;
 import net.minecraft.sounds.SoundEvent;
 
 import java.util.Optional;
@@ -20,8 +19,8 @@ public record CloseInstantEffectSetting(double closeRange, int instantTick, ITar
     public static final Codec<CloseInstantEffectSetting> CODEC = RecordCodecBuilder.<CloseInstantEffectSetting>mapCodec(instance -> instance.group(
             Codec.doubleRange(0, Double.MAX_VALUE).optionalFieldOf("close_range", 3D).forGetter(CloseInstantEffectSetting::closeRange),
             Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("instant_tick", 30).forGetter(CloseInstantEffectSetting::instantTick),
-            HTTargetFilters.getCodec().fieldOf("target_filter").forGetter(CloseInstantEffectSetting::targetFilter),
+            OTDTargetFilterTypes.getCodec().fieldOf("target_filter").forGetter(CloseInstantEffectSetting::targetFilter),
             Codec.optionalField("instant_sound", SoundEvent.CODEC).forGetter(CloseInstantEffectSetting::instantSound),
-            HTEffectComponents.getCodec().fieldOf("effect").forGetter(CloseInstantEffectSetting::effect)
+            OTDEffectComponentTypes.getCodec().fieldOf("effect").forGetter(CloseInstantEffectSetting::effect)
     ).apply(instance, CloseInstantEffectSetting::new)).codec();
 }

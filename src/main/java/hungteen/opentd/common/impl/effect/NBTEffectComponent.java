@@ -41,6 +41,6 @@ public record NBTEffectComponent(CompoundTag nbt, boolean self) implements IEffe
 
     @Override
     public IEffectComponentType<?> getType() {
-        return HTEffectComponents.NBT_EFFECT;
+        return OTDEffectComponentTypes.NBT_EFFECT;
     }
 }

@@ -18,7 +18,7 @@ import java.util.List;
 public record ListEffectComponent(List<IEffectComponent> effects) implements IEffectComponent {
 
     public static final Codec<ListEffectComponent> CODEC = RecordCodecBuilder.<ListEffectComponent>mapCodec(instance -> instance.group(
-            HTEffectComponents.getCodec().listOf().fieldOf("effects").forGetter(ListEffectComponent::effects)
+            OTDEffectComponentTypes.getCodec().listOf().fieldOf("effects").forGetter(ListEffectComponent::effects)
     ).apply(instance, ListEffectComponent::new)).codec();
 
     @Override
@@ -33,6 +33,6 @@ public record ListEffectComponent(List<IEffectComponent> effects) implements IEf
 
     @Override
     public IEffectComponentType<?> getType() {
-        return HTEffectComponents.LIST_EFFECT;
+        return OTDEffectComponentTypes.LIST_EFFECT;
     }
 }

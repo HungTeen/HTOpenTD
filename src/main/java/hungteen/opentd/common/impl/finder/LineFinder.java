@@ -7,7 +7,7 @@ import hungteen.htlib.util.helper.registry.EntityHelper;
 import hungteen.opentd.api.interfaces.ITargetFilter;
 import hungteen.opentd.api.interfaces.ITargetFinder;
 import hungteen.opentd.api.interfaces.ITargetFinderType;
-import hungteen.opentd.common.impl.filter.HTTargetFilters;
+import hungteen.opentd.common.impl.filter.OTDTargetFilterTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.EntityHitResult;
@@ -28,7 +28,7 @@ public record LineFinder(float horizontalDegree, float verticalDegree, float len
             Codec.FLOAT.optionalFieldOf("horizontal_degree", 0F).forGetter(LineFinder::horizontalDegree),
             Codec.FLOAT.optionalFieldOf("vertical_degree", 0F).forGetter(LineFinder::verticalDegree),
             Codec.floatRange(0, Float.MAX_VALUE).fieldOf("length").forGetter(LineFinder::length),
-            HTTargetFilters.getCodec().fieldOf("target_filter").forGetter(LineFinder::targetFilter)
+            OTDTargetFilterTypes.getCodec().fieldOf("target_filter").forGetter(LineFinder::targetFilter)
     ).apply(instance, LineFinder::new)).codec();
 
     @Override
@@ -50,6 +50,6 @@ public record LineFinder(float horizontalDegree, float verticalDegree, float len
 
     @Override
     public ITargetFinderType<?> getType() {
-        return HTTargetFinders.LINE_FINDER;
+        return OTDTargetFinderTypes.LINE_FINDER;
     }
 }

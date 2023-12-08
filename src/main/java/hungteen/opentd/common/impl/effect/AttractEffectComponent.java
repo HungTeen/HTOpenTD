@@ -6,7 +6,7 @@ import hungteen.opentd.api.interfaces.IEffectComponent;
 import hungteen.opentd.api.interfaces.IEffectComponentType;
 import hungteen.opentd.api.interfaces.ITargetFilter;
 import hungteen.opentd.common.impl.filter.AlwaysTrueFilter;
-import hungteen.opentd.common.impl.filter.HTTargetFilters;
+import hungteen.opentd.common.impl.filter.OTDTargetFilterTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -23,8 +23,8 @@ import java.util.Optional;
 public record AttractEffectComponent(ITargetFilter targetFilter, Optional<ITargetFilter> attractFilter) implements IEffectComponent {
 
     public static final Codec<AttractEffectComponent> CODEC = RecordCodecBuilder.<AttractEffectComponent>mapCodec(instance -> instance.group(
-            HTTargetFilters.getCodec().optionalFieldOf("target_filter", AlwaysTrueFilter.INSTANCE).forGetter(AttractEffectComponent::targetFilter),
-            Codec.optionalField("attract_filter", HTTargetFilters.getCodec()).forGetter(AttractEffectComponent::attractFilter)
+            OTDTargetFilterTypes.getCodec().optionalFieldOf("target_filter", AlwaysTrueFilter.INSTANCE).forGetter(AttractEffectComponent::targetFilter),
+            Codec.optionalField("attract_filter", OTDTargetFilterTypes.getCodec()).forGetter(AttractEffectComponent::attractFilter)
     ).apply(instance, AttractEffectComponent::new)).codec();
 
     @Override
@@ -48,6 +48,6 @@ public record AttractEffectComponent(ITargetFilter targetFilter, Optional<ITarge
 
     @Override
     public IEffectComponentType<?> getType() {
-        return HTEffectComponents.ATTRACT_EFFECT;
+        return OTDEffectComponentTypes.ATTRACT_EFFECT;
     }
 }

@@ -37,6 +37,6 @@ public record TagTargetFilter(Optional<TagKey<EntityType<?>>> typeTag, Optional<
 
     @Override
     public ITargetFilterType<?> getType() {
-        return HTTargetFilters.TAG_FILTER;
+        return OTDTargetFilterTypes.TAG_FILTER;
     }
 }

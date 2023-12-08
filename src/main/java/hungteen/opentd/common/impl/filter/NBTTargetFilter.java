@@ -30,6 +30,6 @@ public record NBTTargetFilter(CompoundTag selfNbt, CompoundTag targetNbt) implem
 
     @Override
     public ITargetFilterType<?> getType() {
-        return HTTargetFilters.NBT_FILTER;
+        return OTDTargetFilterTypes.NBT_FILTER;
     }
 }

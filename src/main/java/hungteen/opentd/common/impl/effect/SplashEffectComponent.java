@@ -6,7 +6,7 @@ import hungteen.htlib.util.helper.registry.EntityHelper;
 import hungteen.opentd.api.interfaces.IEffectComponent;
 import hungteen.opentd.api.interfaces.IEffectComponentType;
 import hungteen.opentd.api.interfaces.ITargetFilter;
-import hungteen.opentd.common.impl.filter.HTTargetFilters;
+import hungteen.opentd.common.impl.filter.OTDTargetFilterTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -23,8 +23,8 @@ public record SplashEffectComponent(double radius, double height, boolean isCirc
             Codec.doubleRange(0, Double.MAX_VALUE).optionalFieldOf("radius", 1D).forGetter(SplashEffectComponent::radius),
             Codec.doubleRange(0, Double.MAX_VALUE).optionalFieldOf("height", 1D).forGetter(SplashEffectComponent::height),
             Codec.BOOL.optionalFieldOf("is_circle", true).forGetter(SplashEffectComponent::isCircle),
-            HTTargetFilters.getCodec().fieldOf("filter").forGetter(SplashEffectComponent::filter),
-            HTEffectComponents.getCodec().fieldOf("effect").forGetter(SplashEffectComponent::effect)
+            OTDTargetFilterTypes.getCodec().fieldOf("filter").forGetter(SplashEffectComponent::filter),
+            OTDEffectComponentTypes.getCodec().fieldOf("effect").forGetter(SplashEffectComponent::effect)
     ).apply(instance, SplashEffectComponent::new)).codec();
 
     @Override
@@ -47,6 +47,6 @@ public record SplashEffectComponent(double radius, double height, boolean isCirc
 
     @Override
     public IEffectComponentType<?> getType() {
-        return HTEffectComponents.SPLASH_EFFECT;
+        return OTDEffectComponentTypes.SPLASH_EFFECT;
     }
 }

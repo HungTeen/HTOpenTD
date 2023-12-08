@@ -4,12 +4,10 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import hungteen.opentd.api.interfaces.IEffectComponent;
 import hungteen.opentd.api.interfaces.ITargetFilter;
-import hungteen.opentd.common.impl.effect.HTEffectComponents;
-import hungteen.opentd.common.impl.filter.HTTargetFilters;
+import hungteen.opentd.common.impl.effect.OTDEffectComponentTypes;
+import hungteen.opentd.common.impl.filter.OTDTargetFilterTypes;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvent;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -23,9 +21,9 @@ public record LaserGoalSetting(int coolDown, int duration, int effectInterval, I
             Codec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("cool_down", 100).forGetter(LaserGoalSetting::coolDown),
             Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("duration", 80).forGetter(LaserGoalSetting::duration),
             Codec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("effect_interval", 1).forGetter(LaserGoalSetting::effectInterval),
-            HTTargetFilters.getCodec().fieldOf("laser_filter").forGetter(LaserGoalSetting::laserFilter),
-            HTEffectComponents.getCodec().fieldOf("continue_effect").forGetter(LaserGoalSetting::continueEffect),
-            HTEffectComponents.getCodec().fieldOf("final_effect").forGetter(LaserGoalSetting::finalEffect),
+            OTDTargetFilterTypes.getCodec().fieldOf("laser_filter").forGetter(LaserGoalSetting::laserFilter),
+            OTDEffectComponentTypes.getCodec().fieldOf("continue_effect").forGetter(LaserGoalSetting::continueEffect),
+            OTDEffectComponentTypes.getCodec().fieldOf("final_effect").forGetter(LaserGoalSetting::finalEffect),
             Codec.floatRange(0, Float.MAX_VALUE).optionalFieldOf("laser_width", 0.5F).forGetter(LaserGoalSetting::laserWidth),
             Codec.doubleRange(0, Double.MAX_VALUE).optionalFieldOf("track_distance", 10D).forGetter(LaserGoalSetting::trackDistance),
             Codec.doubleRange(0, Double.MAX_VALUE).optionalFieldOf("laser_distance", 15D).forGetter(LaserGoalSetting::laserDistance),

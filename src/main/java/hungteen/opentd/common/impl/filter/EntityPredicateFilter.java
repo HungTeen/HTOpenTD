@@ -38,7 +38,7 @@ public record EntityPredicateFilter(EntityPredicate ownerPredicate, EntityPredic
 
     @Override
     public ITargetFilterType<?> getType() {
-        return HTTargetFilters.ENTITY_PREDICATE_FILTER;
+        return OTDTargetFilterTypes.ENTITY_PREDICATE_FILTER;
     }
 
 }

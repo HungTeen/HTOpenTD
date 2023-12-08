@@ -29,7 +29,7 @@ public record TypeTargetFilter(List<EntityType<?>> types) implements ITargetFilt
 
     @Override
     public ITargetFilterType<?> getType() {
-        return HTTargetFilters.TYPE_FILTER;
+        return OTDTargetFilterTypes.TYPE_FILTER;
     }
 
 }

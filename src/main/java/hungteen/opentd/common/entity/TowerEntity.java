@@ -1,14 +1,17 @@
 package hungteen.opentd.common.entity;
 
 import com.mojang.serialization.Codec;
+import hungteen.htlib.util.helper.CodecHelper;
+import hungteen.htlib.util.helper.JavaHelper;
 import hungteen.htlib.util.helper.RandomHelper;
 import hungteen.htlib.util.helper.registry.EntityHelper;
-import hungteen.opentd.OpenTD;
+import hungteen.opentd.api.interfaces.ITowerComponent;
 import hungteen.opentd.common.codec.*;
 import hungteen.opentd.common.entity.ai.*;
 import hungteen.opentd.common.event.events.ShootBulletEvent;
 import hungteen.opentd.common.impl.tower.OTDTowerComponents;
 import hungteen.opentd.util.EntityUtil;
+import hungteen.opentd.util.Util;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
@@ -19,6 +22,7 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerLevel;
@@ -40,18 +44,17 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Team;
+import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.PlayState;
-import software.bernie.geckolib3.core.builder.AnimationBuilder;
-import software.bernie.geckolib3.core.builder.ILoopType;
-import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.core.manager.AnimationData;
-import software.bernie.geckolib3.core.manager.AnimationFactory;
-import software.bernie.geckolib3.util.GeckoLibUtil;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.object.PlayState;
+import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.List;
 import java.util.Optional;
@@ -75,7 +78,7 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
     private static final EntityDataAccessor<Boolean> RESTING = SynchedEntityData.defineId(TowerEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> ATTACK_TARGET = SynchedEntityData.defineId(TowerEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<ClientEntityResource> CLIENT_RES = SynchedEntityData.defineId(TowerEntity.class, OTDSerializers.CLIENT_ENTITY_RES.get());
-    private final AnimationFactory factory = GeckoLibUtil.createFactory(this);
+    private final AnimatableInstanceCache animatableInstanceCache = GeckoLibUtil.createInstanceCache(this);
     private CompoundTag componentTag = new CompoundTag();
     private ServerBossEvent bossEvent;
     public int preShootTick = 0;
@@ -124,8 +127,8 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
     @Override
     protected void registerGoals() {
         if (this.getComponent() != null) {
-            this.targetSelector.removeAllGoals();
-            this.goalSelector.removeAllGoals();
+            this.targetSelector.removeAllGoals(JavaHelper::alwaysTrue);
+            this.goalSelector.removeAllGoals(JavaHelper::alwaysTrue);
             this.getComponent().targetSettings().forEach(targetSettings -> {
                 this.targetSelector.addGoal(targetSettings.priority(), new TowerTargetGoal(this, targetSettings));
             });
@@ -187,12 +190,12 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
     public void updateMovement() {
         this.getComponent().movementSetting().ifPresent(l -> {
             l.navigationSetting().ifPresent(t -> {
-                this.navigation = t.getNavigator(this.level, this);
+                this.navigation = t.getNavigator(this.level(), this);
                 t.nodeWeightList().forEach(pair -> {
                     try {
                         this.setPathfindingMalus(BlockPathTypes.valueOf(pair.getFirst()), pair.getSecond());
                     } catch (IllegalArgumentException e) {
-                        OpenTD.log().error("Unable to find path type for {}", pair.getFirst());
+                        Util.error("Unable to find path type for {}", pair.getFirst());
                     }
                 });
             });
@@ -216,7 +219,7 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
         if (this.getComponent() != null && this.tickCount <= 5) {
             this.refreshDimensions();
         }
-        if (this.level instanceof ServerLevel) {
+        if (this.level() instanceof ServerLevel serverLevel) {
             // 延迟更新防御塔的行为。
             if (!this.updated && this.getComponent() != null) {
                 this.updated = true;
@@ -225,9 +228,9 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
             // 距离灰烬植物。
             if (this.getComponent() != null && this.getTarget() != null) {
                 this.getComponent().instantEffectSetting().ifPresent(l -> {
-                    if (l.targetFilter().match((ServerLevel) this.level, this, this.getTarget()) && this.distanceTo(this.getTarget()) < l.closeRange()) {
+                    if (l.targetFilter().match(serverLevel, this, this.getTarget()) && this.distanceTo(this.getTarget()) < l.closeRange()) {
                         if (this.getInstantTick() >= l.instantTick()) {
-                            l.effect().effectTo((ServerLevel) this.level, this, this.getTarget());
+                            l.effect().effectTo(serverLevel, this, this.getTarget());
                             this.discard();
                         } else {
                             this.setInstantTick(this.getInstantTick() + 1);
@@ -271,7 +274,7 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
 
     @Override
     public void aiStep() {
-        if (this.level.isClientSide && this.isAlive() && this.hasActiveAttackTarget() && this.getLaserSetting() != null) {
+        if (this.level().isClientSide && this.isAlive() && this.hasActiveAttackTarget() && this.getLaserSetting() != null) {
             if (this.clientSideAttackTime < this.getLaserSetting().duration()) {
                 ++this.clientSideAttackTime;
             }
@@ -291,7 +294,7 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
      * attack pea with offsets.
      */
     public void performShoot(ShootGoalSetting.ShootSetting shootSetting) {
-        final BulletEntity bullet = OpenTDEntities.BULLET_ENTITY.get().create(this.level);
+        final BulletEntity bullet = OpenTDEntities.BULLET_ENTITY.get().create(this.level());
         if (bullet != null) {
             final Vec3 vec = this.getViewVector(1F);
             final double deltaY = this.getDimensions(getPose()).height * 0.7F + shootSetting.offset().y;
@@ -304,7 +307,7 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
                 bullet.shootTo(this, shootSetting, vec);
             }
             if (!MinecraftForge.EVENT_BUS.post(new ShootBulletEvent(this, bullet))) {
-                this.level.addFreshEntity(bullet);
+                this.level().addFreshEntity(bullet);
             }
         }
     }
@@ -312,7 +315,7 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
     public void gen(GenGoalSetting.GenSetting genSetting) {
         if (genSetting != null && this.getComponent() != null && this.getComponent().genGoalSetting().isPresent()) {
             for(int i = 0; i < genSetting.count(); ++ i)
-            if (this.level instanceof ServerLevel serverlevel && Level.isInSpawnableBounds(this.blockPosition())) {
+            if (this.level() instanceof ServerLevel serverlevel && Level.isInSpawnableBounds(this.blockPosition())) {
                 CompoundTag compoundtag = genSetting.nbt().copy();
                 compoundtag.putString("id", EntityHelper.get().getKey(genSetting.entityType()).toString());
                 final Vec3 position = this.getEyePosition().add(genSetting.offset());
@@ -335,11 +338,11 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
     }
 
     public void attack() {
-        if (this.getComponent() != null && this.getComponent().attackGoalSetting().isPresent() && this.level instanceof ServerLevel) {
+        if (this.getComponent() != null && this.getComponent().attackGoalSetting().isPresent() && this.level() instanceof ServerLevel serverLevel) {
             if (this.getTarget() != null) {
-                this.getComponent().attackGoalSetting().get().effect().effectTo((ServerLevel) this.level, this, this.getTarget());
+                this.getComponent().attackGoalSetting().get().effect().effectTo(serverLevel, this, this.getTarget());
             } else {
-                this.getComponent().attackGoalSetting().get().effect().effectTo((ServerLevel) this.level, this, this.blockPosition());
+                this.getComponent().attackGoalSetting().get().effect().effectTo(serverLevel, this, this.blockPosition());
             }
             this.getComponent().attackGoalSetting().get().attackSound().ifPresent(this::playSound);
         }
@@ -347,11 +350,11 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
 
     public void rangeEffect() {
         // 范围作用植物。
-        if (this.getComponent() != null) {
+        if (this.getComponent() != null && this.level() instanceof ServerLevel serverLevel) {
             this.getComponent().constantAffectSettings().forEach(setting -> {
                 if (this.tickCount % setting.cd() == 0) {
-                    setting.targetFinder().getTargets((ServerLevel) this.level, this).forEach(target -> {
-                        setting.effect().effectTo((ServerLevel) this.level, this, target);
+                    setting.targetFinder().getTargets(serverLevel, this).forEach(target -> {
+                        setting.effect().effectTo(serverLevel, this, target);
                     });
                 }
             });
@@ -361,12 +364,12 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
     @Override
     public boolean hurt(DamageSource source, float amount) {
         if (super.hurt(source, amount)) {
-            if (this.getComponent() != null && this.level instanceof ServerLevel) {
+            if (this.getComponent() != null  && this.level() instanceof ServerLevel serverLevel) {
                 this.getComponent().hurtEffect().ifPresent(effect -> {
                     if (source.getEntity() != null) {
-                        effect.effectTo((ServerLevel) this.level, this, source.getEntity());
+                        effect.effectTo(serverLevel, this, source.getEntity());
                     } else {
-                        effect.effectTo((ServerLevel) this.level, this, this.blockPosition());
+                        effect.effectTo(serverLevel, this, this.blockPosition());
                     }
                 });
             }
@@ -378,51 +381,46 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
     @Override
     public void die(DamageSource source) {
         super.die(source);
-        if (this.getComponent() != null && this.level instanceof ServerLevel) {
+        if (this.getComponent() != null  && this.level() instanceof ServerLevel serverLevel) {
             this.getComponent().dieEffect().ifPresent(effect -> {
                 if (source.getEntity() != null) {
-                    effect.effectTo((ServerLevel) this.level, this, source.getEntity());
+                    effect.effectTo(serverLevel, this, source.getEntity());
                 } else {
-                    effect.effectTo((ServerLevel) this.level, this, this.blockPosition());
+                    effect.effectTo(serverLevel, this, this.blockPosition());
                 }
             });
         }
     }
 
-    protected PlayState idleOrMove(AnimationEvent<?> event) {
-        final AnimationBuilder builder = new AnimationBuilder();
+    protected PlayState idleOrMove(AnimationState<?> state) {
         if (this.isResting()) {
-            builder.addAnimation("rest", ILoopType.EDefaultLoopTypes.LOOP);
-        } else if (event.isMoving() && this.getComponent() != null && this.getComponent().movementSetting().isPresent()) {
-            builder.addAnimation("move", ILoopType.EDefaultLoopTypes.LOOP);
+            return state.setAndContinue(OTDAnimations.REST);
+        } else if (state.isMoving() && this.getComponent() != null && this.getComponent().movementSetting().isPresent()) {
+            return state.setAndContinue(OTDAnimations.MOVE);
         } else {
-            builder.addAnimation("idle", ILoopType.EDefaultLoopTypes.LOOP);
+            return state.setAndContinue(OTDAnimations.IDLE);
         }
-        event.getController().setAnimation(builder);
-        return PlayState.CONTINUE;
     }
 
-    protected PlayState predicateWorks(AnimationEvent<?> event) {
-        final AnimationBuilder builder = new AnimationBuilder();
+    protected PlayState predicateWorks(AnimationState<?> state) {
         if(this.getCurrentAnimation().isPresent() && this.ignoreWorkAnimation()){
-            event.getController().markNeedsReload();
+            state.resetCurrentAnimation();
+            return PlayState.STOP;
         } else {
             if(this.getComponent() != null && this.getComponent().towerSetting().customDeath() && this.isDeadOrDying()){
-                builder.addAnimation("dead", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
+                return state.setAndContinue(OTDAnimations.DEAD);
             } else if (this.getShootTick() > 0 || this.hasActiveAttackTarget()) {
-                builder.addAnimation("shoot", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
+                return state.setAndContinue(OTDAnimations.SHOOT);
             } else if (this.getGenTick() > 0) {
-                builder.addAnimation("gen", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
+                return state.setAndContinue(OTDAnimations.GEN);
             } else if (this.getAttackTick() > 0) {
-                builder.addAnimation("attack", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
+                return state.setAndContinue(OTDAnimations.ATTACK);
             } else if (this.getInstantTick() > 0) {
-                builder.addAnimation("instant", ILoopType.EDefaultLoopTypes.PLAY_ONCE);
-            } else {
-                event.getController().markNeedsReload();
+                return state.setAndContinue(OTDAnimations.INSTANT);
             }
         }
-        event.getController().setAnimation(builder);
-        return PlayState.CONTINUE;
+        state.resetCurrentAnimation();
+        return PlayState.STOP;
     }
 
     @Override
@@ -437,10 +435,10 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
     @Override
     protected void tickDeath() {
         if(this.getComponent() != null && this.getComponent().towerSetting().customDeath()){
-            if(!this.level.isClientSide()){
+            if(!this.level().isClientSide()){
                 ++ this.deathTime; // Escape vanilla death effects.
                 if (this.deathTime == this.getComponent().towerSetting().deathDuration()) {
-                    this.level.broadcastEntityEvent(this, (byte)60);
+                    this.level().broadcastEntityEvent(this, (byte)60);
                     this.remove(Entity.RemovalReason.KILLED);
                 }
             }
@@ -523,7 +521,7 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
     public <T> void parseComponent(Codec<T> codec, Consumer<T> consumer) {
         parseComponent(codec, consumer, msg -> {
             if (this.tickCount > 3) {
-                OpenTD.log().error(msg);
+                Util.error(msg);
             }
         }, () -> {
             if (this.tickCount >= 5) {
@@ -564,7 +562,7 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
     @javax.annotation.Nullable
     public LivingEntity getOwner() {
         try {
-            return this.getOwnerUUID().isEmpty() ? null : this.level.getPlayerByUUID(this.getOwnerUUID().get());
+            return this.getOwnerUUID().isEmpty() ? null : this.level().getPlayerByUUID(this.getOwnerUUID().get());
         } catch (IllegalArgumentException illegalargumentexception) {
             return null;
         }
@@ -605,8 +603,13 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
     public abstract boolean sameTeamWithOwner();
 
     @Override
-    public boolean rideableUnderWater() {
-        return this.getComponent() != null ? this.getComponent().towerSetting().canRideInWater() : super.rideableUnderWater();
+    public boolean canBeRiddenUnderFluidType(FluidType type, Entity rider) {
+        if(this.getComponent() != null){
+            if (type == ForgeMod.WATER_TYPE.get()){
+                return this.getComponent().towerSetting().canRideInWater();
+            }
+        }
+        return super.canBeRiddenUnderFluidType(type, rider);
     }
 
     @Override
@@ -636,7 +639,7 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
         tag.putBoolean("IgnoreWorkAnimation", this.ignoreWorkAnimation);
         if (this.genSetting != null) {
             GenGoalSetting.GenSetting.CODEC.encodeStart(NbtOps.INSTANCE, this.genSetting)
-                    .resultOrPartial(msg -> OpenTD.log().error(msg + " [Plant Gen]"))
+                    .resultOrPartial(msg -> Util.error("Tower Entity write error : " + msg))
                     .ifPresent(nbt -> tag.put("Production", nbt));
         }
         this.getClientResource().saveTo(tag);
@@ -666,8 +669,10 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
         // 专门用于NBT召唤特定防御塔。
         if (tag.contains("ComponentLocation")) {
             final ResourceLocation location = new ResourceLocation(tag.getString("ComponentLocation"));
-            OTDTowerComponents.registry().getValue(level(), location).flatMap(l -> OTDTowerComponents.getCodec().encodeStart(NbtOps.INSTANCE, l)
-                    .resultOrPartial(msg -> OpenTD.log().error(msg + " [Read Tower]"))).ifPresent(nbt -> this.componentTag = (CompoundTag) nbt);
+            final ResourceKey<ITowerComponent> resourceKey = OTDTowerComponents.registry().createKey(location);
+            OTDTowerComponents.registry().getOptValue(level(), resourceKey).flatMap(l -> CodecHelper.encodeNbt(OTDTowerComponents.getDirectCodec(), l)
+                    .resultOrPartial(msg -> Util.error("Tower entity read error : " + msg))
+            ).ifPresent(nbt -> this.componentTag = (CompoundTag) nbt);
         }
         if (this.getComponent() != null) {
             tag.merge(this.getComponent().getExtraNBT());
@@ -707,7 +712,7 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
         }
         if (tag.contains("Production")) {
             GenGoalSetting.GenSetting.CODEC.parse(NbtOps.INSTANCE, tag.get("Production"))
-                    .resultOrPartial(msg -> OpenTD.log().error(msg + " [Plant Gen]"))
+                    .resultOrPartial(msg -> Util.error("Tower entity read error : " + msg))
                     .ifPresent(settings -> this.genSetting = settings);
         }
         this.setClientResource(this.getClientResource().readFrom(tag));
@@ -792,11 +797,11 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
     public LivingEntity getActiveAttackTarget() {
         if (!this.hasActiveAttackTarget()) {
             return null;
-        } else if (this.level.isClientSide) {
+        } else if (this.level().isClientSide) {
             if (this.clientSideCachedAttackTarget != null) {
                 return this.clientSideCachedAttackTarget;
             } else {
-                Entity entity = this.level.getEntity(this.entityData.get(ATTACK_TARGET));
+                Entity entity = this.level().getEntity(this.entityData.get(ATTACK_TARGET));
                 if (entity instanceof LivingEntity) {
                     this.clientSideCachedAttackTarget = (LivingEntity) entity;
                     return this.clientSideCachedAttackTarget;
@@ -832,30 +837,32 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
     }
 
     @Override
-    public void registerControllers(AnimationData animationData) {
-        animationData.addAnimationController(new AnimationController<>(
-                this,
-                "move_or_idle",
-                0,
-                this::idleOrMove
-        ));
-        animationData.addAnimationController(new AnimationController<>(
-                this,
-                "works",
-                0,
-                this::predicateWorks
-        ));
-        animationData.addAnimationController(new AnimationController<>(
-                this,
-                "specific",
-                0,
-                this::specificAnimation
-        ));
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(
+                new AnimationController<>(
+                        this,
+                        "move_or_idle",
+                        0,
+                        this::idleOrMove
+                ),
+                new AnimationController<>(
+                        this,
+                        "works",
+                        0,
+                        this::predicateWorks
+                ),
+                new AnimationController<>(
+                        this,
+                        "specific",
+                        0,
+                        this::specificAnimation
+                )
+        );
     }
 
     @Override
-    public AnimationFactory getFactory() {
-        return this.factory;
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return animatableInstanceCache;
     }
 
     @Override

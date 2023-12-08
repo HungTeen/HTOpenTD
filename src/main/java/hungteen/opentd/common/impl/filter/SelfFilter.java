@@ -26,6 +26,6 @@ public class SelfFilter implements ITargetFilter {
 
     @Override
     public ITargetFilterType<?> getType() {
-        return HTTargetFilters.SELF_FILTER;
+        return OTDTargetFilterTypes.SELF_FILTER;
     }
 }

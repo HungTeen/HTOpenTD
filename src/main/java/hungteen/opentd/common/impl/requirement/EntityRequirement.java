@@ -6,7 +6,7 @@ import hungteen.htlib.util.helper.PlayerHelper;
 import hungteen.opentd.api.interfaces.ISummonRequirement;
 import hungteen.opentd.api.interfaces.ISummonRequirementType;
 import hungteen.opentd.api.interfaces.ITargetFilter;
-import hungteen.opentd.common.impl.filter.HTTargetFilters;
+import hungteen.opentd.common.impl.filter.OTDTargetFilterTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -25,7 +25,7 @@ public record EntityRequirement(Optional<String> tip, ITargetFilter filter) impl
 
     public static final Codec<EntityRequirement> CODEC = RecordCodecBuilder.<EntityRequirement>mapCodec(instance -> instance.group(
             Codec.optionalField("tip", Codec.STRING).forGetter(EntityRequirement::tip),
-            HTTargetFilters.getCodec().fieldOf("filter").forGetter(EntityRequirement::filter)
+            OTDTargetFilterTypes.getCodec().fieldOf("filter").forGetter(EntityRequirement::filter)
     ).apply(instance, EntityRequirement::new)).codec();
 
     @Override

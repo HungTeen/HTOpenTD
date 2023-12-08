@@ -3,8 +3,7 @@ package hungteen.opentd.common.codec;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import hungteen.opentd.api.interfaces.IEffectComponent;
-import hungteen.opentd.common.impl.effect.HTEffectComponents;
-import hungteen.opentd.common.impl.tower.PVZPlantComponent;
+import hungteen.opentd.common.impl.effect.OTDEffectComponentTypes;
 import net.minecraft.sounds.SoundEvent;
 
 import java.util.Optional;
@@ -23,6 +22,6 @@ public record AttackGoalSetting(int duration, int coolDown, int startTick, boole
             Codec.BOOL.optionalFieldOf("need_rest", false).forGetter(AttackGoalSetting::needRest),
             Codec.doubleRange(0, Double.MAX_VALUE).optionalFieldOf("distance", 3D).forGetter(AttackGoalSetting::distance),
             Codec.optionalField("attack_sound", SoundEvent.CODEC).forGetter(AttackGoalSetting::attackSound),
-            HTEffectComponents.getCodec().fieldOf("effect").forGetter(AttackGoalSetting::effect)
+            OTDEffectComponentTypes.getCodec().fieldOf("effect").forGetter(AttackGoalSetting::effect)
     ).apply(instance, AttackGoalSetting::new)).codec();
 }

@@ -8,7 +8,7 @@ import hungteen.htlib.util.helper.registry.EntityHelper;
 import hungteen.opentd.api.interfaces.ISummonRequirement;
 import hungteen.opentd.api.interfaces.ISummonRequirementType;
 import hungteen.opentd.api.interfaces.ITargetFilter;
-import hungteen.opentd.common.impl.filter.HTTargetFilters;
+import hungteen.opentd.common.impl.filter.OTDTargetFilterTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -33,7 +33,7 @@ public record AroundEntityRequirement(double width, double height, int minCount,
             Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("min_count", 0).forGetter(AroundEntityRequirement::maxCount),
             Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("max_count", Integer.MAX_VALUE).forGetter(AroundEntityRequirement::maxCount),
             Codec.optionalField("tip", Codec.STRING).forGetter(AroundEntityRequirement::tip),
-            HTTargetFilters.getCodec().fieldOf("filter").forGetter(AroundEntityRequirement::filter)
+            OTDTargetFilterTypes.getCodec().fieldOf("filter").forGetter(AroundEntityRequirement::filter)
     ).apply(instance, AroundEntityRequirement::new)).codec();
 
     @Override

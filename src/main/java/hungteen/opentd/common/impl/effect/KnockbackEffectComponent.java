@@ -55,6 +55,6 @@ public record KnockbackEffectComponent (boolean self, boolean horizontalOnly, fl
 
     @Override
     public IEffectComponentType<?> getType() {
-        return HTEffectComponents.KB_EFFECT;
+        return OTDEffectComponentTypes.KB_EFFECT;
     }
 }

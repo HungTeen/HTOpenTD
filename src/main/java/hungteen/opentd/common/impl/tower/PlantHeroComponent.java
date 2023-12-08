@@ -6,7 +6,7 @@ import hungteen.opentd.api.interfaces.IEffectComponent;
 import hungteen.opentd.api.interfaces.ITowerComponentType;
 import hungteen.opentd.common.codec.*;
 import hungteen.opentd.common.entity.OpenTDEntities;
-import hungteen.opentd.common.impl.effect.HTEffectComponents;
+import hungteen.opentd.common.impl.effect.OTDEffectComponentTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
@@ -33,8 +33,8 @@ public class PlantHeroComponent extends TowerComponent {
             Codec.optionalField("laser_goal", LaserGoalSetting.CODEC).forGetter(PlantHeroComponent::laserGoalSetting),
             Codec.optionalField("instant_setting", CloseInstantEffectSetting.CODEC).forGetter(PlantHeroComponent::instantEffectSetting),
             ConstantAffectSetting.CODEC.listOf().optionalFieldOf("constant_settings", Arrays.asList()).forGetter(PlantHeroComponent::constantAffectSettings),
-            Codec.optionalField("hurt_effect", HTEffectComponents.getCodec()).forGetter(PlantHeroComponent::hurtEffect),
-            Codec.optionalField("die_effect", HTEffectComponents.getCodec()).forGetter(PlantHeroComponent::dieEffect),
+            Codec.optionalField("hurt_effect", OTDEffectComponentTypes.getCodec()).forGetter(PlantHeroComponent::hurtEffect),
+            Codec.optionalField("die_effect", OTDEffectComponentTypes.getCodec()).forGetter(PlantHeroComponent::dieEffect),
             Codec.optionalField("boss_bar_setting", BossBarSetting.CODEC).forGetter(PlantHeroComponent::bossBarSetting),
             Codec.optionalField("follow_goal", FollowGoalSetting.CODEC).forGetter(PlantHeroComponent::followGoalSetting)
     ).apply(instance, PlantHeroComponent::new)).codec();

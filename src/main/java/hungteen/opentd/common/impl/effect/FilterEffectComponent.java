@@ -5,7 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import hungteen.opentd.api.interfaces.IEffectComponent;
 import hungteen.opentd.api.interfaces.IEffectComponentType;
 import hungteen.opentd.api.interfaces.ITargetFilter;
-import hungteen.opentd.common.impl.filter.HTTargetFilters;
+import hungteen.opentd.common.impl.filter.OTDTargetFilterTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -18,8 +18,8 @@ import net.minecraft.world.entity.Entity;
 public record FilterEffectComponent(ITargetFilter targetFilter, IEffectComponent effect) implements IEffectComponent{
 
     public static final Codec<FilterEffectComponent> CODEC = RecordCodecBuilder.<FilterEffectComponent>mapCodec(instance -> instance.group(
-            HTTargetFilters.getCodec().fieldOf("filter").forGetter(FilterEffectComponent::targetFilter),
-            HTEffectComponents.getCodec().fieldOf("effect").forGetter(FilterEffectComponent::effect)
+            OTDTargetFilterTypes.getCodec().fieldOf("filter").forGetter(FilterEffectComponent::targetFilter),
+            OTDEffectComponentTypes.getCodec().fieldOf("effect").forGetter(FilterEffectComponent::effect)
     ).apply(instance, FilterEffectComponent::new)).codec();
 
     @Override
@@ -36,6 +36,6 @@ public record FilterEffectComponent(ITargetFilter targetFilter, IEffectComponent
 
     @Override
     public IEffectComponentType<?> getType() {
-        return HTEffectComponents.FILTER_EFFECT;
+        return OTDEffectComponentTypes.FILTER_EFFECT;
     }
 }

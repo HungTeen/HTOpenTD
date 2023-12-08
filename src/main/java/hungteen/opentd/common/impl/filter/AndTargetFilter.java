@@ -17,7 +17,7 @@ import java.util.List;
 public record AndTargetFilter(List<ITargetFilter> filters) implements ITargetFilter {
 
     public static final Codec<AndTargetFilter> CODEC = RecordCodecBuilder.<AndTargetFilter>mapCodec(instance -> instance.group(
-            HTTargetFilters.getCodec().listOf().fieldOf("filters").forGetter(AndTargetFilter::filters)
+            OTDTargetFilterTypes.getCodec().listOf().fieldOf("filters").forGetter(AndTargetFilter::filters)
     ).apply(instance, AndTargetFilter::new)).codec();
 
     @Override
@@ -27,6 +27,6 @@ public record AndTargetFilter(List<ITargetFilter> filters) implements ITargetFil
 
     @Override
     public ITargetFilterType<?> getType() {
-        return HTTargetFilters.AND_FILTER;
+        return OTDTargetFilterTypes.AND_FILTER;
     }
 }

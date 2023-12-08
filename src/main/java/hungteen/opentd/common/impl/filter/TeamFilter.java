@@ -4,11 +4,8 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import hungteen.opentd.api.interfaces.ITargetFilter;
 import hungteen.opentd.api.interfaces.ITargetFilterType;
-import net.minecraft.core.Registry;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.scores.Team;
 
 import java.util.Optional;
@@ -40,6 +37,6 @@ public record TeamFilter(Optional<String> teamName, boolean same, boolean selfEm
 
     @Override
     public ITargetFilterType<?> getType() {
-        return HTTargetFilters.TEAM_FILTER;
+        return OTDTargetFilterTypes.TEAM_FILTER;
     }
 }

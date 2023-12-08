@@ -43,7 +43,6 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Team;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.network.NetworkHooks;
-import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.core.animation.AnimationController;
@@ -537,7 +536,7 @@ public class BulletEntity extends Projectile implements IOTDEntity {
     }
 
     protected PlayState idleOrMove(AnimationState<BulletEntity> state) {
-        return state.setAndContinue(DefaultAnimations.IDLE);
+        return state.setAndContinue(OTDAnimations.IDLE);
     }
 
     @Override

@@ -14,8 +14,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
-import net.minecraft.world.entity.monster.Zombie;
-import net.minecraft.world.item.ChorusFruitItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -122,6 +120,6 @@ public record SummonEffectComponent(int count, int radius, Optional<Integer> max
 
     @Override
     public IEffectComponentType<?> getType() {
-        return HTEffectComponents.SUMMON_EFFECT;
+        return OTDEffectComponentTypes.SUMMON_EFFECT;
     }
 }

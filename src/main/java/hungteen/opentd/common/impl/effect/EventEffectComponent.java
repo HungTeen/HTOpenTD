@@ -34,6 +34,6 @@ public record EventEffectComponent(ResourceLocation id) implements IEffectCompon
 
     @Override
     public IEffectComponentType<?> getType() {
-        return HTEffectComponents.EVENT_EFFECT;
+        return OTDEffectComponentTypes.EVENT_EFFECT;
     }
 }

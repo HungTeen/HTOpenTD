@@ -26,6 +26,6 @@ public class AlwaysTrueFilter implements ITargetFilter {
 
     @Override
     public ITargetFilterType<?> getType() {
-        return HTTargetFilters.ALWAYS_TRUE;
+        return OTDTargetFilterTypes.ALWAYS_TRUE;
     }
 }

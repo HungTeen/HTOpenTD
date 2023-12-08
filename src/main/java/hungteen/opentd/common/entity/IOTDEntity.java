@@ -1,12 +1,10 @@
 package hungteen.opentd.common.entity;
 
 import com.mojang.serialization.Codec;
-import hungteen.opentd.OpenTD;
 import hungteen.opentd.common.codec.RenderSetting;
 import net.minecraft.nbt.NbtOps;
 import net.minecraftforge.entity.IEntityAdditionalSpawnData;
 import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.core.animatable.GeoAnimatable;
 import software.bernie.geckolib.core.animation.AnimationState;
 import software.bernie.geckolib.core.object.PlayState;
 
@@ -28,12 +26,13 @@ public interface IOTDEntity extends GeoEntity, IEntityAdditionalSpawnData, IEnti
     }
 
     default PlayState specificAnimation(AnimationState<?> state) {
-        if (this.getCurrentAnimation().isPresent()){
-            builder.addAnimation(this.getCurrentAnimation().get(), ILoopType.EDefaultLoopTypes.PLAY_ONCE);
-        } else {
-            state.resetCurrentAnimation();
-            return PlayState.STOP;
-        }
+        // TODO 指定动画。
+//        if (this.getCurrentAnimation().isPresent()){
+//            builder.addAnimation(this.getCurrentAnimation().get(), ILoopType.EDefaultLoopTypes.PLAY_ONCE);
+//        } else {
+//            state.resetCurrentAnimation();
+//            return PlayState.STOP;
+//        }
         return PlayState.CONTINUE;
     }
 }

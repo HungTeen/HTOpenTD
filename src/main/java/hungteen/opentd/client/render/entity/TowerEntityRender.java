@@ -2,9 +2,7 @@ package hungteen.opentd.client.render.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Matrix3f;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector3f;
+import com.mojang.math.Axis;
 import hungteen.opentd.common.codec.LaserGoalSetting;
 import hungteen.opentd.common.entity.TowerEntity;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -17,10 +15,10 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib3.geo.render.built.GeoModel;
-import software.bernie.geckolib3.model.AnimatedGeoModel;
-import software.bernie.geckolib3.renderers.geo.GeoEntityRenderer;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
+import software.bernie.geckolib.model.GeoModel;
+import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
 /**
  * @author PangTeen
@@ -32,7 +30,7 @@ public class TowerEntityRender<T extends TowerEntity> extends GeoEntityRenderer<
     private static final ResourceLocation GUARDIAN_BEAM_LOCATION = new ResourceLocation("textures/entity/guardian_beam.png");
     private static final RenderType BEAM_RENDER_TYPE = RenderType.entityCutoutNoCull(GUARDIAN_BEAM_LOCATION);
 
-    public TowerEntityRender(EntityRendererProvider.Context renderManager, AnimatedGeoModel<T> modelProvider) {
+    public TowerEntityRender(EntityRendererProvider.Context renderManager, GeoModel<T> modelProvider) {
         super(renderManager, modelProvider);
     }
 
@@ -67,14 +65,6 @@ public class TowerEntityRender<T extends TowerEntity> extends GeoEntityRenderer<
     }
 
     @Override
-    public void render(GeoModel model, T animatable, float partialTick, RenderType type, PoseStack poseStack, @Nullable MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-        if (animatable.getComponent() != null) {
-            super.render(model, animatable, partialTick, type, poseStack, bufferSource, buffer, packedLight, packedOverlay, red, green, blue, alpha);
-//            this.renderLaser(animatable, partialTick, poseStack, bufferSource);
-        }
-    }
-
-    @Override
     public void render(T animatable, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
         if (animatable.getComponent() != null) {
             super.render(animatable, entityYaw, partialTick, poseStack, bufferSource, packedLight);
@@ -82,19 +72,19 @@ public class TowerEntityRender<T extends TowerEntity> extends GeoEntityRenderer<
         }
     }
 
-    @Override
-    public RenderType getRenderType(T animatable, float partialTick, PoseStack poseStack, @Nullable MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, int packedLight, ResourceLocation texture) {
-        if (animatable.getRenderSetting() != null && animatable.getRenderSetting().translucent()) {
-            return RenderType.entityTranslucent(getTextureLocation(animatable));
-        }
-        return super.getRenderType(animatable, partialTick, poseStack, bufferSource, buffer, packedLight, texture);
-    }
+//    @Override
+//    public RenderType getRenderType(T animatable, float partialTick, PoseStack poseStack, @Nullable MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, int packedLight, ResourceLocation texture) {
+//        if (animatable.getRenderSetting() != null && animatable.getRenderSetting().translucent()) {
+//            return RenderType.entityTranslucent(getTextureLocation(animatable));
+//        } TODO Render type.
+//        return super.getRenderType(animatable, partialTick, poseStack, bufferSource, buffer, packedLight, texture);
+//    }
 
     private void renderLaser(T towerEntity, float partialTick, PoseStack stack, MultiBufferSource bufferSource){
         LivingEntity livingentity = towerEntity.getActiveAttackTarget();
         if (livingentity != null && towerEntity.getLaserSetting() != null) {
             float f = towerEntity.getAttackAnimationScale(towerEntity.getLaserSetting(), partialTick);
-            float f1 = (float)towerEntity.level.getGameTime() + partialTick;
+            float f1 = (float)towerEntity.level().getGameTime() + partialTick;
             float f2 = f1 * 0.5F % 1.0F;
             float f3 = towerEntity.getEyeHeight();
             stack.pushPose();
@@ -106,8 +96,8 @@ public class TowerEntityRender<T extends TowerEntity> extends GeoEntityRenderer<
             vec32 = vec32.normalize();
             float f5 = (float)Math.acos(vec32.y);
             float f6 = (float)Math.atan2(vec32.z, vec32.x);
-            stack.mulPose(Vector3f.YP.rotationDegrees((((float)Math.PI / 2F) - f6) * (180F / (float)Math.PI)));
-            stack.mulPose(Vector3f.XP.rotationDegrees(f5 * (180F / (float)Math.PI)));
+            stack.mulPose(Axis.YP.rotationDegrees((((float)Math.PI / 2F) - f6) * (180F / (float)Math.PI)));
+            stack.mulPose(Axis.XP.rotationDegrees(f5 * (180F / (float)Math.PI)));
             int i = 1;
             float f7 = f1 * 0.05F * -1.5F;
             float f8 = f * f;

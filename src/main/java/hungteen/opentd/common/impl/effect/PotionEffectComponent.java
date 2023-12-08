@@ -51,6 +51,6 @@ public record PotionEffectComponent(MobEffect effect, int duration, int level, b
 
     @Override
     public IEffectComponentType<?> getType() {
-        return HTEffectComponents.POTION_EFFECT;
+        return OTDEffectComponentTypes.POTION_EFFECT;
     }
 }

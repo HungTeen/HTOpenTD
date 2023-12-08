@@ -6,7 +6,6 @@ import hungteen.htlib.common.registry.HTCodecRegistry;
 import hungteen.htlib.common.registry.HTRegistryManager;
 import hungteen.opentd.api.interfaces.ISummonRequirement;
 import hungteen.opentd.api.interfaces.ISummonRequirementType;
-import hungteen.opentd.api.interfaces.ITowerComponent;
 import hungteen.opentd.util.Util;
 import net.minecraft.core.Holder;
 import net.minecraft.data.worldgen.BootstapContext;
@@ -19,7 +18,7 @@ import net.minecraft.resources.ResourceKey;
  **/
 public interface OTDSummonRequirements {
 
-    HTCodecRegistry<ISummonRequirement> REQUIREMENTS = HTRegistryManager.create(Util.prefix("summon_requirements"), OTDSummonRequirements::getCodec);
+    HTCodecRegistry<ISummonRequirement> REQUIREMENTS = HTRegistryManager.create(Util.prefix("summon_requirements"), OTDSummonRequirements::getDirectCodec);
 
     static void register(BootstapContext<ISummonRequirement> context){
 

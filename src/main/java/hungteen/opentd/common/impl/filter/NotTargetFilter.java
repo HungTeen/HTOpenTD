@@ -15,7 +15,7 @@ import net.minecraft.world.entity.Entity;
 public record NotTargetFilter(ITargetFilter filter) implements ITargetFilter {
 
     public static final Codec<NotTargetFilter> CODEC = RecordCodecBuilder.<NotTargetFilter>mapCodec(instance -> instance.group(
-            HTTargetFilters.getCodec().fieldOf("filter").forGetter(NotTargetFilter::filter)
+            OTDTargetFilterTypes.getCodec().fieldOf("filter").forGetter(NotTargetFilter::filter)
     ).apply(instance, NotTargetFilter::new)).codec();
 
     @Override
@@ -25,6 +25,6 @@ public record NotTargetFilter(ITargetFilter filter) implements ITargetFilter {
 
     @Override
     public ITargetFilterType<?> getType() {
-        return HTTargetFilters.NOT_FILTER;
+        return OTDTargetFilterTypes.NOT_FILTER;
     }
 }

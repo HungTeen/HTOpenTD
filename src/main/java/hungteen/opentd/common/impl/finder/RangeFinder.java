@@ -5,7 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import hungteen.opentd.api.interfaces.ITargetFilter;
 import hungteen.opentd.api.interfaces.ITargetFinder;
 import hungteen.opentd.api.interfaces.ITargetFinderType;
-import hungteen.opentd.common.impl.filter.HTTargetFilters;
+import hungteen.opentd.common.impl.filter.OTDTargetFilterTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
@@ -25,7 +25,7 @@ public record RangeFinder(boolean checkSight, float width, float height, ITarget
             Codec.BOOL.optionalFieldOf("check_sight", true).forGetter(RangeFinder::checkSight),
             Codec.floatRange(0, Float.MAX_VALUE).fieldOf("width").forGetter(RangeFinder::width),
             Codec.floatRange(0, Float.MAX_VALUE).fieldOf("height").forGetter(RangeFinder::height),
-            HTTargetFilters.getCodec().fieldOf("target_filter").forGetter(RangeFinder::targetFilter)
+            OTDTargetFilterTypes.getCodec().fieldOf("target_filter").forGetter(RangeFinder::targetFilter)
     ).apply(instance, RangeFinder::new)).codec();
 
     @Override
@@ -58,6 +58,6 @@ public record RangeFinder(boolean checkSight, float width, float height, ITarget
 
     @Override
     public ITargetFinderType<?> getType() {
-        return HTTargetFinders.RANGE_FINDER;
+        return OTDTargetFinderTypes.RANGE_FINDER;
     }
 }

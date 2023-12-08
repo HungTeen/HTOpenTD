@@ -30,7 +30,7 @@ public record EventFilter(ResourceLocation id) implements ITargetFilter {
 
     @Override
     public ITargetFilterType<?> getType() {
-        return HTTargetFilters.EVENT_FILTER;
+        return OTDTargetFilterTypes.EVENT_FILTER;
     }
 
 }

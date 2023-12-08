@@ -5,9 +5,8 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import hungteen.opentd.api.interfaces.IMoveComponent;
 import hungteen.opentd.api.interfaces.IPathNavigationType;
-import hungteen.opentd.common.impl.HTPathNavigations;
+import hungteen.opentd.common.impl.OTDPathNavigations;
 import hungteen.opentd.common.impl.move.HTMoveComponents;
-import hungteen.opentd.common.impl.tower.PVZPlantComponent;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.level.Level;
@@ -34,7 +33,7 @@ public record MovementSetting(Optional<NavigationSetting> navigationSetting, Opt
 
     public record NavigationSetting(IPathNavigationType pathNavigationType, List<Pair<String, Float> > nodeWeightList, boolean canOpenDoors, boolean canPassDoors, boolean canFloat){
         public static final Codec<NavigationSetting> CODEC = RecordCodecBuilder.<NavigationSetting>mapCodec(instance -> instance.group(
-                HTPathNavigations.registry().byNameCodec().fieldOf("navigator").forGetter(NavigationSetting::pathNavigationType),
+                OTDPathNavigations.registry().byNameCodec().fieldOf("navigator").forGetter(NavigationSetting::pathNavigationType),
                 Codec.mapPair(
                         Codec.STRING.fieldOf("type"),
                         Codec.FLOAT.fieldOf("weight")

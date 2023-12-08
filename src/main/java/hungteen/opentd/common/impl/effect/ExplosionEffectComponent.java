@@ -9,7 +9,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraftforge.event.ForgeEventFactory;
 
 /**
@@ -46,6 +45,6 @@ public record ExplosionEffectComponent(boolean canBreak, boolean destroyMode, fl
 
     @Override
     public IEffectComponentType<?> getType() {
-        return HTEffectComponents.EXPLOSION_EFFECT;
+        return OTDEffectComponentTypes.EXPLOSION_EFFECT;
     }
 }

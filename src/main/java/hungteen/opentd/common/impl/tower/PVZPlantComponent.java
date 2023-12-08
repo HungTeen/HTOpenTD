@@ -6,7 +6,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import hungteen.opentd.api.interfaces.*;
 import hungteen.opentd.common.codec.*;
 import hungteen.opentd.common.entity.OpenTDEntities;
-import hungteen.opentd.common.impl.effect.HTEffectComponents;
+import hungteen.opentd.common.impl.effect.OTDEffectComponentTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
@@ -33,8 +33,8 @@ public class PVZPlantComponent extends TowerComponent {
             Codec.optionalField("laser_goal", LaserGoalSetting.CODEC).forGetter(PVZPlantComponent::laserGoalSetting),
             Codec.optionalField("instant_setting", CloseInstantEffectSetting.CODEC).forGetter(PVZPlantComponent::instantEffectSetting),
             ConstantAffectSetting.CODEC.listOf().optionalFieldOf("constant_settings", Arrays.asList()).forGetter(PVZPlantComponent::constantAffectSettings),
-            Codec.optionalField("hurt_effect", HTEffectComponents.getCodec()).forGetter(PVZPlantComponent::hurtEffect),
-            Codec.optionalField("die_effect", HTEffectComponents.getCodec()).forGetter(PVZPlantComponent::dieEffect),
+            Codec.optionalField("hurt_effect", OTDEffectComponentTypes.getCodec()).forGetter(PVZPlantComponent::hurtEffect),
+            Codec.optionalField("die_effect", OTDEffectComponentTypes.getCodec()).forGetter(PVZPlantComponent::dieEffect),
             Codec.optionalField("follow_goal", FollowGoalSetting.CODEC).forGetter(PVZPlantComponent::followGoalSetting)
     ).apply(instance, PVZPlantComponent::new)).codec();
     private final PlantSetting plantSetting;
@@ -92,7 +92,7 @@ public class PVZPlantComponent extends TowerComponent {
                 Codec.intRange(0, Integer.MAX_VALUE).listOf().fieldOf("grow_durations").forGetter(GrowSettings::growDurations),
                 Codec.optionalField("grow_sound", SoundEvent.CODEC).forGetter(GrowSettings::growSound),
                 Codec.mapPair(
-                        HTEffectComponents.getCodec().fieldOf("effect"),
+                        OTDEffectComponentTypes.getCodec().fieldOf("effect"),
                         Codec.intRange(0, Integer.MAX_VALUE).fieldOf("age")
                 ).codec().listOf().fieldOf("grow_effects").forGetter(GrowSettings::growEffects)
         ).apply(instance, GrowSettings::new)).codec();

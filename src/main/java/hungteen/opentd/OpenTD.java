@@ -5,13 +5,16 @@ import hungteen.opentd.common.capability.OpenTDCapabilities;
 import hungteen.opentd.common.effect.OpenTDEffects;
 import hungteen.opentd.common.entity.OTDSerializers;
 import hungteen.opentd.common.entity.OpenTDEntities;
+import hungteen.opentd.common.impl.OTDPathNavigations;
 import hungteen.opentd.common.impl.OTDBulletSettings;
-import hungteen.opentd.common.impl.HTPathNavigations;
 import hungteen.opentd.common.impl.OTDSummonEntries;
-import hungteen.opentd.common.impl.effect.HTEffectComponents;
+import hungteen.opentd.common.impl.effect.OTDEffectComponentTypes;
+import hungteen.opentd.common.impl.effect.OTDEffectComponents;
 import hungteen.opentd.common.impl.filter.ClassFilter;
-import hungteen.opentd.common.impl.filter.HTTargetFilters;
-import hungteen.opentd.common.impl.finder.HTTargetFinders;
+import hungteen.opentd.common.impl.filter.OTDTargetFilterTypes;
+import hungteen.opentd.common.impl.filter.OTDTargetFilters;
+import hungteen.opentd.common.impl.finder.OTDTargetFinderTypes;
+import hungteen.opentd.common.impl.finder.OTDTargetFinders;
 import hungteen.opentd.common.impl.requirement.OTDRequirementTypes;
 import hungteen.opentd.common.impl.tower.OTDTowerComponents;
 import hungteen.opentd.common.impl.tower.OTDTowerTypes;
@@ -65,19 +68,19 @@ public class OpenTD {
         OTDRequirementTypes.registry().register(modBus);
         OTDTowerTypes.registry().register(modBus);
         OTDTowerComponents.registry().register(modBus);
+        OTDTargetFilterTypes.registry().register(modBus);
+        OTDTargetFilters.registry().register(modBus);
+        OTDTargetFinderTypes.registry().register(modBus);
+        OTDTargetFinders.registry().register(modBus);
         OTDBulletSettings.registry().register(modBus);
+        OTDEffectComponentTypes.registry().register(modBus);
+        OTDEffectComponents.registry().register(modBus);
+        ClassFilter.registry().register(modBus);
+        OTDPathNavigations.registry().register(modBus);
     }
 
     public static void setUp(FMLCommonSetupEvent event){
         event.enqueueWork(() -> {
-            ClassFilter.registerClassifiers();
-            HTPathNavigations.register();
-
-            HTEffectComponents.registerStuffs();
-            HTTargetFilters.registerStuffs();
-            HTTargetFinders.registerStuffs();
-
-
         });
         NetworkHandler.init();
     }

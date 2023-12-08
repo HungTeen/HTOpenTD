@@ -56,6 +56,6 @@ public record FunctionEffectComponent(boolean self, CommandFunction.CacheableFun
 
     @Override
     public IEffectComponentType<?> getType() {
-        return HTEffectComponents.FUNCTION_EFFECT;
+        return OTDEffectComponentTypes.FUNCTION_EFFECT;
     }
 }

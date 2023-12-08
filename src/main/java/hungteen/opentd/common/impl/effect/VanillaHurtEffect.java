@@ -37,6 +37,6 @@ public record VanillaHurtEffect(boolean ignoreImmuneTick) implements IEffectComp
 
     @Override
     public IEffectComponentType<?> getType() {
-        return HTEffectComponents.VANILLA_HURT_EFFECT;
+        return OTDEffectComponentTypes.VANILLA_HURT_EFFECT;
     }
 }

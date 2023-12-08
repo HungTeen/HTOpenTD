@@ -56,6 +56,6 @@ public record DamageEffectComponent(boolean ignoreImmuneTick, float amount, floa
 
     @Override
     public IEffectComponentType<?> getType() {
-        return HTEffectComponents.DAMAGE_EFFECT;
+        return OTDEffectComponentTypes.DAMAGE_EFFECT;
     }
 }
