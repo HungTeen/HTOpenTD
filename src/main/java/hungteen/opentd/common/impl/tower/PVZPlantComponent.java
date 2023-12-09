@@ -3,17 +3,18 @@ package hungteen.opentd.common.impl.tower;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import hungteen.opentd.api.interfaces.*;
+import hungteen.opentd.api.interfaces.IEffectComponent;
+import hungteen.opentd.api.interfaces.ITowerComponentType;
 import hungteen.opentd.common.codec.*;
 import hungteen.opentd.common.entity.OpenTDEntities;
-import hungteen.opentd.common.impl.effect.OTDEffectComponentTypes;
+import hungteen.opentd.common.impl.effect.OTDEffectComponents;
+import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,20 +27,20 @@ public class PVZPlantComponent extends TowerComponent {
 
     public static final Codec<PVZPlantComponent> CODEC = RecordCodecBuilder.<PVZPlantComponent>mapCodec(instance -> instance.group(
             PlantSetting.CODEC.fieldOf("plant_setting").forGetter(PVZPlantComponent::plantSetting),
-            TargetSetting.CODEC.listOf().optionalFieldOf("target_settings", Arrays.asList()).forGetter(PVZPlantComponent::targetSettings),
+            TargetSetting.CODEC.listOf().optionalFieldOf("target_settings", List.of()).forGetter(PVZPlantComponent::targetSettings),
             Codec.optionalField("shoot_goal", ShootGoalSetting.CODEC).forGetter(PVZPlantComponent::shootGoalSetting),
             Codec.optionalField("gen_goal", GenGoalSetting.CODEC).forGetter(PVZPlantComponent::genGoalSetting),
             Codec.optionalField("attack_goal", AttackGoalSetting.CODEC).forGetter(PVZPlantComponent::attackGoalSetting),
             Codec.optionalField("laser_goal", LaserGoalSetting.CODEC).forGetter(PVZPlantComponent::laserGoalSetting),
             Codec.optionalField("instant_setting", CloseInstantEffectSetting.CODEC).forGetter(PVZPlantComponent::instantEffectSetting),
-            ConstantAffectSetting.CODEC.listOf().optionalFieldOf("constant_settings", Arrays.asList()).forGetter(PVZPlantComponent::constantAffectSettings),
-            Codec.optionalField("hurt_effect", OTDEffectComponentTypes.getCodec()).forGetter(PVZPlantComponent::hurtEffect),
-            Codec.optionalField("die_effect", OTDEffectComponentTypes.getCodec()).forGetter(PVZPlantComponent::dieEffect),
+            ConstantAffectSetting.CODEC.listOf().optionalFieldOf("constant_settings", List.of()).forGetter(PVZPlantComponent::constantAffectSettings),
+            Codec.optionalField("hurt_effect", OTDEffectComponents.getCodec()).forGetter(PVZPlantComponent::hurtEffect),
+            Codec.optionalField("die_effect", OTDEffectComponents.getCodec()).forGetter(PVZPlantComponent::dieEffect),
             Codec.optionalField("follow_goal", FollowGoalSetting.CODEC).forGetter(PVZPlantComponent::followGoalSetting)
     ).apply(instance, PVZPlantComponent::new)).codec();
     private final PlantSetting plantSetting;
 
-    public PVZPlantComponent(PlantSetting plantSetting, List<TargetSetting> targetSettings, Optional<ShootGoalSetting> shootGoalSetting, Optional<GenGoalSetting> genGoalSetting, Optional<AttackGoalSetting> attackGoalSetting, Optional<LaserGoalSetting> laserGoalSetting, Optional<CloseInstantEffectSetting> instantEffectSetting, List<ConstantAffectSetting> constantAffectSettings, Optional<IEffectComponent> hurtEffect, Optional<IEffectComponent> dieEffect, Optional<FollowGoalSetting> followGoalSetting) {
+    public PVZPlantComponent(PlantSetting plantSetting, List<TargetSetting> targetSettings, Optional<ShootGoalSetting> shootGoalSetting, Optional<GenGoalSetting> genGoalSetting, Optional<AttackGoalSetting> attackGoalSetting, Optional<LaserGoalSetting> laserGoalSetting, Optional<CloseInstantEffectSetting> instantEffectSetting, List<ConstantAffectSetting> constantAffectSettings, Optional<Holder<IEffectComponent>> hurtEffect, Optional<Holder<IEffectComponent>> dieEffect, Optional<FollowGoalSetting> followGoalSetting) {
         super(targetSettings, Optional.empty(), shootGoalSetting, genGoalSetting, attackGoalSetting, laserGoalSetting, instantEffectSetting, constantAffectSettings, hurtEffect, dieEffect, Optional.empty(), followGoalSetting);
         this.plantSetting = plantSetting;
     }
@@ -84,15 +85,15 @@ public class PVZPlantComponent extends TowerComponent {
         ).apply(instance, PlantSetting::new)).codec();
     }
 
-    public record GrowSettings(List<Float> scales, List<Integer> growDurations, Optional<SoundEvent> growSound, List<Pair<IEffectComponent, Integer>> growEffects) {
-        public static final GrowSettings DEFAULT = new GrowSettings(Arrays.asList(1F), Arrays.asList(), Optional.empty(), Arrays.asList());
+    public record GrowSettings(List<Float> scales, List<Integer> growDurations, Optional<Holder<SoundEvent>> growSound, List<Pair<Holder<IEffectComponent>, Integer>> growEffects) {
+        public static final GrowSettings DEFAULT = new GrowSettings(List.of(1F), List.of(), Optional.empty(), List.of());
 
         public static final Codec<GrowSettings> CODEC = RecordCodecBuilder.<GrowSettings>mapCodec(instance -> instance.group(
                 Codec.floatRange(0, Float.MAX_VALUE).listOf().fieldOf("scales").forGetter(GrowSettings::scales),
                 Codec.intRange(0, Integer.MAX_VALUE).listOf().fieldOf("grow_durations").forGetter(GrowSettings::growDurations),
                 Codec.optionalField("grow_sound", SoundEvent.CODEC).forGetter(GrowSettings::growSound),
                 Codec.mapPair(
-                        OTDEffectComponentTypes.getCodec().fieldOf("effect"),
+                        OTDEffectComponents.getCodec().fieldOf("effect"),
                         Codec.intRange(0, Integer.MAX_VALUE).fieldOf("age")
                 ).codec().listOf().fieldOf("grow_effects").forGetter(GrowSettings::growEffects)
         ).apply(instance, GrowSettings::new)).codec();

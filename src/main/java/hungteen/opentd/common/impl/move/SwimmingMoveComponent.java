@@ -30,6 +30,6 @@ public record SwimmingMoveComponent(int maxTurnX, int maxTurnY, float inWaterSpe
 
     @Override
     public IMoveComponentType<?> getType() {
-        return HTMoveComponents.SWIMMING;
+        return OTDMoveTypes.SWIMMING;
     }
 }

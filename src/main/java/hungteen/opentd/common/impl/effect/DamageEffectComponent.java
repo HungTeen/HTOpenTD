@@ -33,11 +33,11 @@ public record DamageEffectComponent(boolean ignoreImmuneTick, float amount, floa
         // Store origin speed.
         final Vec3 originSpeed = entity.getDeltaMovement();
 
-        if(owner instanceof BulletEntity){
-            final DamageSource source = DamageSource.thrown(owner, ((BulletEntity) owner).getOwner());
+        if(owner instanceof BulletEntity bulletEntity){
+            final DamageSource source = bulletEntity.damageSources().thrown(owner, bulletEntity.getOwner());
             entity.hurt(source, this.amount());
-        } else if(owner instanceof LivingEntity){
-            entity.hurt(DamageSource.mobAttack((LivingEntity) owner), this.amount());
+        } else if(owner instanceof LivingEntity livingEntity){
+            entity.hurt(livingEntity.damageSources().mobAttack((LivingEntity) owner), this.amount());
         }
 
         if(entity instanceof LivingEntity){

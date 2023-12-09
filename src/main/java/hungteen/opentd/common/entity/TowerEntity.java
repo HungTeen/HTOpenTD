@@ -13,6 +13,7 @@ import hungteen.opentd.common.impl.tower.OTDTowerComponents;
 import hungteen.opentd.util.EntityUtil;
 import hungteen.opentd.util.Util;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.FriendlyByteBuf;
@@ -199,7 +200,7 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
                     }
                 });
             });
-            l.moveComponent().ifPresent(t -> this.moveControl = t.create(this));
+            l.moveComponent().ifPresent(t -> this.moveControl = t.get().create(this));
         });
     }
 
@@ -228,9 +229,9 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
             // 距离灰烬植物。
             if (this.getComponent() != null && this.getTarget() != null) {
                 this.getComponent().instantEffectSetting().ifPresent(l -> {
-                    if (l.targetFilter().match(serverLevel, this, this.getTarget()) && this.distanceTo(this.getTarget()) < l.closeRange()) {
+                    if (l.targetFilter().get().match(serverLevel, this, this.getTarget()) && this.distanceTo(this.getTarget()) < l.closeRange()) {
                         if (this.getInstantTick() >= l.instantTick()) {
-                            l.effect().effectTo(serverLevel, this, this.getTarget());
+                            l.effect().get().effectTo(serverLevel, this, this.getTarget());
                             this.discard();
                         } else {
                             this.setInstantTick(this.getInstantTick() + 1);
@@ -286,7 +287,7 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
     public void startShootAttack(LivingEntity target) {
         if (this.getComponent() != null) {
             this.getComponent().shootGoalSetting().ifPresent(l -> this.shootCount = l.shootCount());
-            this.getComponent().shootGoalSetting().flatMap(ShootGoalSetting::shootSound).ifPresent(this::playSound);
+            this.getComponent().shootGoalSetting().flatMap(ShootGoalSetting::shootSound).map(Holder::get).ifPresent(this::playSound);
         }
     }
 
@@ -301,7 +302,7 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
             final double deltaX = shootSetting.offset().x * vec.x - shootSetting.offset().z * vec.z;
             final double deltaZ = shootSetting.offset().x * vec.z + shootSetting.offset().z * vec.x;
             bullet.setPos(this.getX() + deltaX, this.getY() + deltaY, this.getZ() + deltaZ);
-            if (this.getTarget() != null && shootSetting.bulletSetting().lockToTarget()) {
+            if (this.getTarget() != null && shootSetting.bulletSetting().get().lockToTarget()) {
                 bullet.shootToTarget(this, shootSetting, this.getTarget(), this.getTarget().getX() - bullet.getX(), this.getTarget().getY() + this.getTarget().getBbHeight() - bullet.getY(), this.getTarget().getZ() - bullet.getZ());
             } else {
                 bullet.shootTo(this, shootSetting, vec);
@@ -331,7 +332,7 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
                     final double dz = RandomHelper.floatRange(this.getRandom());
                     entity.setDeltaMovement(new Vec3(dx, 0, dz).scale(genSetting.horizontalSpeed()).add(0, genSetting.verticalSpeed(), 0));
                     serverlevel.tryAddFreshEntityWithPassengers(entity);
-                    this.getComponent().genGoalSetting().get().genSound().ifPresent(this::playSound);
+                    this.getComponent().genGoalSetting().get().genSound().map(Holder::get).ifPresent(this::playSound);
                 }
             }
         }
@@ -340,11 +341,11 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
     public void attack() {
         if (this.getComponent() != null && this.getComponent().attackGoalSetting().isPresent() && this.level() instanceof ServerLevel serverLevel) {
             if (this.getTarget() != null) {
-                this.getComponent().attackGoalSetting().get().effect().effectTo(serverLevel, this, this.getTarget());
+                this.getComponent().attackGoalSetting().get().effect().get().effectTo(serverLevel, this, this.getTarget());
             } else {
-                this.getComponent().attackGoalSetting().get().effect().effectTo(serverLevel, this, this.blockPosition());
+                this.getComponent().attackGoalSetting().get().effect().get().effectTo(serverLevel, this, this.blockPosition());
             }
-            this.getComponent().attackGoalSetting().get().attackSound().ifPresent(this::playSound);
+            this.getComponent().attackGoalSetting().get().attackSound().map(Holder::get).ifPresent(this::playSound);
         }
     }
 
@@ -353,8 +354,8 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
         if (this.getComponent() != null && this.level() instanceof ServerLevel serverLevel) {
             this.getComponent().constantAffectSettings().forEach(setting -> {
                 if (this.tickCount % setting.cd() == 0) {
-                    setting.targetFinder().getTargets(serverLevel, this).forEach(target -> {
-                        setting.effect().effectTo(serverLevel, this, target);
+                    setting.targetFinder().get().getTargets(serverLevel, this).forEach(target -> {
+                        setting.effect().get().effectTo(serverLevel, this, target);
                     });
                 }
             });
@@ -367,9 +368,9 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
             if (this.getComponent() != null  && this.level() instanceof ServerLevel serverLevel) {
                 this.getComponent().hurtEffect().ifPresent(effect -> {
                     if (source.getEntity() != null) {
-                        effect.effectTo(serverLevel, this, source.getEntity());
+                        effect.get().effectTo(serverLevel, this, source.getEntity());
                     } else {
-                        effect.effectTo(serverLevel, this, this.blockPosition());
+                        effect.get().effectTo(serverLevel, this, this.blockPosition());
                     }
                 });
             }
@@ -384,9 +385,9 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
         if (this.getComponent() != null  && this.level() instanceof ServerLevel serverLevel) {
             this.getComponent().dieEffect().ifPresent(effect -> {
                 if (source.getEntity() != null) {
-                    effect.effectTo(serverLevel, this, source.getEntity());
+                    effect.get().effectTo(serverLevel, this, source.getEntity());
                 } else {
-                    effect.effectTo(serverLevel, this, this.blockPosition());
+                    effect.get().effectTo(serverLevel, this, this.blockPosition());
                 }
             });
         }

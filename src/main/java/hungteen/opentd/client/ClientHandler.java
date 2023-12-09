@@ -21,6 +21,8 @@ import net.minecraftforge.client.event.RegisterItemDecorationsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
+import java.util.Optional;
+
 /**
  * @program: HTOpenTD
  * @author: HungTeen
@@ -37,7 +39,7 @@ public class ClientHandler {
     }
 
     @SubscribeEvent
-    public static void bakeModel(ModelEvent.BakingCompleted event) {
+    public static void bakeModel(ModelEvent.ModifyBakingResult event) {
         final ModelResourceLocation key = new ModelResourceLocation(OTDItems.SUMMON_TOWER_ITEM.getId(), "inventory");
         final BakedModel oldModel = event.getModels().get(key);
         if (oldModel != null) {
@@ -47,11 +49,13 @@ public class ClientHandler {
 
     @SubscribeEvent
     public static void bakeModel(ModelEvent.RegisterAdditional event) {
-        OTDSummonEntries.registry().getValues(ClientHelper.mc().level).stream()
-                .map(SummonEntry::itemSetting)
-                .map(ItemSetting::model)
-                .map(model -> new ModelResourceLocation(model, "inventory"))
-                .forEach(event::register);
+        Optional.ofNullable(ClientHelper.mc().level).ifPresent(level -> {
+            OTDSummonEntries.registry().getValues(level).stream()
+                    .map(SummonEntry::itemSetting)
+                    .map(ItemSetting::model)
+                    .map(model -> new ModelResourceLocation(model, "inventory"))
+                    .forEach(event::register);
+        });
     }
 
     @SubscribeEvent

@@ -1,0 +1,5 @@
+{
+  "type": "opentd:entity",
+  "filter": "opentd:creeper_only",
+  "tip": "Entity Not Fit !"
+}

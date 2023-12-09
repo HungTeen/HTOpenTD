@@ -1,0 +1,6 @@
+{
+  "type": "opentd:range",
+  "height": 40.0,
+  "target_filter": "opentd:creeper_only",
+  "width": 40.0
+}

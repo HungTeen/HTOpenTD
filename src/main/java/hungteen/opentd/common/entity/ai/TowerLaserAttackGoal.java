@@ -65,7 +65,7 @@ public class TowerLaserAttackGoal extends HTGoal {
             if (this.attackTime == 0) {
                 this.towerEntity.setActiveAttackTarget(this.target.getId());
                 if (!this.towerEntity.isSilent()) {
-                    this.towerEntity.level.broadcastEntityEvent(this.towerEntity, (byte) 21);
+                    this.towerEntity.level().broadcastEntityEvent(this.towerEntity, (byte) 21);
                 }
             }
             if (this.attackTime > Objects.requireNonNull(this.setting()).duration()) {
@@ -74,10 +74,10 @@ public class TowerLaserAttackGoal extends HTGoal {
                 this.towerEntity.preAttackTick = Objects.requireNonNull(this.setting()).coolDown();
             } else {
                 if (this.attackTime > 0 && this.attackTime % this.setting().effectInterval() == 0) {
-                    effectTo(this.setting().continueEffect());
+                    effectTo(this.setting().continueEffect().get());
                 }
                 if (this.attackTime >= this.setting().duration()) {
-                    effectTo(this.setting().finalEffect());
+                    effectTo(this.setting().finalEffect().get());
                 }
             }
         } else {
@@ -89,13 +89,13 @@ public class TowerLaserAttackGoal extends HTGoal {
     }
 
     private void effectTo(IEffectComponent effect) {
-        if(this.towerEntity.level instanceof ServerLevel serverLevel){
+        if(this.towerEntity.level() instanceof ServerLevel serverLevel){
             final Vec3 st = this.towerEntity.getEyePosition();
             final Vec3 ep = this.target.getEyePosition();
             final Vec3 laser = ep.subtract(st);
             final AABB aabb = EntityHelper.getEntityAABB(this.towerEntity, this.setting().laserDistance(), this.setting().laserDistance());
             EntityHelper.getPredicateEntities(this.towerEntity, aabb, Entity.class, entity -> {
-                if(this.setting().laserFilter().match(serverLevel, this.towerEntity, entity)){
+                if(this.setting().laserFilter().get().match(serverLevel, this.towerEntity, entity)){
                     final Vec3 tp = entity.getEyePosition();
                     final Vec3 vec = tp.subtract(st);
                     if(vec.length() < this.setting().laserDistance() && vec.length() > 0 && laser.length() > 0) {

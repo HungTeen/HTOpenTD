@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Pair;
 import hungteen.opentd.common.codec.RenderSetting;
 import hungteen.opentd.common.impl.tower.PVZPlantComponent;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -20,14 +21,6 @@ import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import software.bernie.geckolib3.core.PlayState;
-import software.bernie.geckolib3.core.builder.AnimationBuilder;
-import software.bernie.geckolib3.core.builder.ILoopType;
-import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.core.manager.AnimationData;
-import software.bernie.geckolib3.core.manager.AnimationFactory;
-import software.bernie.geckolib3.util.GeckoLibUtil;
 
 /**
  * @program: HTOpenTD
@@ -91,7 +84,7 @@ public class PlantEntity extends TowerEntity {
     @Override
     public void tick() {
         super.tick();
-        if (this.level instanceof ServerLevel) {
+        if (this.level() instanceof ServerLevel) {
             // 植物生长。
             if (this.isAlive()) {
                 if (this.canGrow()) {
@@ -110,7 +103,7 @@ public class PlantEntity extends TowerEntity {
             // 长大的粒子效果。
             if (this.forcedAgeTimer > 0) {
                 if (this.forcedAgeTimer % 4 == 0) {
-                    this.level.addParticle(ParticleTypes.HAPPY_VILLAGER, this.getRandomX(1.0D), this.getRandomY() + 0.5D, this.getRandomZ(1.0D), 0.0D, 0.0D, 0.0D);
+                    this.level().addParticle(ParticleTypes.HAPPY_VILLAGER, this.getRandomX(1.0D), this.getRandomY() + 0.5D, this.getRandomZ(1.0D), 0.0D, 0.0D, 0.0D);
                 }
                 --this.forcedAgeTimer;
             }
@@ -169,12 +162,12 @@ public class PlantEntity extends TowerEntity {
     public void onGrow() {
         this.setAge(this.getAge() + 1);
         this.growTick = 0;
-        this.getGrowSettings().growSound().ifPresent(this::playSound);
-        if (this.level instanceof ServerLevel) {
+        this.getGrowSettings().growSound().map(Holder::get).ifPresent(this::playSound);
+        if (this.level() instanceof ServerLevel serverLevel) {
             this.getGrowSettings().growEffects().stream()
                     .filter(l -> l.getSecond() == this.getAge())
                     .map(Pair::getFirst)
-                    .forEach(l -> l.effectTo((ServerLevel) this.level, this, this.blockPosition()));
+                    .forEach(l -> l.get().effectTo(serverLevel, this, this.blockPosition()));
         }
     }
 

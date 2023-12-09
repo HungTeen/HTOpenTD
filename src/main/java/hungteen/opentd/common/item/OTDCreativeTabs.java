@@ -33,7 +33,7 @@ public interface OTDCreativeTabs {
                                 summonEntries.listElementIds().map(key -> {
                                     return SummonTowerItem.create(key, summonEntries.getOrThrow(key).get());
                                 }).forEach(output::accept);
-                            })
+                            }).withSearchBar().withBackgroundLocation(Util.mc().containerTexture("creative_inventory/tab_item_search"))
     );
 
     static void register(IEventBus modBus) {

@@ -9,6 +9,7 @@ import hungteen.opentd.common.impl.tower.OTDTowerComponents;
 import hungteen.opentd.common.item.SummonTowerItem;
 import hungteen.opentd.util.Util;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -35,12 +36,12 @@ public abstract class TowerComponent implements ITowerComponent {
     private final Optional<LaserGoalSetting> laserGoalSetting;
     private final Optional<CloseInstantEffectSetting> instantEffectSetting;
     private final List<ConstantAffectSetting> constantAffectSettings;
-    private final Optional<IEffectComponent> hurtEffect;
-    private final Optional<IEffectComponent> dieEffect;
+    private final Optional<Holder<IEffectComponent>> hurtEffect;
+    private final Optional<Holder<IEffectComponent>> dieEffect;
     private final Optional<BossBarSetting> bossBarSetting;
     private final Optional<FollowGoalSetting> followGoalSetting;
 
-    public TowerComponent(List<TargetSetting> targetSettings, Optional<MovementSetting> movementSetting, Optional<ShootGoalSetting> shootGoalSetting, Optional<GenGoalSetting> genGoalSetting, Optional<AttackGoalSetting> attackGoalSetting, Optional<LaserGoalSetting> laserGoalSetting, Optional<CloseInstantEffectSetting> instantEffectSetting, List<ConstantAffectSetting> constantAffectSettings, Optional<IEffectComponent> hurtEffect, Optional<IEffectComponent> dieEffect, Optional<BossBarSetting> bossBarSetting, Optional<FollowGoalSetting> followGoalSetting) {
+    public TowerComponent(List<TargetSetting> targetSettings, Optional<MovementSetting> movementSetting, Optional<ShootGoalSetting> shootGoalSetting, Optional<GenGoalSetting> genGoalSetting, Optional<AttackGoalSetting> attackGoalSetting, Optional<LaserGoalSetting> laserGoalSetting, Optional<CloseInstantEffectSetting> instantEffectSetting, List<ConstantAffectSetting> constantAffectSettings, Optional<Holder<IEffectComponent>> hurtEffect, Optional<Holder<IEffectComponent>> dieEffect, Optional<BossBarSetting> bossBarSetting, Optional<FollowGoalSetting> followGoalSetting) {
         this.targetSettings = targetSettings;
         this.movementSetting = movementSetting;
         this.shootGoalSetting = shootGoalSetting;
@@ -107,11 +108,11 @@ public abstract class TowerComponent implements ITowerComponent {
         return constantAffectSettings;
     }
 
-    public Optional<IEffectComponent> hurtEffect() {
+    public Optional<Holder<IEffectComponent>> hurtEffect() {
         return hurtEffect;
     }
 
-    public Optional<IEffectComponent> dieEffect() {
+    public Optional<Holder<IEffectComponent>> dieEffect() {
         return dieEffect;
     }
 

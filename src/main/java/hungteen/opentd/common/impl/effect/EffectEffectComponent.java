@@ -7,6 +7,7 @@ import hungteen.opentd.api.interfaces.IEffectComponent;
 import hungteen.opentd.api.interfaces.IEffectComponentType;
 import hungteen.opentd.common.codec.ParticleSetting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
@@ -20,7 +21,7 @@ import java.util.Optional;
  * @author: HungTeen
  * @create: 2023-02-02 16:35
  **/
-public record EffectEffectComponent(boolean self, List<ParticleSetting> particleSettings, Optional<SoundEvent> soundEvent) implements IEffectComponent {
+public record EffectEffectComponent(boolean self, List<ParticleSetting> particleSettings, Optional<Holder<SoundEvent>> soundEvent) implements IEffectComponent {
 
     public static final Codec<EffectEffectComponent> CODEC = RecordCodecBuilder.<EffectEffectComponent>mapCodec(instance -> instance.group(
             Codec.BOOL.optionalFieldOf("self", true).forGetter(EffectEffectComponent::self),
@@ -33,7 +34,7 @@ public record EffectEffectComponent(boolean self, List<ParticleSetting> particle
         particleSettings().forEach(l -> {
             l.spawn(serverLevel, self() ? owner.position() : entity.position(), serverLevel.getRandom());
         });
-        soundEvent().ifPresent(l -> (self() ? owner : entity).playSound(l));
+        soundEvent().ifPresent(l -> (self() ? owner : entity).playSound(l.get()));
     }
 
     @Override
@@ -41,7 +42,7 @@ public record EffectEffectComponent(boolean self, List<ParticleSetting> particle
         particleSettings().forEach(l -> {
             l.spawn(serverLevel, self() ? owner.position() : MathHelper.toVec3(pos), serverLevel.getRandom());
         });
-        soundEvent().ifPresent(owner::playSound);
+        soundEvent().map(Holder::get).ifPresent(owner::playSound);
     }
 
     @Override

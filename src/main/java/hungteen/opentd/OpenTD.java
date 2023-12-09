@@ -15,7 +15,10 @@ import hungteen.opentd.common.impl.filter.OTDTargetFilterTypes;
 import hungteen.opentd.common.impl.filter.OTDTargetFilters;
 import hungteen.opentd.common.impl.finder.OTDTargetFinderTypes;
 import hungteen.opentd.common.impl.finder.OTDTargetFinders;
+import hungteen.opentd.common.impl.move.OTDMoveComponents;
+import hungteen.opentd.common.impl.move.OTDMoveTypes;
 import hungteen.opentd.common.impl.requirement.OTDRequirementTypes;
+import hungteen.opentd.common.impl.requirement.OTDSummonRequirements;
 import hungteen.opentd.common.impl.tower.OTDTowerComponents;
 import hungteen.opentd.common.impl.tower.OTDTowerTypes;
 import hungteen.opentd.common.item.OTDCreativeTabs;
@@ -65,13 +68,15 @@ public class OpenTD {
 
         OTDSummonEntries.registry().register(modBus);
         OTDRequirementTypes.registry().register(modBus);
-        OTDRequirementTypes.registry().register(modBus);
+        OTDSummonRequirements.registry().register(modBus);
         OTDTowerTypes.registry().register(modBus);
         OTDTowerComponents.registry().register(modBus);
         OTDTargetFilterTypes.registry().register(modBus);
         OTDTargetFilters.registry().register(modBus);
         OTDTargetFinderTypes.registry().register(modBus);
         OTDTargetFinders.registry().register(modBus);
+        OTDMoveTypes.registry().register(modBus);
+        OTDMoveComponents.registry().register(modBus);
         OTDBulletSettings.registry().register(modBus);
         OTDEffectComponentTypes.registry().register(modBus);
         OTDEffectComponents.registry().register(modBus);

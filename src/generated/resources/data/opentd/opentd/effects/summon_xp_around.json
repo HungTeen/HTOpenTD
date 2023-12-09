@@ -1,0 +1,6 @@
+{
+  "type": "opentd:summon",
+  "entity_type": "minecraft:experience_orb",
+  "max_height_offset": 5,
+  "radius": 5
+}

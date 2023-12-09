@@ -6,13 +6,13 @@ import hungteen.opentd.api.interfaces.IEffectComponent;
 import hungteen.opentd.api.interfaces.ITowerComponentType;
 import hungteen.opentd.common.codec.*;
 import hungteen.opentd.common.entity.OpenTDEntities;
-import hungteen.opentd.common.impl.effect.OTDEffectComponentTypes;
+import hungteen.opentd.common.impl.effect.OTDEffectComponents;
+import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,21 +26,21 @@ public class PlantHeroComponent extends TowerComponent {
     public static final Codec<PlantHeroComponent> CODEC = RecordCodecBuilder.<PlantHeroComponent>mapCodec(instance -> instance.group(
             HeroSetting.CODEC.fieldOf("hero_setting").forGetter(PlantHeroComponent::heroSetting),
             Codec.optionalField("movement_setting", MovementSetting.CODEC).forGetter(PlantHeroComponent::movementSetting),
-            TargetSetting.CODEC.listOf().optionalFieldOf("target_settings", Arrays.asList()).forGetter(PlantHeroComponent::targetSettings),
+            TargetSetting.CODEC.listOf().optionalFieldOf("target_settings", List.of()).forGetter(PlantHeroComponent::targetSettings),
             Codec.optionalField("shoot_goal", ShootGoalSetting.CODEC).forGetter(PlantHeroComponent::shootGoalSetting),
             Codec.optionalField("gen_goal", GenGoalSetting.CODEC).forGetter(PlantHeroComponent::genGoalSetting),
             Codec.optionalField("attack_goal", AttackGoalSetting.CODEC).forGetter(PlantHeroComponent::attackGoalSetting),
             Codec.optionalField("laser_goal", LaserGoalSetting.CODEC).forGetter(PlantHeroComponent::laserGoalSetting),
             Codec.optionalField("instant_setting", CloseInstantEffectSetting.CODEC).forGetter(PlantHeroComponent::instantEffectSetting),
-            ConstantAffectSetting.CODEC.listOf().optionalFieldOf("constant_settings", Arrays.asList()).forGetter(PlantHeroComponent::constantAffectSettings),
-            Codec.optionalField("hurt_effect", OTDEffectComponentTypes.getCodec()).forGetter(PlantHeroComponent::hurtEffect),
-            Codec.optionalField("die_effect", OTDEffectComponentTypes.getCodec()).forGetter(PlantHeroComponent::dieEffect),
+            ConstantAffectSetting.CODEC.listOf().optionalFieldOf("constant_settings", List.of()).forGetter(PlantHeroComponent::constantAffectSettings),
+            Codec.optionalField("hurt_effect", OTDEffectComponents.getCodec()).forGetter(PlantHeroComponent::hurtEffect),
+            Codec.optionalField("die_effect", OTDEffectComponents.getCodec()).forGetter(PlantHeroComponent::dieEffect),
             Codec.optionalField("boss_bar_setting", BossBarSetting.CODEC).forGetter(PlantHeroComponent::bossBarSetting),
             Codec.optionalField("follow_goal", FollowGoalSetting.CODEC).forGetter(PlantHeroComponent::followGoalSetting)
     ).apply(instance, PlantHeroComponent::new)).codec();
     private final HeroSetting heroSetting;
 
-    public PlantHeroComponent(HeroSetting heroSetting, Optional<MovementSetting> movementSetting, List<TargetSetting> targetSettings, Optional<ShootGoalSetting> shootGoalSetting, Optional<GenGoalSetting> genGoalSetting, Optional<AttackGoalSetting> attackGoalSetting, Optional<LaserGoalSetting> laserGoalSetting, Optional<CloseInstantEffectSetting> instantEffectSetting, List<ConstantAffectSetting> constantAffectSettings, Optional<IEffectComponent> hurtEffect, Optional<IEffectComponent> dieEffect, Optional<BossBarSetting> bossBarSetting, Optional<FollowGoalSetting> followGoalSetting) {
+    public PlantHeroComponent(HeroSetting heroSetting, Optional<MovementSetting> movementSetting, List<TargetSetting> targetSettings, Optional<ShootGoalSetting> shootGoalSetting, Optional<GenGoalSetting> genGoalSetting, Optional<AttackGoalSetting> attackGoalSetting, Optional<LaserGoalSetting> laserGoalSetting, Optional<CloseInstantEffectSetting> instantEffectSetting, List<ConstantAffectSetting> constantAffectSettings, Optional<Holder<IEffectComponent>> hurtEffect, Optional<Holder<IEffectComponent>> dieEffect, Optional<BossBarSetting> bossBarSetting, Optional<FollowGoalSetting> followGoalSetting) {
         super(targetSettings, movementSetting, shootGoalSetting, genGoalSetting, attackGoalSetting, laserGoalSetting, instantEffectSetting, constantAffectSettings, hurtEffect, dieEffect, bossBarSetting, followGoalSetting);
         this.heroSetting = heroSetting;
     }

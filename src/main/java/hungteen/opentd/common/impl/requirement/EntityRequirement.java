@@ -6,8 +6,9 @@ import hungteen.htlib.util.helper.PlayerHelper;
 import hungteen.opentd.api.interfaces.ISummonRequirement;
 import hungteen.opentd.api.interfaces.ISummonRequirementType;
 import hungteen.opentd.api.interfaces.ITargetFilter;
-import hungteen.opentd.common.impl.filter.OTDTargetFilterTypes;
+import hungteen.opentd.common.impl.filter.OTDTargetFilters;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -21,16 +22,16 @@ import java.util.Optional;
  * @author: HungTeen
  * @create: 2023-01-07 20:30
  **/
-public record EntityRequirement(Optional<String> tip, ITargetFilter filter) implements ISummonRequirement {
+public record EntityRequirement(Optional<String> tip, Holder<ITargetFilter> filter) implements ISummonRequirement {
 
     public static final Codec<EntityRequirement> CODEC = RecordCodecBuilder.<EntityRequirement>mapCodec(instance -> instance.group(
             Codec.optionalField("tip", Codec.STRING).forGetter(EntityRequirement::tip),
-            OTDTargetFilterTypes.getCodec().fieldOf("filter").forGetter(EntityRequirement::filter)
+            OTDTargetFilters.getCodec().fieldOf("filter").forGetter(EntityRequirement::filter)
     ).apply(instance, EntityRequirement::new)).codec();
 
     @Override
     public boolean allowOn(ServerLevel level, Player player, Entity entity, boolean sendMessage) {
-        if (!filter().match(level, player, entity)) {
+        if (!filter().get().match(level, player, entity)) {
             if (sendMessage) PlayerHelper.sendTipTo(player, getTip());
             return false;
         }

@@ -2,6 +2,7 @@ package hungteen.opentd.common.impl.effect;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import hungteen.htlib.util.helper.MathHelper;
 import hungteen.htlib.util.helper.RandomHelper;
 import hungteen.htlib.util.helper.WorldHelper;
 import hungteen.htlib.util.helper.registry.EntityHelper;
@@ -42,7 +43,7 @@ public record SummonEffectComponent(int count, int radius, Optional<Integer> max
     @Override
     public void effectTo(ServerLevel serverLevel, Entity owner, Entity entity) {
         for(int i = 0; i < count(); ++ i){
-            spawn(owner.level, self() ? owner : entity, nbt());
+            spawn(serverLevel, self() ? owner : entity, nbt());
         }
     }
 
@@ -50,7 +51,7 @@ public record SummonEffectComponent(int count, int radius, Optional<Integer> max
     public void effectTo(ServerLevel serverLevel, Entity owner, BlockPos pos) {
         if(self()){
             for(int i = 0; i < count(); ++ i){
-                spawn(owner.level, owner, nbt());
+                spawn(serverLevel, owner, nbt());
             }
         }
     }
@@ -62,23 +63,23 @@ public record SummonEffectComponent(int count, int radius, Optional<Integer> max
             // position.
             Vec3 position = summoner.position(); // 保底。
             if(maxHeightOffset().isPresent()){
-                int dx = RandomHelper.range(summoner.getLevel().getRandom(), radius());
-                int dz = RandomHelper.range(summoner.getLevel().getRandom(), radius());
+                int dx = RandomHelper.range(serverlevel.getRandom(), radius());
+                int dz = RandomHelper.range(serverlevel.getRandom(), radius());
                 Optional<Integer> opt = Optional.empty();
                 for(int i = 0; i < tries(); ++ i){
-                    opt = getGroundPos(level, summoner, summoner.getX() + dx, summoner.getY() + RandomHelper.range(summoner.getLevel().getRandom(), maxHeightOffset().get()), summoner.getZ() + dz);
+                    opt = getGroundPos(level, summoner, summoner.getX() + dx, summoner.getY() + RandomHelper.range(serverlevel.getRandom(), maxHeightOffset().get()), summoner.getZ() + dz);
                     if(opt.isPresent()){
                         break;
                     }
-                    dx = RandomHelper.range(summoner.getLevel().getRandom(), radius());
-                    dz = RandomHelper.range(summoner.getLevel().getRandom(), radius());
+                    dx = RandomHelper.range(serverlevel.getRandom(), radius());
+                    dz = RandomHelper.range(serverlevel.getRandom(), radius());
                 }
                 if(opt.isPresent()){
                     position = new Vec3(summoner.getX() + dx, opt.get(), summoner.getZ());
                 }
             } else {
-                int dx = RandomHelper.range(summoner.getLevel().getRandom(), radius());
-                int dz = RandomHelper.range(summoner.getLevel().getRandom(), radius());
+                int dx = RandomHelper.range(serverlevel.getRandom(), radius());
+                int dz = RandomHelper.range(serverlevel.getRandom(), radius());
                 int y = WorldHelper.getSurfaceHeight(level, summoner.getX() + dx, summoner.getZ() + dz);
                 position = new Vec3(summoner.getX() + dx, y, summoner.getZ());
             }
@@ -100,12 +101,12 @@ public record SummonEffectComponent(int count, int radius, Optional<Integer> max
     }
 
     private Optional<Integer> getGroundPos(Level level, Entity summoner, double x, double y, double z){
-        BlockPos blockpos = new BlockPos(x, y, z);
+        BlockPos blockpos = MathHelper.toBlockPos(new Vec3(x, y, z));
         if (level.hasChunkAt(blockpos)) {
             while(blockpos.getY() > level.getMinBuildHeight()) {
                 BlockPos posBelow = blockpos.below();
                 BlockState blockstate = level.getBlockState(posBelow);
-                if (blockstate.getMaterial().blocksMotion()) {
+                if (blockstate.blocksMotion()) {
                     if (level.noCollision(summoner) && !level.containsAnyLiquid(summoner.getBoundingBox())) {
                         return Optional.of(blockpos.getY());
                     }

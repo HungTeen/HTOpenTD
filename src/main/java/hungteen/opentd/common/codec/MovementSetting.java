@@ -6,7 +6,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import hungteen.opentd.api.interfaces.IMoveComponent;
 import hungteen.opentd.api.interfaces.IPathNavigationType;
 import hungteen.opentd.common.impl.OTDPathNavigations;
-import hungteen.opentd.common.impl.move.HTMoveComponents;
+import hungteen.opentd.common.impl.move.OTDMoveComponents;
+import net.minecraft.core.Holder;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.level.Level;
@@ -19,10 +20,10 @@ import java.util.Optional;
  * @program HTOpenTD
  * @data 2023/5/4 16:19
  */
-public record MovementSetting(Optional<NavigationSetting> navigationSetting, Optional<IMoveComponent> moveComponent, boolean canRandomMove, boolean avoidWater, boolean keepDistance, double speedModifier, double backwardPercent, double upwardPercent){
+public record MovementSetting(Optional<NavigationSetting> navigationSetting, Optional<Holder<IMoveComponent>> moveComponent, boolean canRandomMove, boolean avoidWater, boolean keepDistance, double speedModifier, double backwardPercent, double upwardPercent){
     public static final Codec<MovementSetting> CODEC = RecordCodecBuilder.<MovementSetting>mapCodec(instance -> instance.group(
             Codec.optionalField("navigator_setting", NavigationSetting.CODEC).forGetter(MovementSetting::navigationSetting),
-            Codec.optionalField("move_controller", HTMoveComponents.getCodec()).forGetter(MovementSetting::moveComponent),
+            Codec.optionalField("move_controller", OTDMoveComponents.getCodec()).forGetter(MovementSetting::moveComponent),
             Codec.BOOL.optionalFieldOf("can_random_move", true).forGetter(MovementSetting::canRandomMove),
             Codec.BOOL.optionalFieldOf("avoid_water", true).forGetter(MovementSetting::avoidWater),
             Codec.BOOL.optionalFieldOf("keep_distance", false).forGetter(MovementSetting::keepDistance),

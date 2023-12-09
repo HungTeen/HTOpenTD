@@ -1,7 +1,6 @@
 package hungteen.opentd.common.network;
 
-import hungteen.opentd.OpenTD;
-import net.minecraft.Util;
+import hungteen.opentd.util.Util;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -22,7 +21,7 @@ public class NetworkHandler {
 
     public static void init() {
         CHANNEL = NetworkRegistry.ChannelBuilder
-                .named(OpenTD.prefix("networking"))
+                .named(Util.prefix("networking"))
                 .networkProtocolVersion(() -> "1.0")
                 .clientAcceptedVersions(s -> true)
                 .serverAcceptedVersions(s -> true)

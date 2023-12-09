@@ -1,10 +1,12 @@
 package hungteen.opentd.data;
 
 import hungteen.htlib.data.HTDatapackEntriesGen;
+import hungteen.opentd.common.impl.OTDBulletSettings;
 import hungteen.opentd.common.impl.OTDSummonEntries;
 import hungteen.opentd.common.impl.effect.OTDEffectComponents;
 import hungteen.opentd.common.impl.filter.OTDTargetFilters;
 import hungteen.opentd.common.impl.finder.OTDTargetFinders;
+import hungteen.opentd.common.impl.move.OTDMoveComponents;
 import hungteen.opentd.common.impl.requirement.OTDSummonRequirements;
 import hungteen.opentd.common.impl.tower.OTDTowerComponents;
 import hungteen.opentd.util.Util;
@@ -24,6 +26,8 @@ public class OTDDatapackEntriesGen extends HTDatapackEntriesGen {
             .add(OTDTargetFilters.registry().getRegistryKey(), OTDTargetFilters::register)
             .add(OTDTargetFinders.registry().getRegistryKey(), OTDTargetFinders::register)
             .add(OTDEffectComponents.registry().getRegistryKey(), OTDEffectComponents::register)
+            .add(OTDMoveComponents.registry().getRegistryKey(), OTDMoveComponents::register)
+            .add(OTDBulletSettings.registry().getRegistryKey(), OTDBulletSettings::register)
             ;
 
 

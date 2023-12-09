@@ -89,8 +89,8 @@ public class BulletEntity extends Projectile implements IOTDEntity {
         this.setOwner(owner);
         this.setParabola(shootSetting.isParabola());
         this.pultHeight = shootSetting.pultHeight();
-        this.component = shootSetting.bulletSetting();
-        BulletSetting.CODEC.encodeStart(NbtOps.INSTANCE, shootSetting.bulletSetting())
+        this.component = shootSetting.bulletSetting().get();
+        BulletSetting.CODEC.encodeStart(NbtOps.INSTANCE, this.component)
                 .resultOrPartial(msg -> Util.error("Bullet Entity error : " + msg))
                 .ifPresent(settings -> this.componentTag = (CompoundTag) settings);
         final double d0 = this.getDeltaMovement().horizontalDistance();
@@ -255,7 +255,7 @@ public class BulletEntity extends Projectile implements IOTDEntity {
     }
 
     protected boolean shouldHit(Entity target) {
-        return (this.bulletSetting() == null || (level() instanceof ServerLevel serverLevel && this.bulletSetting().targetFilter().match(serverLevel, this, target))) && !this.hitSet.contains(target.getId());
+        return (this.bulletSetting() == null || (level() instanceof ServerLevel serverLevel && this.bulletSetting().targetFilter().get().match(serverLevel, this, target))) && !this.hitSet.contains(target.getId());
     }
 
     /**
@@ -301,7 +301,7 @@ public class BulletEntity extends Projectile implements IOTDEntity {
                 dy = Mth.clamp(dy, -limitY, limitY);//fix dy by angle
             }
             final Vec3 speed = MathHelper.rotate(new Vec3(dx, dy, dz), shootSetting.horizontalAngleOffset(), 0);
-            this.setDeltaMovement(speed.normalize().scale(shootSetting.bulletSetting().bulletSpeed()));
+            this.setDeltaMovement(speed.normalize().scale(shootSetting.bulletSetting().get().bulletSpeed()));
         }
         this.summonBy(owner, shootSetting);
     }
@@ -311,13 +311,13 @@ public class BulletEntity extends Projectile implements IOTDEntity {
             this.pult(owner, shootSetting, owner);
         } else {
             final Vec3 speed = MathHelper.rotate(vec, shootSetting.horizontalAngleOffset(), 0);
-            this.setDeltaMovement(speed.normalize().scale(shootSetting.bulletSetting().bulletSpeed()));
+            this.setDeltaMovement(speed.normalize().scale(shootSetting.bulletSetting().get().bulletSpeed()));
         }
         this.summonBy(owner, shootSetting);
     }
 
     public void pult(Mob owner, ShootGoalSetting.ShootSetting shootSetting, @Nonnull Entity target) {
-        final double g = shootSetting.bulletSetting().gravity();
+        final double g = shootSetting.bulletSetting().get().gravity();
         final double h = shootSetting.pultHeight();
         final double t1 = Math.sqrt(2 * h / g);//go up time.
         double t2 = 0;
@@ -391,7 +391,7 @@ public class BulletEntity extends Projectile implements IOTDEntity {
     }
 
     protected Optional<IEffectComponent> getEffect() {
-        return this.bulletSetting() == null ? Optional.empty() : Optional.of(this.bulletSetting().effect());
+        return this.bulletSetting() == null ? Optional.empty() : Optional.of(this.bulletSetting().effect().get());
     }
 
     @Override

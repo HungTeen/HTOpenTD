@@ -6,8 +6,9 @@ import hungteen.htlib.util.helper.registry.EntityHelper;
 import hungteen.opentd.api.interfaces.IEffectComponent;
 import hungteen.opentd.api.interfaces.IEffectComponentType;
 import hungteen.opentd.api.interfaces.ITargetFilter;
-import hungteen.opentd.common.impl.filter.OTDTargetFilterTypes;
+import hungteen.opentd.common.impl.filter.OTDTargetFilters;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 
@@ -16,15 +17,15 @@ import net.minecraft.world.entity.Entity;
  * @author: HungTeen
  * @create: 2022-12-28 16:47
  **/
-public record SplashEffectComponent(double radius, double height, boolean isCircle, ITargetFilter filter,
-                                    IEffectComponent effect) implements IEffectComponent {
+public record SplashEffectComponent(double radius, double height, boolean isCircle, Holder<ITargetFilter> filter,
+                                    Holder<IEffectComponent> effect) implements IEffectComponent {
 
     public static final Codec<SplashEffectComponent> CODEC = RecordCodecBuilder.<SplashEffectComponent>mapCodec(instance -> instance.group(
             Codec.doubleRange(0, Double.MAX_VALUE).optionalFieldOf("radius", 1D).forGetter(SplashEffectComponent::radius),
             Codec.doubleRange(0, Double.MAX_VALUE).optionalFieldOf("height", 1D).forGetter(SplashEffectComponent::height),
             Codec.BOOL.optionalFieldOf("is_circle", true).forGetter(SplashEffectComponent::isCircle),
-            OTDTargetFilterTypes.getCodec().fieldOf("filter").forGetter(SplashEffectComponent::filter),
-            OTDEffectComponentTypes.getCodec().fieldOf("effect").forGetter(SplashEffectComponent::effect)
+            OTDTargetFilters.getCodec().fieldOf("filter").forGetter(SplashEffectComponent::filter),
+            OTDEffectComponents.getCodec().fieldOf("effect").forGetter(SplashEffectComponent::effect)
     ).apply(instance, SplashEffectComponent::new)).codec();
 
     @Override
@@ -39,9 +40,9 @@ public record SplashEffectComponent(double radius, double height, boolean isCirc
 
     private void effect(ServerLevel serverLevel, Entity attacker) {
         EntityHelper.getPredicateEntities(attacker, EntityHelper.getEntityAABB(attacker, radius(), height()), Entity.class, l -> {
-            return filter().match((ServerLevel) attacker.level, attacker, l);
+            return filter().get().match((ServerLevel) attacker.level(), attacker, l);
         }).forEach(target -> {
-            effect().effectTo(serverLevel, attacker, target);
+            effect().get().effectTo(serverLevel, attacker, target);
         });
     }
 

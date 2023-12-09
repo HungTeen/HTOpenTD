@@ -27,6 +27,6 @@ public record FlyingMoveComponent(int maxTurn, boolean hoverInPlace) implements 
 
     @Override
     public IMoveComponentType<?> getType() {
-        return HTMoveComponents.FLYING;
+        return OTDMoveTypes.FLYING;
     }
 }

@@ -2,7 +2,7 @@ package hungteen.opentd.common.codec;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import hungteen.opentd.common.impl.tower.PVZPlantComponent;
+import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.random.Weight;
@@ -20,7 +20,7 @@ import java.util.Optional;
  * @create: 2023-05-10 22:23
  **/
 public record GenGoalSetting(int coolDown, int startTick, int totalWeight, int emptyCD, boolean needRest,
-                             Optional<SoundEvent> genSound, List<GenSetting> genSettings) {
+                             Optional<Holder<SoundEvent>> genSound, List<GenSetting> genSettings) {
     public static final Codec<GenGoalSetting> CODEC = RecordCodecBuilder.<GenGoalSetting>mapCodec(instance -> instance.group(
             Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("cool_down", 20).forGetter(GenGoalSetting::coolDown),
             Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("start_tick", 10).forGetter(GenGoalSetting::startTick),

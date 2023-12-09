@@ -33,7 +33,7 @@ public class TowerFollowGoal extends Goal {
 
     public TowerFollowGoal(TowerEntity tower, FollowGoalSetting setting) {
         this.tower = tower;
-        this.level = tower.level;
+        this.level = tower.level();
         this.setting = setting;
         this.navigation = tower.getNavigation();
         this.setFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));

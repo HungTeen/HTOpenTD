@@ -3,7 +3,7 @@ package hungteen.opentd.common.capability;
 import hungteen.opentd.OpenTD;
 import hungteen.opentd.common.capability.player.PlayerCapProvider;
 import hungteen.opentd.common.capability.player.PlayerCapability;
-import net.minecraft.Util;
+import hungteen.opentd.util.Util;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.capabilities.Capability;
@@ -34,7 +34,7 @@ public class OpenTDCapabilities {
      */
     public static void attachCapabilities(AttachCapabilitiesEvent<Entity> event){
         if(event.getObject() instanceof Player){
-            event.addCapability(OpenTD.prefix("player_data"), new PlayerCapProvider((Player) event.getObject()));
+            event.addCapability(Util.prefix("player_data"), new PlayerCapProvider((Player) event.getObject()));
         }
     }
 

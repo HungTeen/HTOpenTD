@@ -2,7 +2,8 @@ package hungteen.opentd.common.codec;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import hungteen.opentd.common.impl.tower.PVZPlantComponent;
+import hungteen.opentd.common.impl.OTDBulletSettings;
+import net.minecraft.core.Holder;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.phys.Vec3;
 
@@ -14,7 +15,7 @@ import java.util.Optional;
  * @author: HungTeen
  * @create: 2023-05-10 22:19
  **/
-public record ShootGoalSetting(int duration, int coolDown, int startTick, int shootCount, boolean needRest, Optional<SoundEvent> shootSound,
+public record ShootGoalSetting(int duration, int coolDown, int startTick, int shootCount, boolean needRest, Optional<Holder<SoundEvent>> shootSound,
                                List<ShootSetting> shootSettings) {
     public static final Codec<ShootGoalSetting> CODEC = RecordCodecBuilder.<ShootGoalSetting>mapCodec(instance -> instance.group(
             Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("duration", 0).forGetter(ShootGoalSetting::duration),
@@ -28,7 +29,7 @@ public record ShootGoalSetting(int duration, int coolDown, int startTick, int sh
 
     public record ShootSetting(boolean plantFoodOnly, boolean isParabola, int shootTick, Vec3 offset,
                                double verticalAngleLimit, double horizontalAngleOffset,
-                               double pultHeight, BulletSetting bulletSetting) {
+                               double pultHeight, Holder<BulletSetting> bulletSetting) {
         public static final Codec<ShootSetting> CODEC = RecordCodecBuilder.<ShootSetting>mapCodec(instance -> instance.group(
                 Codec.BOOL.optionalFieldOf("plant_food_only", false).forGetter(ShootSetting::plantFoodOnly),
                 Codec.BOOL.optionalFieldOf("is_parabola", false).forGetter(ShootSetting::isParabola),
@@ -37,7 +38,7 @@ public record ShootGoalSetting(int duration, int coolDown, int startTick, int sh
                 Codec.doubleRange(0, Double.MAX_VALUE).optionalFieldOf("vertical_angle_limit", 0D).forGetter(ShootSetting::verticalAngleLimit),
                 Codec.DOUBLE.optionalFieldOf("horizontal_angle_offset", 0D).forGetter(ShootSetting::horizontalAngleOffset),
                 Codec.doubleRange(0, Double.MAX_VALUE).optionalFieldOf("pult_height", 10D).forGetter(ShootSetting::pultHeight),
-                BulletSetting.CODEC.fieldOf("bullet_setting").forGetter(ShootSetting::bulletSetting)
+                OTDBulletSettings.getCodec().fieldOf("bullet_setting").forGetter(ShootSetting::bulletSetting)
         ).apply(instance, ShootSetting::new)).codec();
     }
 

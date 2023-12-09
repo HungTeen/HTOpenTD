@@ -37,11 +37,11 @@ public class TowerTargetGoal extends Goal {
         if (this.plantEntity.getRandom().nextFloat() < this.targetSettings.chance()) {
             return false;
         }
-        List<LivingEntity> targets = this.targetSettings.targetFinder().getLivings((ServerLevel) this.plantEntity.level, this.plantEntity);
+        List<LivingEntity> targets = this.targetSettings.targetFinder().get().getLivings((ServerLevel) this.plantEntity.level(), this.plantEntity);
         final LivingEntity target = this.chooseTarget(targets);
         if (target != null) {
             this.targetMob = target;
-            this.refreshTick = this.targetMob.level.getGameTime() + this.targetSettings.refreshCD();
+            this.refreshTick = this.targetMob.level().getGameTime() + this.targetSettings.refreshCD();
             return true;
         }
         return false;
@@ -68,8 +68,8 @@ public class TowerTargetGoal extends Goal {
             return false;
         }
         //already out range.
-        if (this.targetSettings.targetFinder().stillValid((ServerLevel) this.plantEntity.level, this.plantEntity, entity)) {
-            if(this.refreshTick < this.plantEntity.level.getGameTime()){
+        if (this.targetSettings.targetFinder().get().stillValid((ServerLevel) this.plantEntity.level(), this.plantEntity, entity)) {
+            if(this.refreshTick < this.plantEntity.level().getGameTime()){
                 return false;
             }
             this.plantEntity.setTarget(entity);

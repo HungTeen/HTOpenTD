@@ -225,7 +225,7 @@ public class SummonTowerItem extends Item {
     @NotNull
     public static ItemSetting getItemSetting(ItemStack stack) {
         return CodecHelper.parse(ItemSetting.CODEC, stack.getOrCreateTag().get(ITEM_SETTING_TAG))
-                .resultOrPartial(msg -> Util.error("ItemSetting encode error : " + msg))
+                .result()
                 .orElse(ItemSetting.DEFAULT);
     }
 

@@ -1,32 +1,28 @@
 package hungteen.opentd.common.impl.tower;
 
-import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import hungteen.htlib.api.interfaces.IHTCodecRegistry;
 import hungteen.htlib.common.registry.HTCodecRegistry;
 import hungteen.htlib.common.registry.HTRegistryManager;
 import hungteen.htlib.util.helper.registry.EntityHelper;
-import hungteen.opentd.api.interfaces.ITowerComponent;
-import hungteen.opentd.api.interfaces.ITowerComponentType;
+import hungteen.opentd.api.interfaces.*;
 import hungteen.opentd.common.codec.*;
-import hungteen.opentd.common.impl.effect.*;
-import hungteen.opentd.common.impl.filter.*;
-import hungteen.opentd.common.impl.finder.RangeFinder;
+import hungteen.opentd.common.impl.OTDBulletSettings;
+import hungteen.opentd.common.impl.effect.OTDEffectComponents;
+import hungteen.opentd.common.impl.filter.OTDTargetFilters;
+import hungteen.opentd.common.impl.finder.OTDTargetFinders;
 import hungteen.opentd.util.Util;
-import net.minecraft.commands.CommandFunction;
 import net.minecraft.core.Holder;
-import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.phys.Vec3;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -45,6 +41,10 @@ public interface OTDTowerComponents {
 
 
     static void register(BootstapContext<ITowerComponent> context){
+        final HolderGetter<ITargetFilter> filters = OTDTargetFilters.registry().helper().lookup(context);
+        final HolderGetter<ITargetFinder> finders = OTDTargetFinders.registry().helper().lookup(context);
+        final HolderGetter<IEffectComponent> effects = OTDEffectComponents.registry().helper().lookup(context);
+        final HolderGetter<BulletSetting> bullets = OTDBulletSettings.registry().helper().lookup(context);
         context.register(PEA_SHOOTER, new PVZPlantComponent(
                 new PVZPlantComponent.PlantSetting(
                         TowerSetting.DEFAULT,
@@ -55,57 +55,15 @@ public interface OTDTowerComponents {
                         true,
                         RenderSetting.DEFAULT
                 ),
-                List.of(new TargetSetting(
-                        1, 0.2F, true, 10000,
-                        new RangeFinder(true, 40, 40,
-                                new OrTargetFilter(
-                                        Arrays.asList(
-                                                new TypeTargetFilter(List.of(
-                                                        EntityType.CREEPER
-                                                )),
-                                                new TagTargetFilter(
-                                                        Optional.of(EntityTypeTags.SKELETONS),
-                                                        Optional.empty()
-                                                ),
-                                                new TeamFilter(Optional.empty(), false, false, true)
-                                        )
-                                )
-                        )
-                )),
+                List.of(
+                        new TargetSetting(1, 0.2F, true, 10000, finders.getOrThrow(OTDTargetFinders.RANGE_SKELETONS))
+                ),
                 Optional.of(new ShootGoalSetting(
-                        0, 20, 10, 4, false, Optional.of(SoundEvents.SNOW_GOLEM_SHOOT),
+                        0, 20, 10, 4, false, Optional.of(Holder.direct(SoundEvents.SNOW_GOLEM_SHOOT)),
                         List.of(
                                 new ShootGoalSetting.ShootSetting(
                                         false, false, 0, Vec3.ZERO, 10, 0, 10,
-                                        new BulletSetting(
-                                                new OrTargetFilter(
-                                                        Arrays.asList(
-                                                                new TypeTargetFilter(List.of(
-                                                                        EntityType.CREEPER
-                                                                )),
-                                                                new TeamFilter(Optional.empty(), false, false, true)
-                                                        )
-                                                ),
-                                                new ListEffectComponent(Arrays.asList(
-                                                        new DamageEffectComponent(false, 5F, 0),
-                                                        new SplashEffectComponent(5, 5, true, new OrTargetFilter(List.of()), new DamageEffectComponent(false, 2F, 0.1F)),
-                                                        new NBTEffectComponent(get(), false),
-                                                        new RandomEffectComponent(10, 1, true, List.of(
-                                                                Pair.of(
-                                                                        new FunctionEffectComponent(false, new CommandFunction.CacheableFunction(Util.prefix("test"))),
-                                                                        1
-                                                                )
-                                                        ))
-                                                )),
-                                                0.2F, 1, 300, 0.0001F, 0.99999F, 0.8F, false, true, true,
-                                                RenderSetting.make(0.5F, 0.5F, 0.6F, false, "pea_shooter"),
-                                                Optional.empty(),
-                                                Optional.of(
-                                                        new ParticleSetting(
-                                                                ParticleTypes.FLAME, 1, true, new Vec3(1, 1, 1), new Vec3(0.1, 0.1, 0.1)
-                                                        )
-                                                )
-                                        )
+                                        bullets.getOrThrow(OTDBulletSettings.PEA)
                                 )
                         )
                 )),
@@ -127,17 +85,13 @@ public interface OTDTowerComponents {
                         false, true,
                         RenderSetting.make(0.8F, 1F, 1F, false, "sun_flower")
                 ),
-                List.of(new TargetSetting(1, 0.2F, true, 10000,
-                        new RangeFinder(true, 40, 40,
-                                new TypeTargetFilter(List.of(
-                                        EntityType.CREEPER
-                                ))
-                        ))
+                List.of(
+                        new TargetSetting(1, 0.2F, true, 10000, finders.getOrThrow(OTDTargetFinders.RANGE_CREEPER))
                 ),
                 Optional.empty(),
                 Optional.of(
                         new GenGoalSetting(
-                                20, 10, 100, 100, false, Optional.of(SoundEvents.PLAYER_LEVELUP),
+                                20, 10, 100, 100, false, Optional.of(Holder.direct(SoundEvents.PLAYER_LEVELUP)),
                                 List.of(
                                         new GenGoalSetting.GenSetting(
                                                 false, 100, 200, 1,
@@ -161,16 +115,11 @@ public interface OTDTowerComponents {
                 List.of(
                         new ConstantAffectSetting(
                                 20,
-                                new RangeFinder(true, 10, 10, new ClassFilter(ClassFilter.ENEMY)),
-                                new AttractEffectComponent(
-                                        AlwaysTrueFilter.INSTANCE,
-                                        Optional.of(AlwaysTrueFilter.INSTANCE)
-                                )
+                                finders.getOrThrow(OTDTargetFinders.AROUND_ENEMIES),
+                                effects.getOrThrow(OTDEffectComponents.ATTRACT)
                         )
                 ),
-                Optional.of(
-                        new SummonEffectComponent(1, 5, Optional.of(5), 16, true, true, EntityType.EXPERIENCE_ORB, new CompoundTag())
-                ),
+                Optional.of(effects.getOrThrow(OTDEffectComponents.SUMMON_XP_AROUND)),
                 Optional.empty(),
                 Optional.empty()
         ));

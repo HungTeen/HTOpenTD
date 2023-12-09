@@ -29,7 +29,7 @@ public record ClassFilter(IEntityClassifier entityClassifier) implements ITarget
 
     private static final HTSimpleRegistry<IEntityClassifier> ENTITY_CLASSIFIERS = HTRegistryManager.createSimple(Util.prefix("entity_classifier"));
     public static final Codec<ClassFilter> CODEC = RecordCodecBuilder.<ClassFilter>mapCodec(instance -> instance.group(
-            ENTITY_CLASSIFIERS.byNameCodec().fieldOf("class").forGetter(ClassFilter::entityClassifier)
+            registry().byNameCodec().fieldOf("class").forGetter(ClassFilter::entityClassifier)
     ).apply(instance, ClassFilter::new)).codec();
 
     public static final IEntityClassifier LIVING = create("living", LivingEntity.class);

@@ -3,7 +3,7 @@
   "item.opentd.test_pea_shooter_card": "豌豆射手卡（测试）",
   "item.opentd.test_sun_flower_card": "向日葵卡（测试）",
 
-  "itemGroup.otd.summon_cards": "开放式塔防",
+  "itemGroup.opentd.summon_cards": "开放式塔防",
 
   "tip.opentd.wrong_block": "不能放置在该方块上",
   "tip.opentd.wrong_entity": "不能放置在该实体上",

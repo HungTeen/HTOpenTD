@@ -1,0 +1,5 @@
+{
+  "type": "opentd:attract",
+  "attract_filter": "opentd:all",
+  "target_filter": "opentd:all"
+}

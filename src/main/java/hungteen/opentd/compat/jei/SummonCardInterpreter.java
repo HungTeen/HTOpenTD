@@ -3,7 +3,6 @@ package hungteen.opentd.compat.jei;
 import hungteen.opentd.common.item.SummonTowerItem;
 import mezz.jei.api.ingredients.subtypes.IIngredientSubtypeInterpreter;
 import mezz.jei.api.ingredients.subtypes.UidContext;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
 public class SummonCardInterpreter implements IIngredientSubtypeInterpreter<ItemStack> {
@@ -15,6 +14,6 @@ public class SummonCardInterpreter implements IIngredientSubtypeInterpreter<Item
         if (!itemStack.hasTag() || !(itemStack.getItem() instanceof SummonTowerItem)) {
             return IIngredientSubtypeInterpreter.NONE;
         }
-        return SummonTowerItem.getId(itemStack).map(ResourceLocation::toString).orElse(IIngredientSubtypeInterpreter.NONE);
+        return SummonTowerItem.getSummonEntry(itemStack).location().toString();
     }
 }

@@ -2,9 +2,9 @@ package hungteen.opentd.common.impl.filter;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import hungteen.htlib.util.helper.registry.EntityHelper;
 import hungteen.opentd.api.interfaces.ITargetFilter;
 import hungteen.opentd.api.interfaces.ITargetFilterType;
-import net.minecraft.core.Registry;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
@@ -20,7 +20,7 @@ import java.util.Optional;
 public record TagTargetFilter(Optional<TagKey<EntityType<?>>> typeTag, Optional<String> entityTag) implements ITargetFilter {
 
     public static final Codec<TagTargetFilter> CODEC = RecordCodecBuilder.<TagTargetFilter>mapCodec(instance -> instance.group(
-            Codec.optionalField("tag", TagKey.hashedCodec(Registry.ENTITY_TYPE_REGISTRY)).forGetter(TagTargetFilter::typeTag),
+            Codec.optionalField("tag", TagKey.hashedCodec(EntityHelper.get().resourceKey())).forGetter(TagTargetFilter::typeTag),
             Codec.optionalField("entity_tag", Codec.STRING).forGetter(TagTargetFilter::entityTag)
     ).apply(instance, TagTargetFilter::new)).codec();
 

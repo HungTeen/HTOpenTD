@@ -1,0 +1,30 @@
+{
+  "bullet_speed": 0.2,
+  "effect": "opentd:pea_damage",
+  "gravity": 1.0E-4,
+  "lock_to_target": true,
+  "max_exist_tick": 300,
+  "render_setting": {
+    "animation": "opentd:animations/pea_shooter.animation.json",
+    "height": 0.5,
+    "model": "opentd:geo/pea_shooter.geo.json",
+    "scale": 0.6,
+    "texture": "opentd:textures/entity/pea_shooter.png",
+    "width": 0.5
+  },
+  "slow_down": 0.99999,
+  "target_filter": "opentd:creeper_only",
+  "trail_particle": {
+    "offset": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "particle_type": "minecraft:flame",
+    "speed": [
+      0.1,
+      0.1,
+      0.1
+    ]
+  }
+}

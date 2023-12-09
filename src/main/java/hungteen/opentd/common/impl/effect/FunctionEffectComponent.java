@@ -51,7 +51,7 @@ public record FunctionEffectComponent(boolean self, CommandFunction.CacheableFun
     }
 
     public CommandSourceStack createCommandSourceStack(Entity entity) {
-        return new CommandSourceStack(entity, entity.position(), entity.getRotationVector(), (ServerLevel)entity.level, 2, entity.getName().getString(), entity.getDisplayName(), Objects.requireNonNull(entity.level.getServer()), entity);
+        return new CommandSourceStack(entity, entity.position(), entity.getRotationVector(), (ServerLevel)entity.level(), 2, entity.getName().getString(), entity.getDisplayName(), Objects.requireNonNull(entity.level().getServer()), entity);
     }
 
     @Override

@@ -19,7 +19,7 @@ public class OpenTDEffects {
     private static final DeferredRegister<MobEffect> EFFECTS = DeferredRegister.create(ForgeRegistries.MOB_EFFECTS, OpenTD.MOD_ID);
 
     public static final RegistryObject<MobEffect> ENERGETIC_EFFECT = EFFECTS.register("energetic", () -> {
-        return new HTMobEffect(MobEffectCategory.BENEFICIAL, ColorHelper.CREEPER_GREEN);
+        return new HTMobEffect(MobEffectCategory.BENEFICIAL, ColorHelper.CREEPER_GREEN.rgb());
     });
 
     public static void register(IEventBus event){

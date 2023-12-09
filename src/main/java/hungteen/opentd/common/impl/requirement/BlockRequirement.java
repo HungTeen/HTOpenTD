@@ -3,10 +3,10 @@ package hungteen.opentd.common.impl.requirement;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import hungteen.htlib.util.helper.PlayerHelper;
+import hungteen.htlib.util.helper.registry.BlockHelper;
 import hungteen.opentd.api.interfaces.ISummonRequirement;
 import hungteen.opentd.api.interfaces.ISummonRequirementType;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
@@ -29,7 +29,7 @@ public record BlockRequirement(Optional<String> tip, Optional<BlockState> blockS
     public static final Codec<BlockRequirement> CODEC = RecordCodecBuilder.<BlockRequirement>mapCodec(instance -> instance.group(
             Codec.optionalField("tip", Codec.STRING).forGetter(BlockRequirement::tip),
             Codec.optionalField("state", BlockState.CODEC).forGetter(BlockRequirement::blockState),
-            Codec.optionalField("tag", TagKey.codec(Registry.BLOCK_REGISTRY)).forGetter(BlockRequirement::blockTag),
+            Codec.optionalField("tag", TagKey.codec(BlockHelper.get().resourceKey())).forGetter(BlockRequirement::blockTag),
             Codec.optionalField("blocks", ForgeRegistries.BLOCKS.getCodec().listOf()).forGetter(BlockRequirement::blocks)
     ).apply(instance, BlockRequirement::new)).codec();
 

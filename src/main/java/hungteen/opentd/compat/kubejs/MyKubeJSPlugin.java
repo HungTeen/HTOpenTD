@@ -1,18 +1,10 @@
 package hungteen.opentd.compat.kubejs;
 
-import dev.architectury.event.Event;
-import dev.architectury.event.EventActor;
 import dev.latvian.mods.kubejs.KubeJSPlugin;
-import dev.latvian.mods.kubejs.bindings.event.ServerEvents;
-import dev.latvian.mods.kubejs.item.KubeJSItemEventHandler;
 import dev.latvian.mods.kubejs.script.ScriptType;
 import dev.latvian.mods.kubejs.util.ClassFilter;
-import hungteen.opentd.common.capability.OpenTDCapabilities;
 import hungteen.opentd.common.event.events.*;
 import hungteen.opentd.compat.kubejs.event.*;
-import net.minecraft.advancements.Advancement;
-import net.minecraft.server.commands.ExecuteCommand;
-import net.minecraft.world.entity.Entity;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -46,7 +38,7 @@ public class MyKubeJSPlugin extends KubeJSPlugin {
     }
 
     private static void preSummonTower(SummonTowerEvent event) {
-        if(OTDKubeJSEvents.PRE_SUMMON_TOWER.post(new SummonTowerEventJS(event))){
+        if(OTDKubeJSEvents.PRE_SUMMON_TOWER.post(new SummonTowerEventJS(event)).interruptFalse()){
             event.setCanceled(true);
         }
     }
@@ -60,13 +52,13 @@ public class MyKubeJSPlugin extends KubeJSPlugin {
     }
 
     private static void shootBullet(ShootBulletEvent event) {
-        if(OTDKubeJSEvents.SHOOT_BULLET.post(new ShootBulletEventJS(event))){
+        if(OTDKubeJSEvents.SHOOT_BULLET.post(new ShootBulletEventJS(event)).interruptFalse()){
             event.setCanceled(true);
         }
     }
 
     private static void filterTarget(FilterTargetEvent event) {
-        if(OTDKubeJSEvents.FILTER_TARGET.post(new FilterTargetEventJS(event))){
+        if(OTDKubeJSEvents.FILTER_TARGET.post(new FilterTargetEventJS(event)).interruptFalse()){
             event.setCanceled(true);
         }
     }

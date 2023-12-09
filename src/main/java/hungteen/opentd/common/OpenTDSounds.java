@@ -1,8 +1,8 @@
 package hungteen.opentd.common;
 
 import hungteen.opentd.OpenTD;
+import hungteen.opentd.util.Util;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.world.item.Item;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -25,7 +25,7 @@ public class OpenTDSounds {
 
     private static RegistryObject<SoundEvent> registerSound(String name){
         return SOUNDS.register(name, ()->{
-            return new SoundEvent(OpenTD.prefix(name));
+            return SoundEvent.createVariableRangeEvent(Util.prefix(name));
         });
     }
 

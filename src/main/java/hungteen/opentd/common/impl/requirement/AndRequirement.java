@@ -6,6 +6,7 @@ import hungteen.htlib.util.helper.PlayerHelper;
 import hungteen.opentd.api.interfaces.ISummonRequirement;
 import hungteen.opentd.api.interfaces.ISummonRequirementType;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -20,7 +21,7 @@ import java.util.Optional;
  * @author: HungTeen
  * @create: 2023-01-17 11:22
  **/
-public record AndRequirement(List<ISummonRequirement> requirements, Optional<String> tip) implements ISummonRequirement {
+public record AndRequirement(List<Holder<ISummonRequirement>> requirements, Optional<String> tip) implements ISummonRequirement {
 
     public static final Codec<AndRequirement> CODEC = RecordCodecBuilder.<AndRequirement>mapCodec(instance -> instance.group(
             OTDSummonRequirements.getCodec().listOf().fieldOf("requirements").forGetter(AndRequirement::requirements),
@@ -29,7 +30,7 @@ public record AndRequirement(List<ISummonRequirement> requirements, Optional<Str
 
     @Override
     public boolean allowOn(ServerLevel level, Player player, Entity entity, boolean sendMessage) {
-        if(! requirements().stream().allMatch(r -> r.allowOn(level, player, entity, false))){
+        if(! requirements().stream().allMatch(r -> r.get().allowOn(level, player, entity, false))){
             if(sendMessage) PlayerHelper.sendTipTo(player, getTip());
             return false;
         }
@@ -38,7 +39,7 @@ public record AndRequirement(List<ISummonRequirement> requirements, Optional<Str
 
     @Override
     public boolean allowOn(ServerLevel level, Player player, BlockState state, BlockPos pos, boolean sendMessage) {
-        if(! requirements().stream().allMatch(r -> r.allowOn(level, player, state, pos, false))){
+        if(! requirements().stream().allMatch(r -> r.get().allowOn(level, player, state, pos, false))){
             if(sendMessage) PlayerHelper.sendTipTo(player, getTip());
             return false;
         }
@@ -47,7 +48,7 @@ public record AndRequirement(List<ISummonRequirement> requirements, Optional<Str
 
     @Override
     public void consume(ServerLevel level, Player player) {
-        requirements().forEach(r -> r.consume(level, player));
+        requirements().forEach(r -> r.get().consume(level, player));
     }
 
     public Component getTip() {

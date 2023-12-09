@@ -39,7 +39,7 @@ public record KnockbackEffectComponent (boolean self, boolean horizontalOnly, fl
             if(horizontalOnly()){
                 final Vec3 dif = target.position().subtract(attacker.position());
                 final Vec3 speed = (new Vec3(dif.x(), 0.0D, dif.z())).normalize().scale(strength);
-                target.setDeltaMovement(originSpeed.x * affectPercent() - speed.x, target.isOnGround() ? Math.min(0.4D, originSpeed.y * affectPercent() + strength) : originSpeed.y, originSpeed.z  * affectPercent() - speed.z);
+                target.setDeltaMovement(originSpeed.x * affectPercent() - speed.x, target.onGround() ? Math.min(0.4D, originSpeed.y * affectPercent() + strength) : originSpeed.y, originSpeed.z  * affectPercent() - speed.z);
             } else{
                 final Vec3 speed = target.getEyePosition().subtract(attacker.getEyePosition()).normalize().scale(strength);
                 target.setDeltaMovement(originSpeed.x * affectPercent() - speed.x, Math.min(0.4D, originSpeed.y * affectPercent() - speed.y), originSpeed.z  * affectPercent() - speed.z);

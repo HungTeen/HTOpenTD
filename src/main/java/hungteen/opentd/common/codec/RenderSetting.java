@@ -2,7 +2,7 @@ package hungteen.opentd.common.codec;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import hungteen.opentd.OpenTD;
+import hungteen.opentd.util.Util;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityDimensions;
 
@@ -18,9 +18,9 @@ public record RenderSetting(float width, float height, float scale, boolean tran
 
     public static RenderSetting make(float width, float height, float scale, boolean transparent, String name) {
         return new RenderSetting(width, height, scale, transparent,
-                OpenTD.prefix("geo/" + name + ".geo.json"),
-                OpenTD.prefix("textures/entity/" + name + ".png"),
-                OpenTD.prefix("animations/" + name + ".animation.json")
+                Util.prefix("geo/" + name + ".geo.json"),
+                Util.prefix("textures/entity/" + name + ".png"),
+                Util.prefix("animations/" + name + ".animation.json")
         );
     }
 

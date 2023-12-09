@@ -40,28 +40,22 @@ public class PlayerUtil {
 
     public static boolean isOnCooldown(Player player, ItemStack stack){
         if(stack.getItem() instanceof SummonTowerItem) {
-            Optional<ResourceLocation> opt = SummonTowerItem.getId(stack);
-            if (opt.isPresent()) {
-                return getManagerResult(player, l -> l.isOnCooldown(opt.get()), true);
-            }
-            return true;
+            ResourceLocation location = SummonTowerItem.getSummonEntry(stack).location();
+            return getManagerResult(player, l -> l.isOnCooldown(location), true);
         } else{
             return player.getCooldowns().isOnCooldown(stack.getItem());
         }
     }
 
     public static double getCDPercent(Player player, ItemStack stack){
-        Optional<ResourceLocation> opt = SummonTowerItem.getId(stack);
-        if (opt.isPresent()) {
-            return getManagerResult(player, l -> l.getCDPercent(opt.get()), 0D);
-        }
-        return 0;
+        ResourceLocation location = SummonTowerItem.getSummonEntry(stack).location();
+        return getManagerResult(player, l -> l.getCDPercent(location), 0D);
     }
 
     public static void addCooldown(Player player, ItemStack stack, int cd){
         if(stack.getItem() instanceof SummonTowerItem) {
-            Optional<ResourceLocation> opt = SummonTowerItem.getId(stack);
-            opt.ifPresent(resourceLocation -> getOptManager(player).ifPresent(l -> l.saveCurrentCD(resourceLocation, cd)));
+            ResourceLocation location = SummonTowerItem.getSummonEntry(stack).location();
+            getOptManager(player).ifPresent(l -> l.saveCurrentCD(location, cd));
         } else{
             player.getCooldowns().addCooldown(stack.getItem(), cd);
         }

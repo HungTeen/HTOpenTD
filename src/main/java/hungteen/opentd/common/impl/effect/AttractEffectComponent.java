@@ -6,8 +6,9 @@ import hungteen.opentd.api.interfaces.IEffectComponent;
 import hungteen.opentd.api.interfaces.IEffectComponentType;
 import hungteen.opentd.api.interfaces.ITargetFilter;
 import hungteen.opentd.common.impl.filter.AlwaysTrueFilter;
-import hungteen.opentd.common.impl.filter.OTDTargetFilterTypes;
+import hungteen.opentd.common.impl.filter.OTDTargetFilters;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -20,23 +21,23 @@ import java.util.Optional;
  * @author: HungTeen
  * @create: 2023-01-11 20:00
  **/
-public record AttractEffectComponent(ITargetFilter targetFilter, Optional<ITargetFilter> attractFilter) implements IEffectComponent {
+public record AttractEffectComponent(Holder<ITargetFilter> targetFilter, Optional<Holder<ITargetFilter>> attractFilter) implements IEffectComponent {
 
     public static final Codec<AttractEffectComponent> CODEC = RecordCodecBuilder.<AttractEffectComponent>mapCodec(instance -> instance.group(
-            OTDTargetFilterTypes.getCodec().optionalFieldOf("target_filter", AlwaysTrueFilter.INSTANCE).forGetter(AttractEffectComponent::targetFilter),
-            Codec.optionalField("attract_filter", OTDTargetFilterTypes.getCodec()).forGetter(AttractEffectComponent::attractFilter)
+            OTDTargetFilters.getCodec().optionalFieldOf("target_filter", Holder.direct(AlwaysTrueFilter.INSTANCE)).forGetter(AttractEffectComponent::targetFilter),
+            Codec.optionalField("attract_filter", OTDTargetFilters.getCodec()).forGetter(AttractEffectComponent::attractFilter)
     ).apply(instance, AttractEffectComponent::new)).codec();
 
     @Override
     public void effectTo(ServerLevel serverLevel, Entity owner, Entity entity) {
-        if(entity instanceof Mob && owner instanceof LivingEntity && owner.level instanceof ServerLevel){
+        if(entity instanceof Mob mob && owner instanceof LivingEntity){
             // Target not match.
-            if(! targetFilter().match((ServerLevel) owner.level, owner, entity)){
+            if(! targetFilter().get().match(serverLevel, owner, entity)){
                 return;
             }
             // Match target's target.
-            if(((Mob)entity).getTarget() == null || ! attractFilter().isPresent() || attractFilter().get().match((ServerLevel) owner.level, owner, ((Mob)entity).getTarget())){
-                ((Mob)entity).setTarget((LivingEntity) owner);
+            if(mob.getTarget() == null || attractFilter().isEmpty() || attractFilter().get().get().match(serverLevel, owner, mob.getTarget())){
+                mob.setTarget((LivingEntity) owner);
             }
         }
     }

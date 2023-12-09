@@ -1,0 +1,7 @@
+{
+  "type": "opentd:or",
+  "requirements": [
+    "opentd:on_creeper",
+    "opentd:on_grass"
+  ]
+}

@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.*;
 import hungteen.opentd.util.PlayerUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.util.Mth;
@@ -18,18 +19,17 @@ import net.minecraftforge.client.IItemDecorator;
  **/
 public class CoolDownDecorator implements IItemDecorator {
     @Override
-    public boolean render(Font font, ItemStack stack, int xOffset, int yOffset, float blitOffset) {
+    public boolean render(GuiGraphics guiGraphics, Font font, ItemStack stack, int xOffset, int yOffset) {
         LocalPlayer localplayer = Minecraft.getInstance().player;
         double percent = localplayer == null ? 0.0F : PlayerUtil.getCDPercent(localplayer, stack);
+        //TODO 冷却可能出问题
         if (percent > 0) {
             RenderSystem.disableDepthTest();
-            RenderSystem.disableTexture();
             RenderSystem.enableBlend();
             RenderSystem.defaultBlendFunc();
             Tesselator tesselator = Tesselator.getInstance();
             BufferBuilder builder = tesselator.getBuilder();
             this.fillRect(builder, xOffset, yOffset + Mth.floor(16.0F * (1.0F - percent)), 16, Mth.ceil(16.0F * percent), 255, 255, 255, 127);
-            RenderSystem.enableTexture();
             RenderSystem.enableDepthTest();
         }
         return true;
@@ -44,6 +44,5 @@ public class CoolDownDecorator implements IItemDecorator {
         builder.vertex(x + p_115156_, (y), 0.0D).color(p_115158_, p_115159_, p_115160_, p_115161_).endVertex();
         BufferUploader.drawWithShader(builder.end());
     }
-
 
 }

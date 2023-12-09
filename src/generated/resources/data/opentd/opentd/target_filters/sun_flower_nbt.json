@@ -1,0 +1,10 @@
+{
+  "type": "opentd:nbt",
+  "target_nbt": {
+    "ComponentTag": {
+      "plant_setting": {
+        "id": "opentd:sun_flower_test"
+      }
+    }
+  }
+}

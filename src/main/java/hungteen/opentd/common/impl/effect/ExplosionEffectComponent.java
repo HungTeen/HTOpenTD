@@ -7,7 +7,6 @@ import hungteen.opentd.api.interfaces.IEffectComponentType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.event.ForgeEventFactory;
 
@@ -27,18 +26,18 @@ public record ExplosionEffectComponent(boolean canBreak, boolean destroyMode, fl
 
     @Override
     public void effectTo(ServerLevel serverLevel, Entity owner, Entity entity) {
-        explode(owner.level, owner, self() ? owner.blockPosition() : entity.blockPosition());
+        explode(serverLevel, owner, self() ? owner.blockPosition() : entity.blockPosition());
     }
 
     @Override
     public void effectTo(ServerLevel serverLevel, Entity owner, BlockPos pos) {
-        explode(owner.level, owner, self() ? owner.blockPosition() : pos);
+        explode(serverLevel, owner, self() ? owner.blockPosition() : pos);
     }
 
     private void explode(Level level, Entity entity, BlockPos pos){
-        Explosion.BlockInteraction interaction = Explosion.BlockInteraction.NONE;
+        Level.ExplosionInteraction interaction = Level.ExplosionInteraction.NONE;
         if(canBreak() && ForgeEventFactory.getMobGriefingEvent(level, entity)){
-            interaction = destroyMode() ? Explosion.BlockInteraction.DESTROY : Explosion.BlockInteraction.BREAK;
+            interaction = destroyMode() ? Level.ExplosionInteraction.MOB : Level.ExplosionInteraction.BLOCK;
         }
         level.explode(entity, pos.getX(), pos.getY(), pos.getZ(), power(), interaction);
     }

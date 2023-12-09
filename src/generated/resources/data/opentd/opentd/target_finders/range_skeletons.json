@@ -1,0 +1,6 @@
+{
+  "type": "opentd:range",
+  "height": 40.0,
+  "target_filter": "opentd:skeleton_tags",
+  "width": 40.0
+}

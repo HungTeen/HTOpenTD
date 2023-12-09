@@ -4,8 +4,9 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import hungteen.opentd.api.interfaces.IEffectComponent;
 import hungteen.opentd.api.interfaces.ITargetFilter;
-import hungteen.opentd.common.impl.effect.OTDEffectComponentTypes;
-import hungteen.opentd.common.impl.filter.OTDTargetFilterTypes;
+import hungteen.opentd.common.impl.effect.OTDEffectComponents;
+import hungteen.opentd.common.impl.filter.OTDTargetFilters;
+import net.minecraft.core.Holder;
 
 import java.util.Optional;
 
@@ -14,13 +15,13 @@ import java.util.Optional;
  * @author: HungTeen
  * @create: 2023-05-10 22:21
  **/
-public record BulletSetting(ITargetFilter targetFilter, IEffectComponent effect, float bulletSpeed,
-                             int maxHitCount, int maxExistTick, float gravity, float slowDown, float waterSlowDown, boolean ignoreBlock,
-                             boolean lockToTarget, boolean sameTeamWithOwner, RenderSetting renderSettings, Optional<ParticleSetting> hitParticle, Optional<ParticleSetting> trailParticle) {
+public record BulletSetting(Holder<ITargetFilter> targetFilter, Holder<IEffectComponent> effect, float bulletSpeed,
+                            int maxHitCount, int maxExistTick, float gravity, float slowDown, float waterSlowDown, boolean ignoreBlock,
+                            boolean lockToTarget, boolean sameTeamWithOwner, RenderSetting renderSettings, Optional<ParticleSetting> hitParticle, Optional<ParticleSetting> trailParticle) {
 
     public static final Codec<BulletSetting> CODEC = RecordCodecBuilder.<BulletSetting>mapCodec(instance -> instance.group(
-            OTDTargetFilterTypes.getCodec().fieldOf("target_filter").forGetter(BulletSetting::targetFilter),
-            OTDEffectComponentTypes.getCodec().fieldOf("effect").forGetter(BulletSetting::effect),
+            OTDTargetFilters.getCodec().fieldOf("target_filter").forGetter(BulletSetting::targetFilter),
+            OTDEffectComponents.getCodec().fieldOf("effect").forGetter(BulletSetting::effect),
             Codec.floatRange(0, Float.MAX_VALUE).optionalFieldOf("bullet_speed", 0.15F).forGetter(BulletSetting::bulletSpeed),
             Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("max_hit_count", 1).forGetter(BulletSetting::maxHitCount),
             Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("max_exist_tick", 50).forGetter(BulletSetting::maxExistTick),
