@@ -3,6 +3,6 @@
   "filter": "opentd:sun_flower_nbt",
   "height": 3.0,
   "max_count": 10,
-  "min_count": 10,
+  "min_count": 1,
   "width": 3.0
 }

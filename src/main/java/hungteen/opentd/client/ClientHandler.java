@@ -1,17 +1,13 @@
 package hungteen.opentd.client;
 
-import hungteen.htlib.client.util.ClientHelper;
 import hungteen.opentd.client.model.entity.TowerEntityModel;
 import hungteen.opentd.client.model.item.SummonTowerModel;
 import hungteen.opentd.client.render.entity.BulletEntityRender;
 import hungteen.opentd.client.render.entity.PlantEntityRender;
 import hungteen.opentd.client.render.entity.TowerEntityRender;
 import hungteen.opentd.client.render.item.CoolDownDecorator;
-import hungteen.opentd.common.codec.SummonEntry;
 import hungteen.opentd.common.entity.OpenTDEntities;
-import hungteen.opentd.common.codec.ItemSetting;
 import hungteen.opentd.common.item.OTDItems;
-import hungteen.opentd.common.impl.OTDSummonEntries;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
@@ -20,8 +16,6 @@ import net.minecraftforge.client.event.ModelEvent;
 import net.minecraftforge.client.event.RegisterItemDecorationsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-
-import java.util.Optional;
 
 /**
  * @program: HTOpenTD
@@ -47,16 +41,16 @@ public class ClientHandler {
         }
     }
 
-    @SubscribeEvent
-    public static void bakeModel(ModelEvent.RegisterAdditional event) {
-        Optional.ofNullable(ClientHelper.mc().level).ifPresent(level -> {
-            OTDSummonEntries.registry().getValues(level).stream()
-                    .map(SummonEntry::itemSetting)
-                    .map(ItemSetting::model)
-                    .map(model -> new ModelResourceLocation(model, "inventory"))
-                    .forEach(event::register);
-        });
-    }
+//    @SubscribeEvent
+//    public static void bakeModel(ModelEvent.RegisterAdditional event) {
+//        Optional.ofNullable(ClientHelper.mc().level).ifPresent(level -> {
+//            OTDSummonEntries.registry().getValues(level).stream()
+//                    .map(SummonEntry::itemSetting)
+//                    .map(ItemSetting::model)
+//                    .map(model -> new ModelResourceLocation(model, "inventory"))
+//                    .forEach(event::register);
+//        });
+//    }
 
     @SubscribeEvent
     public static void registerItemRender(RegisterItemDecorationsEvent event) {

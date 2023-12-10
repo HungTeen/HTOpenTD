@@ -3,6 +3,7 @@
 #### 新内容
 * 所有OTD数据包支持引用。
 #### Bug修复
+* 周围实体要求组件中min_count字段无效。
 #### 其他改变
 * 召唤卡的item_settings改名item_setting，tower_settings改名tower_setting。
 * 取消item_settings独立数据包文件夹,item_setting中的requirement字段移动到平级。

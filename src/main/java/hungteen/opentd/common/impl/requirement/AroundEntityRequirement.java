@@ -31,7 +31,7 @@ public record AroundEntityRequirement(double width, double height, int minCount,
     public static final Codec<AroundEntityRequirement> CODEC = RecordCodecBuilder.<AroundEntityRequirement>mapCodec(instance -> instance.group(
             Codec.DOUBLE.fieldOf("width").forGetter(AroundEntityRequirement::width),
             Codec.DOUBLE.fieldOf("height").forGetter(AroundEntityRequirement::height),
-            Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("min_count", 0).forGetter(AroundEntityRequirement::maxCount),
+            Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("min_count", 0).forGetter(AroundEntityRequirement::minCount),
             Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("max_count", Integer.MAX_VALUE).forGetter(AroundEntityRequirement::maxCount),
             Codec.optionalField("tip", Codec.STRING).forGetter(AroundEntityRequirement::tip),
             OTDTargetFilters.getCodec().fieldOf("filter").forGetter(AroundEntityRequirement::filter)
