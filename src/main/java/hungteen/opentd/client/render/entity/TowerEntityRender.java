@@ -15,6 +15,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import software.bernie.geckolib.model.GeoModel;
@@ -72,13 +73,13 @@ public class TowerEntityRender<T extends TowerEntity> extends GeoEntityRenderer<
         }
     }
 
-//    @Override
-//    public RenderType getRenderType(T animatable, float partialTick, PoseStack poseStack, @Nullable MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, int packedLight, ResourceLocation texture) {
-//        if (animatable.getRenderSetting() != null && animatable.getRenderSetting().translucent()) {
-//            return RenderType.entityTranslucent(getTextureLocation(animatable));
-//        } TODO Render type.
-//        return super.getRenderType(animatable, partialTick, poseStack, bufferSource, buffer, packedLight, texture);
-//    }
+    @Override
+    public RenderType getRenderType(T animatable, ResourceLocation texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
+        if (animatable.getRenderSetting() != null && animatable.getRenderSetting().translucent()) {
+            return RenderType.entityTranslucent(getTextureLocation(animatable));
+        }
+        return super.getRenderType(animatable, texture, bufferSource, partialTick);
+    }
 
     private void renderLaser(T towerEntity, float partialTick, PoseStack stack, MultiBufferSource bufferSource){
         LivingEntity livingentity = towerEntity.getActiveAttackTarget();
