@@ -36,7 +36,7 @@ public record ClassFilter(IEntityClassifier entityClassifier) implements ITarget
     public static final IEntityClassifier PLAYER = create("player", PlantEntity.class);
     public static final IEntityClassifier VILLAGER = create("villager", AbstractVillager.class);
 
-    public static final IEntityClassifier ENEMY = create("monster", Enemy.class);
+    public static final IEntityClassifier ENEMY = create("enemy", Enemy.class);
     public static final IEntityClassifier RAIDER = create("raider", Raider.class);
     public static final IEntityClassifier ANIMAL = create("animal", Animal.class);
     public static final IEntityClassifier WATER_ANIMAL = create("water_animal", WaterAnimal.class);

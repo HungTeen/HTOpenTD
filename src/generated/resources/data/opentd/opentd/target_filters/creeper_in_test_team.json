@@ -1,0 +1,7 @@
+{
+  "type": "opentd:and",
+  "filters": [
+    "opentd:creeper_only",
+    "opentd:in_test_team"
+  ]
+}

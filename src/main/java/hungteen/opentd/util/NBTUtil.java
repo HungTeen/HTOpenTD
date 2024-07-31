@@ -17,4 +17,16 @@ public class NBTUtil {
         }
         return tag;
     }
+
+    public static CompoundTag fiveHealth() {
+        CompoundTag tag = new CompoundTag();
+        tag.putFloat("Health", 5F);
+        return tag;
+    }
+
+    public static CompoundTag onFire() {
+        CompoundTag tag = new CompoundTag();
+        tag.putShort("Fire", (short) 100);
+        return tag;
+    }
 }

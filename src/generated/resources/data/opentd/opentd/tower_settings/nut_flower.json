@@ -1,0 +1,28 @@
+{
+  "type": "opentd:pvz_plant",
+  "constant_settings": [
+    {
+      "cd": 20,
+      "effect": "opentd:attract_all_effect",
+      "target_finder": "opentd:around_enemies"
+    }
+  ],
+  "die_effect": "opentd:explosion_effect",
+  "hurt_effect": "opentd:knockback_effect",
+  "plant_setting": {
+    "change_direction": false,
+    "id": "opentd:sun_flower_test",
+    "max_exist_tick": 2000,
+    "render_setting": {
+      "animation": "opentd:animations/sun_flower.animation.json",
+      "height": 1.0,
+      "model": "opentd:geo/sun_flower.geo.json",
+      "texture": "opentd:textures/entity/sun_flower.png",
+      "width": 0.8
+    },
+    "tower_setting": {
+      "death_duration": 100,
+      "persistent": true
+    }
+  }
+}

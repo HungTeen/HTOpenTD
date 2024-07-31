@@ -1,0 +1,16 @@
+{
+  "type": "opentd:inventory",
+  "consume_items": [
+    {
+      "Count": 1,
+      "id": "minecraft:diamond"
+    }
+  ],
+  "own_items": [
+    {
+      "Count": 1,
+      "id": "minecraft:diamond"
+    }
+  ],
+  "tip": "Cost 1 diamond !"
+}

@@ -13,8 +13,8 @@ public interface OTDTowerTypes {
 
     HTSimpleRegistry<ITowerComponentType<?>> TOWER_TYPES = HTRegistryManager.createSimple(Util.prefix("tower_type"));
 
-    ITowerComponentType<PVZPlantComponent> PVZ_PLANT = register(new DefaultTower<>("pvz_plant", PVZPlantComponent.CODEC));
-    ITowerComponentType<PlantHeroComponent> PLANT_HERO = register(new DefaultTower<>("plant_hero", PlantHeroComponent.CODEC));
+    ITowerComponentType<PVZPlantComponent> PVZ_PLANT = register(new DefaultTower<>("pvz_plant", PVZPlantComponent.CODEC, PVZPlantComponent.NETWORK_CODEC));
+    ITowerComponentType<PlantHeroComponent> PLANT_HERO = register(new DefaultTower<>("plant_hero", PlantHeroComponent.CODEC, PlantHeroComponent.NETWORK_CODEC));
 
     static IHTSimpleRegistry<ITowerComponentType<?>> registry(){
         return TOWER_TYPES;
@@ -24,7 +24,7 @@ public interface OTDTowerTypes {
         return registry().register(type);
     }
 
-    record DefaultTower<P extends ITowerComponent>(String name, Codec<P> codec) implements ITowerComponentType<P> {
+    record DefaultTower<P extends ITowerComponent>(String name, Codec<P> codec, Codec<P> networkCodec) implements ITowerComponentType<P> {
 
         @Override
         public String getName() {

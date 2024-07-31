@@ -1,0 +1,31 @@
+{
+  "bullet_speed": 0.1,
+  "effect": "opentd:diamond_and_emerald",
+  "gravity": 0.0,
+  "lock_to_target": true,
+  "max_exist_tick": 1000,
+  "render_setting": {
+    "animation": "opentd:animations/sun_flower.animation.json",
+    "height": 0.5,
+    "model": "opentd:geo/sun_flower.geo.json",
+    "scale": 0.6,
+    "texture": "opentd:textures/entity/sun_flower.png",
+    "width": 0.5
+  },
+  "slow_down": 1.0,
+  "target_filter": "opentd:all",
+  "trail_particle": {
+    "offset": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "particle_type": "minecraft:falling_water",
+    "speed": [
+      0.1,
+      0.1,
+      0.1
+    ]
+  },
+  "water_slow_down": 0.95
+}

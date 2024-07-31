@@ -1,0 +1,13 @@
+{
+  "item_setting": {
+    "cool_down": 20,
+    "max_stack_size": 64,
+    "model": "opentd:wall_nut_card",
+    "name": "item.opentd.nut_flower_card",
+    "texts": [
+      "tip.opentd.nut_flower_card"
+    ]
+  },
+  "requirement": "opentd:on_grass",
+  "tower_setting": "opentd:nut_flower"
+}

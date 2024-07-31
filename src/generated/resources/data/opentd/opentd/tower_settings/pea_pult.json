@@ -1,0 +1,36 @@
+{
+  "type": "opentd:pvz_plant",
+  "plant_setting": {
+    "id": "opentd:pea_pult",
+    "render_setting": {
+      "animation": "opentd:animations/pea_shooter.animation.json",
+      "height": 0.8,
+      "model": "opentd:geo/pea_shooter.geo.json",
+      "texture": "opentd:textures/entity/pea_shooter.png",
+      "width": 0.8
+    }
+  },
+  "shoot_goal": {
+    "cool_down": 20,
+    "shoot_count": 2,
+    "shoot_settings": [
+      {
+        "bullet_setting": "opentd:creeper_pea",
+        "is_parabola": true,
+        "vertical_angle_limit": 60.0
+      }
+    ],
+    "shoot_sound": {
+      "sound_id": "minecraft:item.crossbow.hit"
+    },
+    "start_tick": 10
+  },
+  "target_settings": [
+    {
+      "chance": 0.2,
+      "priority": 1,
+      "refresh_cd": 10000,
+      "target_finder": "opentd:range_creeper"
+    }
+  ]
+}

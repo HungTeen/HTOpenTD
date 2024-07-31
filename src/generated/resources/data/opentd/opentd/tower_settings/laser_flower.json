@@ -1,0 +1,37 @@
+{
+  "type": "opentd:pvz_plant",
+  "laser_goal": {
+    "continue_effect": "opentd:four_point_damage",
+    "cool_down": 50,
+    "duration": 100,
+    "effect_interval": 20,
+    "final_effect": "opentd:splash_damage_to_all_entities",
+    "laser_distance": 20.0,
+    "laser_filter": "opentd:enemy_class",
+    "laser_width": 1.0
+  },
+  "plant_setting": {
+    "change_direction": false,
+    "id": "opentd:sun_flower_test",
+    "max_exist_tick": 2000,
+    "render_setting": {
+      "animation": "opentd:animations/sun_flower.animation.json",
+      "height": 1.0,
+      "model": "opentd:geo/sun_flower.geo.json",
+      "texture": "opentd:textures/entity/sun_flower.png",
+      "width": 0.8
+    },
+    "tower_setting": {
+      "death_duration": 10,
+      "persistent": true
+    }
+  },
+  "target_settings": [
+    {
+      "chance": 0.2,
+      "priority": 1,
+      "refresh_cd": 10000,
+      "target_finder": "opentd:around_enemies"
+    }
+  ]
+}

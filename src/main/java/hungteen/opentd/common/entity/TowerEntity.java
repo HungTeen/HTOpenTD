@@ -226,28 +226,31 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
                 this.updated = true;
                 this.updateComponent();
             }
-            // 距离灰烬植物。
-            if (this.getComponent() != null && this.getTarget() != null) {
-                this.getComponent().instantEffectSetting().ifPresent(l -> {
-                    if (l.targetFilter().get().match(serverLevel, this, this.getTarget()) && this.distanceTo(this.getTarget()) < l.closeRange()) {
-                        if (this.getInstantTick() >= l.instantTick()) {
-                            l.effect().get().effectTo(serverLevel, this, this.getTarget());
-                            this.discard();
+            // NoAI 不能有效果。
+            if(!this.isNoAi()){
+                // 距离灰烬植物。
+                if (this.getComponent() != null && this.getTarget() != null) {
+                    this.getComponent().instantEffectSetting().ifPresent(l -> {
+                        if (l.targetFilter().get().match(serverLevel, this, this.getTarget()) && this.distanceTo(this.getTarget()) < l.closeRange()) {
+                            if (this.getInstantTick() >= l.instantTick()) {
+                                l.effect().get().effectTo(serverLevel, this, this.getTarget());
+                                this.discard();
+                            } else {
+                                this.setInstantTick(this.getInstantTick() + 1);
+                            }
                         } else {
-                            this.setInstantTick(this.getInstantTick() + 1);
+                            this.setInstantTick(0);
                         }
-                    } else {
-                        this.setInstantTick(0);
+                    });
+                }
+                this.rangeEffect();
+                // 处理植物射击行为的子弹。
+                if (this.getTarget() != null) {
+                    if (!this.getShootSettings().isEmpty() && this.shootCount > 0 && !EntityUtil.inEnergetic(this)) {
+                        final int count = this.getComponent().shootGoalSetting().get().shootCount();
+                        this.getShootSettings().stream().filter(l -> !l.plantFoodOnly() && l.shootTick() == count - this.shootCount).forEach(this::performShoot);
+                        --this.shootCount;
                     }
-                });
-            }
-            this.rangeEffect();
-            // 处理植物射击行为的子弹。
-            if (this.getTarget() != null) {
-                if (!this.getShootSettings().isEmpty() && this.shootCount > 0 && !EntityUtil.inEnergetic(this)) {
-                    final int count = this.getComponent().shootGoalSetting().get().shootCount();
-                    this.getShootSettings().stream().filter(l -> !l.plantFoodOnly() && l.shootTick() == count - this.shootCount).forEach(this::performShoot);
-                    --this.shootCount;
                 }
             }
         }

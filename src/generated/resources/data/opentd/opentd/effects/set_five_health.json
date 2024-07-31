@@ -1,0 +1,6 @@
+{
+  "type": "opentd:nbt",
+  "nbt": {
+    "Health": 5.0
+  }
+}

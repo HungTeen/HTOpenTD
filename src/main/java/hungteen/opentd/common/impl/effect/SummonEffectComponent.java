@@ -75,13 +75,13 @@ public record SummonEffectComponent(int count, int radius, Optional<Integer> max
                     dz = RandomHelper.range(serverlevel.getRandom(), radius());
                 }
                 if(opt.isPresent()){
-                    position = new Vec3(summoner.getX() + dx, opt.get(), summoner.getZ());
+                    position = new Vec3(summoner.getX() + dx, opt.get(), summoner.getZ() + dz);
                 }
             } else {
                 int dx = RandomHelper.range(serverlevel.getRandom(), radius());
                 int dz = RandomHelper.range(serverlevel.getRandom(), radius());
                 int y = WorldHelper.getSurfaceHeight(level, summoner.getX() + dx, summoner.getZ() + dz);
-                position = new Vec3(summoner.getX() + dx, y, summoner.getZ());
+                position = new Vec3(summoner.getX() + dx, y, summoner.getZ() + dz);
             }
 
             Vec3 finalPosition = position;

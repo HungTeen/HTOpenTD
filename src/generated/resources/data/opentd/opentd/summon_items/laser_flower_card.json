@@ -1,0 +1,13 @@
+{
+  "item_setting": {
+    "cool_down": 20,
+    "max_stack_size": 64,
+    "model": "opentd:sun_flower_enjoy_card",
+    "name": "item.opentd.laser_flower_card",
+    "texts": [
+      "tip.opentd.laser_flower_card"
+    ]
+  },
+  "requirement": "opentd:on_grass",
+  "tower_setting": "opentd:laser_flower"
+}

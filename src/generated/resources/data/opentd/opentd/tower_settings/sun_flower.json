@@ -1,12 +1,5 @@
 {
   "type": "opentd:pvz_plant",
-  "constant_settings": [
-    {
-      "cd": 20,
-      "effect": "opentd:attract",
-      "target_finder": "opentd:around_enemies"
-    }
-  ],
   "gen_goal": {
     "gen_sound": {
       "sound_id": "minecraft:entity.player.levelup"
@@ -36,13 +29,5 @@
       "death_duration": 30,
       "persistent": true
     }
-  },
-  "target_settings": [
-    {
-      "chance": 0.2,
-      "priority": 1,
-      "refresh_cd": 10000,
-      "target_finder": "opentd:range_creeper"
-    }
-  ]
+  }
 }

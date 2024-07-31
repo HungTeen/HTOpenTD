@@ -165,7 +165,7 @@ public class SummonTowerItem extends Item {
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> components, TooltipFlag flag) {
         getItemSetting(stack).textComponents().forEach(s -> {
-            components.add(Component.literal(s));
+            components.add(Component.translatable(s));
         });
     }
 

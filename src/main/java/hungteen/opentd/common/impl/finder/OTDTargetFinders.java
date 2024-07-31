@@ -25,18 +25,22 @@ public interface OTDTargetFinders {
 
     ResourceKey<ITargetFinder> RANGE_SKELETONS = create("range_skeletons");
     ResourceKey<ITargetFinder> RANGE_CREEPER = create("range_creeper");
+    ResourceKey<ITargetFinder> LINE_ENEMIES = create("range_enemies");
     ResourceKey<ITargetFinder> AROUND_ENEMIES = create("around_enemies");
 
     static void register(BootstapContext<ITargetFinder> context){
         final HolderGetter<ITargetFilter> filters = OTDTargetFilters.registry().helper().lookup(context);
-        context.register(RANGE_SKELETONS, new RangeFinder(true, 40, 40,
-                filters.getOrThrow(OTDTargetFilters.SKELETON_TAGS)
+        context.register(RANGE_SKELETONS, new RangeFinder(
+                true, 40, 40, filters.getOrThrow(OTDTargetFilters.SKELETON_TAG)
         ));
-        context.register(RANGE_CREEPER, new RangeFinder(true, 40, 40,
-                filters.getOrThrow(OTDTargetFilters.CREEPER_ONLY)
+        context.register(RANGE_CREEPER, new RangeFinder(
+                true, 40, 40, filters.getOrThrow(OTDTargetFilters.CREEPER_ONLY)
         ));
-        context.register(AROUND_ENEMIES, new RangeFinder(true, 10, 10,
-                filters.getOrThrow(OTDTargetFilters.ENEMY_CLASS)
+        context.register(LINE_ENEMIES, new LineFinder(
+                30, 30, 20, filters.getOrThrow(OTDTargetFilters.ENEMY_CLASS)
+        ));
+        context.register(AROUND_ENEMIES, new RangeFinder(
+                true, 10, 10, filters.getOrThrow(OTDTargetFilters.ENEMY_CLASS)
         ));
     }
 

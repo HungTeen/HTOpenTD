@@ -38,6 +38,26 @@ public class PVZPlantComponent extends TowerComponent {
             Codec.optionalField("die_effect", OTDEffectComponents.getCodec()).forGetter(PVZPlantComponent::dieEffect),
             Codec.optionalField("follow_goal", FollowGoalSetting.CODEC).forGetter(PVZPlantComponent::followGoalSetting)
     ).apply(instance, PVZPlantComponent::new)).codec();
+
+    public static final Codec<PVZPlantComponent> NETWORK_CODEC = RecordCodecBuilder.<PVZPlantComponent>mapCodec(instance -> instance.group(
+            PlantSetting.CODEC.fieldOf("plant_setting").forGetter(PVZPlantComponent::plantSetting),
+            Codec.optionalField("laser_goal", LaserGoalSetting.CODEC).forGetter(PVZPlantComponent::laserGoalSetting)
+    ).apply(instance, (plantSetting, laserGoalSetting) -> {
+        return new PVZPlantComponent(
+                plantSetting,
+                List.of(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                laserGoalSetting,
+                Optional.empty(),
+                List.of(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty()
+        );
+    })).codec();
+
     private final PlantSetting plantSetting;
 
     public PVZPlantComponent(PlantSetting plantSetting, List<TargetSetting> targetSettings, Optional<ShootGoalSetting> shootGoalSetting, Optional<GenGoalSetting> genGoalSetting, Optional<AttackGoalSetting> attackGoalSetting, Optional<LaserGoalSetting> laserGoalSetting, Optional<CloseInstantEffectSetting> instantEffectSetting, List<ConstantAffectSetting> constantAffectSettings, Optional<Holder<IEffectComponent>> hurtEffect, Optional<Holder<IEffectComponent>> dieEffect, Optional<FollowGoalSetting> followGoalSetting) {
@@ -69,7 +89,9 @@ public class PVZPlantComponent extends TowerComponent {
         return plantSetting().towerSetting();
     }
 
-    public record PlantSetting(TowerSetting towerSetting, CompoundTag extraNBT, GrowSettings growSetting, ResourceLocation id, int maxExistTick, boolean changeDirection, boolean pushable, boolean canFloat, boolean sameTeamWithOwner, RenderSetting renderSetting) {
+    public record PlantSetting(TowerSetting towerSetting, CompoundTag extraNBT, GrowSettings growSetting,
+                               ResourceLocation id, int maxExistTick, boolean changeDirection, boolean pushable,
+                               boolean canFloat, boolean sameTeamWithOwner, RenderSetting renderSetting) {
 
         public static final Codec<PlantSetting> CODEC = RecordCodecBuilder.<PlantSetting>mapCodec(instance -> instance.group(
                 TowerSetting.CODEC.optionalFieldOf("tower_setting", TowerSetting.DEFAULT).forGetter(PlantSetting::towerSetting),
@@ -85,7 +107,8 @@ public class PVZPlantComponent extends TowerComponent {
         ).apply(instance, PlantSetting::new)).codec();
     }
 
-    public record GrowSettings(List<Float> scales, List<Integer> growDurations, Optional<Holder<SoundEvent>> growSound, List<Pair<Holder<IEffectComponent>, Integer>> growEffects) {
+    public record GrowSettings(List<Float> scales, List<Integer> growDurations, Optional<Holder<SoundEvent>> growSound,
+                               List<Pair<Holder<IEffectComponent>, Integer>> growEffects) {
         public static final GrowSettings DEFAULT = new GrowSettings(List.of(1F), List.of(), Optional.empty(), List.of());
 
         public static final Codec<GrowSettings> CODEC = RecordCodecBuilder.<GrowSettings>mapCodec(instance -> instance.group(

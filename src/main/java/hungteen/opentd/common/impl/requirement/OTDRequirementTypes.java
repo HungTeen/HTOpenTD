@@ -14,8 +14,8 @@ public interface OTDRequirementTypes {
     HTSimpleRegistry<ISummonRequirementType<?>> REQUIREMENT_TYPES = HTRegistryManager.createSimple(Util.prefix("requirement_type"));
 
     ISummonRequirementType<NoRequirement> NO_REQUIREMENT = register(new DefaultRequirement<>("no",  NoRequirement.CODEC));
-    ISummonRequirementType<OrRequirement> OR_REQUIREMENT = register(new DefaultRequirement<>("or",  OrRequirement.CODEC));
     ISummonRequirementType<AndRequirement> AND_REQUIREMENT = register(new DefaultRequirement<>("and",  AndRequirement.CODEC));
+    ISummonRequirementType<OrRequirement> OR_REQUIREMENT = register(new DefaultRequirement<>("or",  OrRequirement.CODEC));
     ISummonRequirementType<NotRequirement> NOT_REQUIREMENT = register(new DefaultRequirement<>("not",  NotRequirement.CODEC));
     ISummonRequirementType<ExperienceRequirement> EXPERIENCE_REQUIREMENT = register(new DefaultRequirement<>("experience",  ExperienceRequirement.CODEC));
     ISummonRequirementType<BlockRequirement> BLOCK_REQUIREMENT = register(new DefaultRequirement<>("block",  BlockRequirement.CODEC));

@@ -1,6 +1,10 @@
 {
   "models": [
     "opentd:pea_shooter_card",
-    "opentd:sun_flower_card"
+    "opentd:cabbage_pult_card",
+    "opentd:pea_shooter_enjoy_card",
+    "opentd:sun_flower_card",
+    "opentd:wall_nut_card",
+    "opentd:sun_flower_enjoy_card"
   ]
 }

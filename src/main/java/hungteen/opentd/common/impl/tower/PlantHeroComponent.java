@@ -38,6 +38,28 @@ public class PlantHeroComponent extends TowerComponent {
             Codec.optionalField("boss_bar_setting", BossBarSetting.CODEC).forGetter(PlantHeroComponent::bossBarSetting),
             Codec.optionalField("follow_goal", FollowGoalSetting.CODEC).forGetter(PlantHeroComponent::followGoalSetting)
     ).apply(instance, PlantHeroComponent::new)).codec();
+
+    public static final Codec<PlantHeroComponent> NETWORK_CODEC = RecordCodecBuilder.<PlantHeroComponent>mapCodec(instance -> instance.group(
+            HeroSetting.CODEC.fieldOf("hero_setting").forGetter(PlantHeroComponent::heroSetting),
+            Codec.optionalField("laser_goal", LaserGoalSetting.CODEC).forGetter(PlantHeroComponent::laserGoalSetting)
+    ).apply(instance, (heroSetting, laserGoalSetting) -> {
+        return new PlantHeroComponent(
+                heroSetting,
+                Optional.empty(),
+                List.of(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                laserGoalSetting,
+                Optional.empty(),
+                List.of(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty()
+        );
+    })).codec();
+
     private final HeroSetting heroSetting;
 
     public PlantHeroComponent(HeroSetting heroSetting, Optional<MovementSetting> movementSetting, List<TargetSetting> targetSettings, Optional<ShootGoalSetting> shootGoalSetting, Optional<GenGoalSetting> genGoalSetting, Optional<AttackGoalSetting> attackGoalSetting, Optional<LaserGoalSetting> laserGoalSetting, Optional<CloseInstantEffectSetting> instantEffectSetting, List<ConstantAffectSetting> constantAffectSettings, Optional<Holder<IEffectComponent>> hurtEffect, Optional<Holder<IEffectComponent>> dieEffect, Optional<BossBarSetting> bossBarSetting, Optional<FollowGoalSetting> followGoalSetting) {
@@ -69,7 +91,8 @@ public class PlantHeroComponent extends TowerComponent {
         return heroSetting().extraNBT();
     }
 
-    public record HeroSetting(TowerSetting towerSetting, CompoundTag extraNBT, ResourceLocation id, boolean sameTeamWithOwner, RenderSetting renderSetting) {
+    public record HeroSetting(TowerSetting towerSetting, CompoundTag extraNBT, ResourceLocation id,
+                              boolean sameTeamWithOwner, RenderSetting renderSetting) {
 
         public static final Codec<HeroSetting> CODEC = RecordCodecBuilder.<HeroSetting>mapCodec(instance -> instance.group(
                 TowerSetting.CODEC.optionalFieldOf("tower_setting", TowerSetting.DEFAULT).forGetter(HeroSetting::towerSetting),

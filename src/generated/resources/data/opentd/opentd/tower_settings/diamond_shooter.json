@@ -1,0 +1,34 @@
+{
+  "type": "opentd:pvz_plant",
+  "plant_setting": {
+    "id": "opentd:pea_shooter_test",
+    "render_setting": {
+      "animation": "opentd:animations/pea_shooter.animation.json",
+      "height": 0.8,
+      "model": "opentd:geo/pea_shooter.geo.json",
+      "texture": "opentd:textures/entity/pea_shooter.png",
+      "width": 0.8
+    }
+  },
+  "shoot_goal": {
+    "cool_down": 120,
+    "shoot_settings": [
+      {
+        "bullet_setting": "opentd:diamond_pea",
+        "vertical_angle_limit": 10.0
+      }
+    ],
+    "shoot_sound": {
+      "sound_id": "minecraft:entity.blaze.shoot"
+    },
+    "start_tick": 10
+  },
+  "target_settings": [
+    {
+      "chance": 0.2,
+      "priority": 1,
+      "refresh_cd": 10000,
+      "target_finder": "opentd:around_enemies"
+    }
+  ]
+}

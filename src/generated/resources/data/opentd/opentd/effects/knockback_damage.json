@@ -1,0 +1,5 @@
+{
+  "type": "opentd:damage",
+  "amount": 1.0,
+  "kb_strength": 1.0
+}

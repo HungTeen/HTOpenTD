@@ -1,7 +1,17 @@
 {
   "item.opentd.summon_tower_item": "召唤物",
-  "item.opentd.test_pea_shooter_card": "豌豆射手卡（测试）",
-  "item.opentd.test_sun_flower_card": "向日葵卡（测试）",
+  "item.opentd.pea_shooter_card": "豌豆射手卡（测试）",
+  "tip.opentd.pea_shooter_card": "只能种在向日葵周围，可以发射攻击骷髅的豌豆",
+  "item.opentd.pea_pult_card": "豌豆投手卡（测试）",
+  "tip.opentd.pea_pult_card": "只能种在苦力怕上，可以投掷攻击苦力怕的豌豆",
+  "item.opentd.diamond_shooter_card": "钻石射手卡（测试）",
+  "tip.opentd.diamond_shooter_card": "种植消耗1个钻石，发射的豌豆可以生成钻石块",
+  "item.opentd.sun_flower_card": "向日葵卡（测试）",
+  "tip.opentd.sun_flower_card": "生产经验值",
+  "item.opentd.nut_flower_card": "向日果卡（测试）",
+  "tip.opentd.nut_flower_card": "放置在草方块上，吸引周围敌人，死后爆炸",
+  "item.opentd.laser_flower_card": "激光葵卡（测试）",
+  "tip.opentd.laser_flower_card": "放置在草方块上，发射激光攻击",
 
   "itemGroup.opentd.summon_cards": "开放式塔防",
 

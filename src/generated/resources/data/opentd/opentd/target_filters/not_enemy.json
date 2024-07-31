@@ -1,0 +1,4 @@
+{
+  "type": "opentd:not",
+  "filter": "opentd:enemy_class"
+}

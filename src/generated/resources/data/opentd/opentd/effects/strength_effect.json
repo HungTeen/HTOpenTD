@@ -1,0 +1,7 @@
+{
+  "type": "opentd:potion",
+  "duration": 1200,
+  "level": 1,
+  "mob_effect": "minecraft:strength",
+  "self": true
+}

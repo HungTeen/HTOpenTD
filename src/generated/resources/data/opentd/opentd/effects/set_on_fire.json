@@ -1,0 +1,6 @@
+{
+  "type": "opentd:nbt",
+  "nbt": {
+    "Fire": 100
+  }
+}

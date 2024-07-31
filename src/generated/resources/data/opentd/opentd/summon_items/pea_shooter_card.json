@@ -3,7 +3,10 @@
     "cool_down": 20,
     "max_stack_size": 64,
     "model": "opentd:pea_shooter_card",
-    "name": "item.opentd.test_pea_shooter_card"
+    "name": "item.opentd.pea_shooter_card",
+    "texts": [
+      "tip.opentd.pea_shooter_card"
+    ]
   },
   "requirement": "opentd:around_sun_flower",
   "tower_setting": "opentd:pea_shooter"

@@ -1,7 +1,17 @@
 {
   "item.opentd.summon_tower_item": "Summon Tower Item",
-  "item.opentd.test_pea_shooter_card": "Peashooter Card (Test)",
-  "item.opentd.test_sun_flower_card": "Sunflower Card (Test)",
+  "item.opentd.pea_shooter_card": "Pea Shooter Card (Test)",
+  "tip.opentd.pea_shooter_card": "Can only place around sun flower, shoot pea to attack skeleton",
+  "item.opentd.pea_pult_card": "Pea Pult Card (Test)",
+  "tip.opentd.pea_pult_card": "Can only place on creeper, throw pea to attack creeper",
+  "item.opentd.diamond_shooter_card": "Diamond Shooter Card (Test)",
+  "tip.opentd.diamond_shooter_card": "Cost 1 diamond to place, shoot pea to generate diamond block",
+  "item.opentd.sun_flower_card": "Sun Flower Card (Test)",
+  "tip.opentd.sun_flower_card": "Generate xp",
+  "item.opentd.nut_flower_card": "Nut Flower Card (Test)",
+  "tip.opentd.nut_flower_card": "Place on grass block, attract enemy around, explode after death",
+  "item.opentd.laser_flower_card": "Laser Flower Card (Test)",
+  "tip.opentd.laser_flower_card": "Place on grass block, shoot laser to attack",
 
   "itemGroup.opentd.summon_cards": "Open Tower Defence",
 

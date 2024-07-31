@@ -9,7 +9,7 @@
         }
       ]
     },
-    "id": "opentd:pea_shooter_test",
+    "id": "opentd:pea_shooter",
     "render_setting": {
       "animation": "opentd:animations/pea_shooter.animation.json",
       "height": 0.8,
@@ -20,10 +20,10 @@
   },
   "shoot_goal": {
     "cool_down": 20,
-    "shoot_count": 4,
+    "shoot_count": 2,
     "shoot_settings": [
       {
-        "bullet_setting": "opentd:pea",
+        "bullet_setting": "opentd:skeleton_pea",
         "vertical_angle_limit": 10.0
       }
     ],

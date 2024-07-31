@@ -1,0 +1,7 @@
+{
+  "type": "opentd:or",
+  "filters": [
+    "opentd:creeper_only",
+    "opentd:skeleton_tag"
+  ]
+}

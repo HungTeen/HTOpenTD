@@ -10,6 +10,8 @@ import net.minecraft.world.entity.EntityDimensions;
  * @author PangTeen
  * @program HTOpenTD
  * @data 2023/5/4 16:13
+ *
+ * Sync manually.
  */
 public record RenderSetting(float width, float height, float scale, boolean translucent, ResourceLocation modelLocation,
                             ResourceLocation textureLocation, ResourceLocation animationLocation) {
@@ -37,4 +39,5 @@ public record RenderSetting(float width, float height, float scale, boolean tran
             ResourceLocation.CODEC.fieldOf("texture").forGetter(RenderSetting::textureLocation),
             ResourceLocation.CODEC.fieldOf("animation").forGetter(RenderSetting::animationLocation)
     ).apply(instance, RenderSetting::new)).codec();
+
 }

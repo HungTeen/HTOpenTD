@@ -18,17 +18,17 @@ public interface OTDEffectComponentTypes {
 
     HTSimpleRegistry<IEffectComponentType<?>> EFFECT_TYPES = HTRegistryManager.createSimple(Util.prefix("effect_type"));
 
+    IEffectComponentType<ListEffectComponent> LIST_EFFECT = register(new DefaultEffect<>("list",  ListEffectComponent.CODEC));
+    IEffectComponentType<RandomEffectComponent> RANDOM_EFFECT = register(new DefaultEffect<>("random",  RandomEffectComponent.CODEC));
     IEffectComponentType<DamageEffectComponent> DAMAGE_EFFECT = register(new DefaultEffect<>("damage",  DamageEffectComponent.CODEC));
     IEffectComponentType<SplashEffectComponent> SPLASH_EFFECT = register(new DefaultEffect<>("splash",  SplashEffectComponent.CODEC));
     IEffectComponentType<PotionEffectComponent> POTION_EFFECT = register(new DefaultEffect<>("potion",  PotionEffectComponent.CODEC));
     IEffectComponentType<ExplosionEffectComponent> EXPLOSION_EFFECT = register(new DefaultEffect<>("explosion",  ExplosionEffectComponent.CODEC));
     IEffectComponentType<AttractEffectComponent> ATTRACT_EFFECT = register(new DefaultEffect<>("attract",  AttractEffectComponent.CODEC));
-    IEffectComponentType<RandomEffectComponent> RANDOM_EFFECT = register(new DefaultEffect<>("random",  RandomEffectComponent.CODEC));
     IEffectComponentType<NBTEffectComponent> NBT_EFFECT = register(new DefaultEffect<>("nbt",  NBTEffectComponent.CODEC));
     IEffectComponentType<SummonEffectComponent> SUMMON_EFFECT = register(new DefaultEffect<>("summon",  SummonEffectComponent.CODEC));
     IEffectComponentType<FunctionEffectComponent> FUNCTION_EFFECT = register(new DefaultEffect<>("function",  FunctionEffectComponent.CODEC));
     IEffectComponentType<KnockbackEffectComponent> KB_EFFECT = register(new DefaultEffect<>("kb",  KnockbackEffectComponent.CODEC));
-    IEffectComponentType<ListEffectComponent> LIST_EFFECT = register(new DefaultEffect<>("list",  ListEffectComponent.CODEC));
     IEffectComponentType<FilterEffectComponent> FILTER_EFFECT = register(new DefaultEffect<>("filter",  FilterEffectComponent.CODEC));
     IEffectComponentType<EffectEffectComponent> EFFECT_EFFECT = register(new DefaultEffect<>("effect",  EffectEffectComponent.CODEC));
     IEffectComponentType<EventEffectComponent> EVENT_EFFECT = register(new DefaultEffect<>("event",  EventEffectComponent.CODEC));

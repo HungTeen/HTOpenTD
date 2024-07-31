@@ -13,6 +13,8 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 
 import java.util.List;
@@ -27,17 +29,21 @@ public interface OTDSummonRequirements {
 
     HTCodecRegistry<ISummonRequirement> REQUIREMENTS = HTRegistryManager.create(Util.prefix("summon_requirements"), OTDSummonRequirements::getDirectCodec);
 
-    ResourceKey<ISummonRequirement> ON_CREEPER = create("on_creeper");
+    ResourceKey<ISummonRequirement> NOTHING = create("nothing");
+    ResourceKey<ISummonRequirement> TEN_POINTS = create("ten_points");
     ResourceKey<ISummonRequirement> ON_GRASS = create("on_grass");
-    ResourceKey<ISummonRequirement> CREEPER_OR_GRASS = create("creeper_or_grass");
+    ResourceKey<ISummonRequirement> ON_CREEPER = create("on_creeper");
     ResourceKey<ISummonRequirement> AROUND_SUN_FLOWER = create("around_sun_flower");
+    ResourceKey<ISummonRequirement> NEED_DIAMOND = create("need_diamond");
+    ResourceKey<ISummonRequirement> CREEPER_OR_GRASS = create("creeper_or_grass");
 
     static void register(BootstapContext<ISummonRequirement> context) {
         final HolderGetter<ITargetFilter> filters = OTDTargetFilters.registry().helper().lookup(context);
         final HolderGetter<ISummonRequirement> requirements = registry().helper().lookup(context);
-        context.register(ON_CREEPER, new EntityRequirement(
-                Optional.of("Entity Not Fit !"),
-                filters.getOrThrow(OTDTargetFilters.CREEPER_ONLY)
+        context.register(NOTHING, NoRequirement.INSTANCE);
+        context.register(TEN_POINTS, new ExperienceRequirement(
+                Optional.of("Require 10 points xp !"),
+                10, 0, 10, 0
         ));
         context.register(ON_GRASS, new BlockRequirement(
                 Optional.of("Block Not Fit !"),
@@ -47,16 +53,25 @@ public interface OTDSummonRequirements {
                         Blocks.GRASS_BLOCK
                 ))
         ));
+        context.register(ON_CREEPER, new EntityRequirement(
+                Optional.of("Entity Not Fit !"),
+                filters.getOrThrow(OTDTargetFilters.CREEPER_ONLY)
+        ));
+        context.register(AROUND_SUN_FLOWER, new AroundEntityRequirement(
+                3, 3, 1, 10, Optional.empty(),
+                filters.getOrThrow(OTDTargetFilters.SUN_FLOWER_NBT)
+        ));
+        context.register(NEED_DIAMOND, new InventoryRequirement(
+                Optional.of("Cost 1 diamond !"),
+                List.of(new ItemStack(Items.DIAMOND)),
+                List.of(new ItemStack(Items.DIAMOND))
+        ));
         context.register(CREEPER_OR_GRASS, new OrRequirement(
                 List.of(
                         requirements.getOrThrow(ON_CREEPER),
                         requirements.getOrThrow(ON_GRASS)
                 ),
                 Optional.empty()
-        ));
-        context.register(AROUND_SUN_FLOWER, new AroundEntityRequirement(
-                3, 3, 1, 10, Optional.empty(),
-                filters.getOrThrow(OTDTargetFilters.SUN_FLOWER_NBT)
         ));
     }
 

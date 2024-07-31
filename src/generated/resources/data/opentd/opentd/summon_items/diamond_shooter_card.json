@@ -1,0 +1,13 @@
+{
+  "item_setting": {
+    "cool_down": 20,
+    "max_stack_size": 64,
+    "model": "opentd:pea_shooter_enjoy_card",
+    "name": "item.opentd.diamond_shooter_card",
+    "texts": [
+      "tip.opentd.diamond_shooter_card"
+    ]
+  },
+  "requirement": "opentd:need_diamond",
+  "tower_setting": "opentd:diamond_shooter"
+}

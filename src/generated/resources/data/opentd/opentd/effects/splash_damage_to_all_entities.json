@@ -1,0 +1,8 @@
+{
+  "type": "opentd:splash",
+  "effect": "opentd:four_point_damage",
+  "filter": "opentd:all",
+  "height": 2.0,
+  "is_circle": false,
+  "radius": 3.0
+}

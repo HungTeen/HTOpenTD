@@ -18,28 +18,26 @@ public interface OTDTargetFilterTypes {
 
     HTSimpleRegistry<ITargetFilterType<?>> FILTER_TYPES = HTRegistryManager.createSimple(Util.prefix("target_filter_type"));
 
-    ITargetFilterType<TagTargetFilter> TAG_FILTER = register(new DefaultFilter<>("tag",  TagTargetFilter.CODEC));
-    ITargetFilterType<OrTargetFilter> OR_FILTER = register(new DefaultFilter<>("or",  OrTargetFilter.CODEC));
-    ITargetFilterType<TypeTargetFilter> TYPE_FILTER = register(new DefaultFilter<>("types",  TypeTargetFilter.CODEC));
-    ITargetFilterType<AndTargetFilter> AND_FILTER = register(new DefaultFilter<>("and",  AndTargetFilter.CODEC));
-    ITargetFilterType<EntityPredicateFilter> ENTITY_PREDICATE_FILTER = register(new DefaultFilter<>("entity_predicate",  EntityPredicateFilter.CODEC));
-    ITargetFilterType<AlwaysTrueFilter> ALWAYS_TRUE = register(new DefaultFilter<>("true",  AlwaysTrueFilter.CODEC));
-    ITargetFilterType<NotTargetFilter> NOT_FILTER = register(new DefaultFilter<>("not",  NotTargetFilter.CODEC));
-    ITargetFilterType<ClassFilter> CLASS_FILTER = register(new DefaultFilter<>("class",  ClassFilter.CODEC));
-    ITargetFilterType<NBTTargetFilter> NBT_FILTER = register(new DefaultFilter<>("nbt",  NBTTargetFilter.CODEC));
-    ITargetFilterType<EventFilter> EVENT_FILTER = register(new DefaultFilter<>("event",  EventFilter.CODEC));
-    ITargetFilterType<SelfFilter> SELF_FILTER = register(new DefaultFilter<>("self",  SelfFilter.CODEC));
-    ITargetFilterType<TeamFilter> TEAM_FILTER = register(new DefaultFilter<>("team",  TeamFilter.CODEC));
+    ITargetFilterType<AlwaysTrueFilter> ALWAYS_TRUE = register(new DefaultFilter<>("true", AlwaysTrueFilter.CODEC));
+    ITargetFilterType<AndTargetFilter> AND_FILTER = register(new DefaultFilter<>("and", AndTargetFilter.CODEC));
+    ITargetFilterType<OrTargetFilter> OR_FILTER = register(new DefaultFilter<>("or", OrTargetFilter.CODEC));
+    ITargetFilterType<NotTargetFilter> NOT_FILTER = register(new DefaultFilter<>("not", NotTargetFilter.CODEC));
+    ITargetFilterType<TypeTargetFilter> TYPE_FILTER = register(new DefaultFilter<>("types", TypeTargetFilter.CODEC));
+    ITargetFilterType<TagTargetFilter> TAG_FILTER = register(new DefaultFilter<>("tag", TagTargetFilter.CODEC));
+    ITargetFilterType<ClassFilter> CLASS_FILTER = register(new DefaultFilter<>("class", ClassFilter.CODEC));
+    ITargetFilterType<NBTTargetFilter> NBT_FILTER = register(new DefaultFilter<>("nbt", NBTTargetFilter.CODEC));
+    ITargetFilterType<EventFilter> EVENT_FILTER = register(new DefaultFilter<>("event", EventFilter.CODEC));
+    ITargetFilterType<SelfFilter> SELF_FILTER = register(new DefaultFilter<>("self", SelfFilter.CODEC));
+    ITargetFilterType<TeamFilter> TEAM_FILTER = register(new DefaultFilter<>("team", TeamFilter.CODEC));
 
 
-    static IHTSimpleRegistry<ITargetFilterType<?>> registry(){
+    static IHTSimpleRegistry<ITargetFilterType<?>> registry() {
         return FILTER_TYPES;
     }
 
-    static <T extends ITargetFilter> ITargetFilterType<T> register(ITargetFilterType<T> type){
+    static <T extends ITargetFilter> ITargetFilterType<T> register(ITargetFilterType<T> type) {
         return registry().register(type);
     }
-
 
     record DefaultFilter<P extends ITargetFilter>(String name, Codec<P> codec) implements ITargetFilterType<P> {
 
@@ -53,5 +51,5 @@ public interface OTDTargetFilterTypes {
             return OpenTD.MOD_ID;
         }
     }
-    
+
 }

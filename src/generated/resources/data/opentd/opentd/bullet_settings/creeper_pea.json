@@ -1,9 +1,8 @@
 {
-  "bullet_speed": 0.2,
-  "effect": "opentd:pea_damage",
-  "gravity": 1.0E-4,
-  "lock_to_target": true,
-  "max_exist_tick": 300,
+  "bullet_speed": 0.3,
+  "effect": "opentd:splash_damage_to_all_entities",
+  "gravity": 0.01,
+  "max_exist_tick": 600,
   "render_setting": {
     "animation": "opentd:animations/pea_shooter.animation.json",
     "height": 0.5,
@@ -13,14 +12,14 @@
     "width": 0.5
   },
   "slow_down": 0.99999,
-  "target_filter": "opentd:creeper_only",
+  "target_filter": "opentd:enemy_class",
   "trail_particle": {
     "offset": [
       1.0,
       1.0,
       1.0
     ],
-    "particle_type": "minecraft:flame",
+    "particle_type": "minecraft:angry_villager",
     "speed": [
       0.1,
       0.1,

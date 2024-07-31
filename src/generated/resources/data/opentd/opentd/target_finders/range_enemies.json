@@ -1,0 +1,7 @@
+{
+  "type": "opentd:line",
+  "horizontal_degree": 30.0,
+  "length": 20.0,
+  "target_filter": "opentd:enemy_class",
+  "vertical_degree": 30.0
+}

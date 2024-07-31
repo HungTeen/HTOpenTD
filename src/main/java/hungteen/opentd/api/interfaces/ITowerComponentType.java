@@ -15,4 +15,6 @@ public interface ITowerComponentType<P extends ITowerComponent> extends ISimpleE
      * @return Codec method.
      */
     Codec<P> codec();
+
+    Codec<P> networkCodec();
 }

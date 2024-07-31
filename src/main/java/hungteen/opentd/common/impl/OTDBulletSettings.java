@@ -30,15 +30,17 @@ public interface OTDBulletSettings {
 
     HTCodecRegistry<BulletSetting> SETTINGS = HTRegistryManager.create(Util.prefix("bullet_settings"), OTDBulletSettings::getDirectCodec);
 
-    ResourceKey<BulletSetting> PEA = create("pea");
+    ResourceKey<BulletSetting> SKELETON_PEA = create("skeleton_pea");
+    ResourceKey<BulletSetting> CREEPER_PEA = create("creeper_pea");
+    ResourceKey<BulletSetting> DIAMOND_PEA = create("diamond_pea");
 
     static void register(BootstapContext<BulletSetting> context){
         final HolderGetter<ITargetFilter> filters = OTDTargetFilters.registry().helper().lookup(context);
         final HolderGetter<IEffectComponent> effects = OTDEffectComponents.registry().helper().lookup(context);
-        context.register(PEA, new BulletSetting(
-                filters.getOrThrow(OTDTargetFilters.CREEPER_ONLY),
+        context.register(SKELETON_PEA, new BulletSetting(
+                filters.getOrThrow(OTDTargetFilters.CREEPER_OR_SKELETON_TAG),
                 effects.getOrThrow(OTDEffectComponents.PEA_DAMAGE),
-                0.2F, 1, 300, 0.0001F, 0.99999F, 0.8F, false, true, true,
+                0.2F, 1, 300, 0.0001F, 0.99999F, 0.8F, false, false, true,
                 RenderSetting.make(0.5F, 0.5F, 0.6F, false, "pea_shooter"),
                 Optional.empty(),
                 Optional.of(
@@ -47,17 +49,30 @@ public interface OTDBulletSettings {
                         )
                 )
         ));
-//        new ListEffectComponent(Arrays.asList(
-//                new DamageEffectComponent(false, 5F, 0),
-//                new SplashEffectComponent(5, 5, true, new OrTargetFilter(List.of()), new DamageEffectComponent(false, 2F, 0.1F)),
-//                new NBTEffectComponent(get(), false),
-//                new RandomEffectComponent(10, 1, true, List.of(
-//                        Pair.of(
-//                                new FunctionEffectComponent(false, new CommandFunction.CacheableFunction(Util.prefix("test"))),
-//                                1
-//                        )
-//                ))
-//        )),
+        context.register(CREEPER_PEA, new BulletSetting(
+                filters.getOrThrow(OTDTargetFilters.ENEMY_CLASS),
+                effects.getOrThrow(OTDEffectComponents.SPLASH_DAMAGE_TO_ALL_ENTITIES),
+                0.3F, 1, 600, 0.01F, 0.99999F, 0.8F, false, false, true,
+                RenderSetting.make(0.5F, 0.5F, 0.6F, false, "pea_shooter"),
+                Optional.empty(),
+                Optional.of(
+                        new ParticleSetting(
+                                ParticleTypes.ANGRY_VILLAGER, 1, true, new Vec3(1, 1, 1), new Vec3(0.1, 0.1, 0.1)
+                        )
+                )
+        ));
+        context.register(DIAMOND_PEA, new BulletSetting(
+                filters.getOrThrow(OTDTargetFilters.ALL),
+                effects.getOrThrow(OTDEffectComponents.DIAMOND_AND_EMERALD),
+                0.1F, 1, 1000, 0.0000F, 1F, 0.95F, false, true, true,
+                RenderSetting.make(0.5F, 0.5F, 0.6F, false, "sun_flower"),
+                Optional.empty(),
+                Optional.of(
+                        new ParticleSetting(
+                                ParticleTypes.FALLING_WATER, 1, true, new Vec3(1, 1, 1), new Vec3(0.1, 0.1, 0.1)
+                        )
+                )
+        ));
     }
 
     static ResourceKey<BulletSetting> create(String name) {

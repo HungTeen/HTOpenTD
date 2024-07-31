@@ -4,8 +4,11 @@
     "max_damage": 10,
     "max_stack_size": 64,
     "model": "opentd:sun_flower_card",
-    "name": "item.opentd.test_sun_flower_card"
+    "name": "item.opentd.sun_flower_card",
+    "texts": [
+      "tip.opentd.sun_flower_card"
+    ]
   },
-  "requirement": "opentd:creeper_or_grass",
+  "requirement": "opentd:nothing",
   "tower_setting": "opentd:sun_flower"
 }
