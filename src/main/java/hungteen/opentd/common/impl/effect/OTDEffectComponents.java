@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import hungteen.htlib.api.interfaces.IHTCodecRegistry;
 import hungteen.htlib.common.registry.HTCodecRegistry;
 import hungteen.htlib.common.registry.HTRegistryManager;
+import hungteen.htlib.util.helper.registry.SoundHelper;
 import hungteen.opentd.api.interfaces.IEffectComponent;
 import hungteen.opentd.api.interfaces.IEffectComponentType;
 import hungteen.opentd.api.interfaces.ITargetFilter;
@@ -15,6 +16,8 @@ import net.minecraft.core.HolderGetter;
 import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.phys.Vec3;
@@ -42,11 +45,13 @@ public interface OTDEffectComponents {
     ResourceKey<IEffectComponent> SUMMON_XP_AROUND = create("summon_xp_around");
     ResourceKey<IEffectComponent> DIAMOND_AND_EMERALD = create("diamond_and_emerald");
     ResourceKey<IEffectComponent> KNOCKBACK_EFFECT = create("knockback_effect");
+    ResourceKey<IEffectComponent> ENDERMAN_SOUND_EFFECT = create("enderman_sound");
     ResourceKey<IEffectComponent> PEA_DAMAGE = create("pea_damage");
 
     static void register(BootstapContext<IEffectComponent> context){
         final HolderGetter<ITargetFilter> filters = OTDTargetFilters.registry().helper().lookup(context);
         final HolderGetter<IEffectComponent> effects = OTDEffectComponents.registry().helper().lookup(context);
+        final HolderGetter<SoundEvent> sounds = SoundHelper.get().lookup(context);
         context.register(FOUR_POINT_DAMAGE, new DamageEffectComponent(false, 4F, 0F));
         context.register(KNOCKBACK_DAMAGE, new DamageEffectComponent(false, 1F, 1F));
         context.register(SPLASH_DAMAGE_TO_ALL_ENTITIES, new SplashEffectComponent(
@@ -67,6 +72,9 @@ public interface OTDEffectComponents {
         context.register(DIAMOND_AND_EMERALD, new FunctionEffectComponent(false, Util.prefix("test")));
         context.register(KNOCKBACK_EFFECT, new KnockbackEffectComponent(
                 false, false, 1F, 0.5F, Vec3.ZERO
+        ));
+        context.register(ENDERMAN_SOUND_EFFECT, new EffectEffectComponent(
+                true, List.of(), Optional.of(Holder.direct(SoundEvents.ENDERMAN_DEATH))
         ));
         context.register(PEA_DAMAGE, new ListEffectComponent(List.of(
                 effects.getOrThrow(FOUR_POINT_DAMAGE), effects.getOrThrow(KNOCKBACK_DAMAGE)

@@ -24,7 +24,7 @@ public record SummonEntry(ItemSetting itemSetting, Optional<Holder<ISummonRequir
     ).apply(instance, SummonEntry::new)).codec();
 
     public static final Codec<SummonEntry> NETWORK_CODEC = RecordCodecBuilder.<SummonEntry>mapCodec(instance -> instance.group(
-            ItemSetting.NETWORK_CODEC.fieldOf("item_setting").forGetter(SummonEntry::itemSetting)
+            ItemSetting.CODEC.fieldOf("item_setting").forGetter(SummonEntry::itemSetting)
     ).apply(instance, (itemSetting -> new SummonEntry(itemSetting, Optional.empty(), Optional.empty())))).codec();
 
 }

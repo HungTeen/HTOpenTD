@@ -1,11 +1,13 @@
 {
   "type": "opentd:pvz_plant",
+  "die_effect": "opentd:enderman_sound",
   "laser_goal": {
     "continue_effect": "opentd:four_point_damage",
     "cool_down": 50,
     "duration": 100,
     "effect_interval": 20,
     "final_effect": "opentd:splash_damage_to_all_entities",
+    "laser_color": 12665047,
     "laser_distance": 20.0,
     "laser_filter": "opentd:enemy_class",
     "laser_width": 1.0

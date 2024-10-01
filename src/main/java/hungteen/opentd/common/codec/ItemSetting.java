@@ -20,13 +20,13 @@ public record ItemSetting(Optional<String> name, ResourceLocation model, int max
             Codec.STRING.listOf().optionalFieldOf("texts", new ArrayList<>()).forGetter(ItemSetting::textComponents)
     ).apply(instance, ItemSetting::new)).codec();
 
-    public static final Codec<ItemSetting> NETWORK_CODEC = RecordCodecBuilder.<ItemSetting>mapCodec(instance -> instance.group(
-            Codec.optionalField("name", Codec.STRING).forGetter(ItemSetting::name),
-            ResourceLocation.CODEC.fieldOf("model").forGetter(ItemSetting::model),
-            Codec.STRING.listOf().optionalFieldOf("texts", List.of()).forGetter(ItemSetting::textComponents)
-    ).apply(instance, (name, model, texts) -> {
-        return new ItemSetting(name, model, 0, 0, 0, texts);
-    })).codec();
+//    public static final Codec<ItemSetting> NETWORK_CODEC = RecordCodecBuilder.<ItemSetting>mapCodec(instance -> instance.group(
+//            Codec.optionalField("name", Codec.STRING).forGetter(ItemSetting::name),
+//            ResourceLocation.CODEC.fieldOf("model").forGetter(ItemSetting::model),
+//            Codec.STRING.listOf().optionalFieldOf("texts", List.of()).forGetter(ItemSetting::textComponents)
+//    ).apply(instance, (name, model, texts) -> {
+//        return new ItemSetting(name, model, 0, 0, 0, texts);
+//    })).codec();
 
     public static final ItemSetting DEFAULT = builder().build();
 

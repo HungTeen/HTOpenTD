@@ -223,7 +223,9 @@ public interface OTDTowerComponents {
                 Optional.empty(),
                 List.of(),
                 Optional.empty(),
-                Optional.empty(),
+                Optional.of(
+                        effects.getOrThrow(OTDEffectComponents.ENDERMAN_SOUND_EFFECT)
+                ),
                 Optional.empty()
         ));
     }
