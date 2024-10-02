@@ -2,7 +2,7 @@
   "item_setting": {
     "cool_down": 20,
     "max_stack_size": 64,
-    "model": "opentd:cabbage_pult_card",
+    "model": "opentd:pea_pult_card",
     "name": "item.opentd.pea_pult_card",
     "texts": [
       "tip.opentd.pea_pult_card"

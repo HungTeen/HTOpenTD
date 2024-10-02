@@ -1,7 +1,7 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "opentd:item/mega_card",
+    "layer0": "opentd:item/purple_card",
     "layer1": "opentd:item/sun_flower"
   }
 }

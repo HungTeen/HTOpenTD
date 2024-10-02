@@ -1,0 +1,31 @@
+{
+  "bullet_speed": 0.3,
+  "effect": "opentd:set_on_fire",
+  "gravity": 1.0E-4,
+  "max_exist_tick": 300,
+  "max_hit_count": 2,
+  "render_setting": {
+    "animation": "opentd:animations/sun_flower.animation.json",
+    "height": 0.2,
+    "model": "opentd:geo/sun_flower.geo.json",
+    "scale": 0.2,
+    "texture": "opentd:textures/entity/sun_flower.png",
+    "width": 0.2
+  },
+  "slow_down": 0.99999,
+  "target_filter": "opentd:all",
+  "trail_particle": {
+    "offset": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "particle_type": "minecraft:flame",
+    "speed": [
+      0.1,
+      0.1,
+      0.1
+    ]
+  },
+  "water_slow_down": 0.5
+}

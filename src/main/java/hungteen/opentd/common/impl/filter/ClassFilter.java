@@ -9,7 +9,6 @@ import hungteen.opentd.OpenTD;
 import hungteen.opentd.api.interfaces.IEntityClassifier;
 import hungteen.opentd.api.interfaces.ITargetFilter;
 import hungteen.opentd.api.interfaces.ITargetFilterType;
-import hungteen.opentd.common.entity.PlantEntity;
 import hungteen.opentd.util.Util;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -18,6 +17,7 @@ import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.WaterAnimal;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.npc.AbstractVillager;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.raid.Raider;
 
 /**
@@ -33,7 +33,7 @@ public record ClassFilter(IEntityClassifier entityClassifier) implements ITarget
     ).apply(instance, ClassFilter::new)).codec();
 
     public static final IEntityClassifier LIVING = create("living", LivingEntity.class);
-    public static final IEntityClassifier PLAYER = create("player", PlantEntity.class);
+    public static final IEntityClassifier PLAYER = create("player", Player.class);
     public static final IEntityClassifier VILLAGER = create("villager", AbstractVillager.class);
 
     public static final IEntityClassifier ENEMY = create("enemy", Enemy.class);

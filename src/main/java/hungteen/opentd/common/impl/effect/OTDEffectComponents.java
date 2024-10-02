@@ -46,6 +46,7 @@ public interface OTDEffectComponents {
     ResourceKey<IEffectComponent> DIAMOND_AND_EMERALD = create("diamond_and_emerald");
     ResourceKey<IEffectComponent> KNOCKBACK_EFFECT = create("knockback_effect");
     ResourceKey<IEffectComponent> ENDERMAN_SOUND_EFFECT = create("enderman_sound");
+    ResourceKey<IEffectComponent> WITHER_SOUND_EFFECT = create("wither_sound");
     ResourceKey<IEffectComponent> PEA_DAMAGE = create("pea_damage");
 
     static void register(BootstapContext<IEffectComponent> context){
@@ -75,6 +76,9 @@ public interface OTDEffectComponents {
         ));
         context.register(ENDERMAN_SOUND_EFFECT, new EffectEffectComponent(
                 true, List.of(), Optional.of(Holder.direct(SoundEvents.ENDERMAN_DEATH))
+        ));
+        context.register(WITHER_SOUND_EFFECT, new EffectEffectComponent(
+                true, List.of(), Optional.of(Holder.direct(SoundEvents.WITHER_DEATH))
         ));
         context.register(PEA_DAMAGE, new ListEffectComponent(List.of(
                 effects.getOrThrow(FOUR_POINT_DAMAGE), effects.getOrThrow(KNOCKBACK_DAMAGE)

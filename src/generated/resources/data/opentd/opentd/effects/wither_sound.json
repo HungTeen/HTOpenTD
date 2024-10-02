@@ -1,0 +1,6 @@
+{
+  "type": "opentd:effect",
+  "sound": {
+    "sound_id": "minecraft:entity.wither.death"
+  }
+}

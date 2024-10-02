@@ -16,8 +16,8 @@
   "hurt_effect": "opentd:summon_xp_around",
   "plant_setting": {
     "change_direction": false,
-    "id": "opentd:sun_flower_test",
-    "max_exist_tick": 2000,
+    "id": "opentd:sun_flower",
+    "max_exist_tick": 3000,
     "render_setting": {
       "animation": "opentd:animations/sun_flower.animation.json",
       "height": 1.0,

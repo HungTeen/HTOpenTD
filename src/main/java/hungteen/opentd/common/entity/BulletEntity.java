@@ -94,8 +94,8 @@ public class BulletEntity extends Projectile implements IOTDEntity {
                 .resultOrPartial(msg -> Util.error("Bullet Entity error : " + msg))
                 .ifPresent(settings -> this.componentTag = (CompoundTag) settings);
         final double d0 = this.getDeltaMovement().horizontalDistance();
-        this.setYRot((float)(Mth.atan2(this.getDeltaMovement().x, this.getDeltaMovement().z) * (double)(180F / (float)Math.PI)));
-        this.setXRot((float)(Mth.atan2(this.getDeltaMovement().y, d0) * (double)(180F / (float)Math.PI)));
+        this.setYRot((float) (Mth.atan2(this.getDeltaMovement().x, this.getDeltaMovement().z) * (double) (180F / (float) Math.PI)));
+        this.setXRot((float) (Mth.atan2(this.getDeltaMovement().y, d0) * (double) (180F / (float) Math.PI)));
     }
 
     @Override
@@ -149,7 +149,7 @@ public class BulletEntity extends Projectile implements IOTDEntity {
                 } else {
                     this.setDeltaMovement(vxz * dx / dxz, speed.y, vxz * dz / dxz);
                 }
-            } else{
+            } else {
                 final Vec3 direction = target.getEyePosition().subtract(this.position()).normalize().scale(this.getSpeed());
                 final double scale = 0.2;
                 this.setDeltaMovement(speed.add((direction.x() - speed.x()) * scale, (direction.y() - speed.y) * scale, (direction.z() - speed.z()) * scale));
@@ -182,8 +182,8 @@ public class BulletEntity extends Projectile implements IOTDEntity {
         Vec3 vec3 = this.getDeltaMovement();
         if (this.xRotO == 0.0F && this.yRotO == 0.0F) {
             double d0 = vec3.horizontalDistance();
-            this.setYRot((float)(Mth.atan2(vec3.x, vec3.z) * (double)(180F / (float)Math.PI)));
-            this.setXRot((float)(Mth.atan2(vec3.y, d0) * (double)(180F / (float)Math.PI)));
+            this.setYRot((float) (Mth.atan2(vec3.x, vec3.z) * (double) (180F / (float) Math.PI)));
+            this.setXRot((float) (Mth.atan2(vec3.y, d0) * (double) (180F / (float) Math.PI)));
             this.yRotO = this.getYRot();
             this.xRotO = this.getXRot();
         }
@@ -272,25 +272,29 @@ public class BulletEntity extends Projectile implements IOTDEntity {
 
     @Nullable
     protected ParticleSetting getHitParticle() {
-        if(bulletSetting() != null && bulletSetting().hitParticle().isPresent()) {
+        if (bulletSetting() != null && bulletSetting().hitParticle().isPresent()) {
             return bulletSetting().hitParticle().get();
-        };
+        }
+        ;
         return null;
     }
 
     @Nullable
     protected ParticleSetting getTrailParticle() {
-        if(bulletSetting() != null && bulletSetting().trailParticle().isPresent()) {
+        if (bulletSetting() != null && bulletSetting().trailParticle().isPresent()) {
             return bulletSetting().trailParticle().get();
-        };
+        }
+        ;
         return null;
     }
 
     /**
      * attack bullet such as pea or spore
      */
-    public void shootToTarget(Mob owner, ShootGoalSetting.ShootSetting shootSetting, Entity target, double dx, double dy, double dz) {
-        this.lockTarget = Optional.ofNullable(target);
+    public void shootToTarget(Mob owner, ShootGoalSetting.ShootSetting shootSetting, @Nonnull Entity target, double dx, double dy, double dz) {
+        if(shootSetting.bulletSetting().get().lockToTarget()){
+            this.lockTarget = Optional.of(target);
+        }
         if (shootSetting.isParabola()) {
             this.pult(owner, shootSetting, target);
         } else {
@@ -319,10 +323,10 @@ public class BulletEntity extends Projectile implements IOTDEntity {
     public void pult(Mob owner, ShootGoalSetting.ShootSetting shootSetting, @Nonnull Entity target) {
         final double g = shootSetting.bulletSetting().get().gravity();
         final double h = shootSetting.pultHeight();
-        final double t1 = Math.sqrt(2 * h / g);//go up time.
+        final double t1 = Math.sqrt(2 * h / g); //go up time.
         double t2 = 0;
-        if (this.getY() + h - target.getY() - target.getBbHeight() >= 0) {//random pult.
-            t2 = Math.sqrt(2 * (this.getY() + h - target.getY() - target.getBbHeight()) / g);//go down time.
+        if (this.getY() + h - target.getY() - target.getBbHeight() >= 0) {
+            t2 = Math.sqrt(2 * (this.getY() + h - target.getY() - target.getBbHeight()) / g); //go down time.
         }
         final double dx = target.getX() + target.getDeltaMovement().x() * (t1 + t2) - this.getX();
         final double dz = target.getZ() + target.getDeltaMovement().z() * (t1 + t2) - this.getZ();
@@ -331,12 +335,11 @@ public class BulletEntity extends Projectile implements IOTDEntity {
 
     private void setPultSpeed(double g, double t1, double t2, double dx, double dz) {
         final double dxz = Math.sqrt(dx * dx + dz * dz);
-        final double vxz = dxz / (t1 + t2);
         final double vy = g * t1;
-        if (dxz == 0) {
+        if (dxz < 1) {
             this.setDeltaMovement(0, vy, 0);
         } else {
-            this.setDeltaMovement(vxz * dx / dxz, vy, vxz * dz / dxz);
+            this.setDeltaMovement(dx / (t1 + t2), vy, dz / (t1 + t2));
         }
     }
 
@@ -359,7 +362,7 @@ public class BulletEntity extends Projectile implements IOTDEntity {
         return this.getOwner() == null ? this : this.getOwner();
     }
 
-    public void setLockTarget(@Nullable Entity target){
+    public void setLockTarget(@Nullable Entity target) {
         this.lockTarget = Optional.ofNullable(target);
     }
 
@@ -382,7 +385,7 @@ public class BulletEntity extends Projectile implements IOTDEntity {
         return this.bulletSetting() == null ? 1 : this.bulletSetting().maxHitCount();
     }
 
-    public int getHitCount(){
+    public int getHitCount() {
         return this.hitCount;
     }
 
@@ -404,7 +407,7 @@ public class BulletEntity extends Projectile implements IOTDEntity {
         return this.getComponent();
     }
 
-    protected boolean shouldSyncTeam(){
+    protected boolean shouldSyncTeam() {
         return this.getOwnerUUID().isPresent() && this.bulletSetting() != null && this.bulletSetting().sameTeamWithOwner();
     }
 
@@ -456,8 +459,8 @@ public class BulletEntity extends Projectile implements IOTDEntity {
             final ResourceLocation location = new ResourceLocation(compound.getString("ComponentLocation"));
             final ResourceKey<BulletSetting> resourceKey = OTDBulletSettings.registry().createKey(location);
             OTDBulletSettings.registry().getOptValue(level(), resourceKey).flatMap(l -> BulletSetting.CODEC.encodeStart(NbtOps.INSTANCE, l)
-                            .resultOrPartial(msg -> Util.error("Bullet Entity read error : " + msg))
-                    ).ifPresent(nbt -> this.componentTag = (CompoundTag) nbt);
+                    .resultOrPartial(msg -> Util.error("Bullet Entity read error : " + msg))
+            ).ifPresent(nbt -> this.componentTag = (CompoundTag) nbt);
         }
         if (compound.contains("TickCount")) {
             this.tickCount = compound.getInt("TickCount");

@@ -1,10 +1,12 @@
 {
   "models": [
     "opentd:pea_shooter_card",
-    "opentd:cabbage_pult_card",
-    "opentd:pea_shooter_enjoy_card",
+    "opentd:pea_pult_card",
+    "opentd:diamond_shooter_card",
     "opentd:sun_flower_card",
-    "opentd:wall_nut_card",
-    "opentd:sun_flower_enjoy_card"
+    "opentd:nut_flower_card",
+    "opentd:laser_flower_card",
+    "opentd:fly_shooter_card",
+    "opentd:rush_flower_card"
   ]
 }

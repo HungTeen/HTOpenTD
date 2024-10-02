@@ -20,8 +20,10 @@ public interface OTDMoveComponents {
 
     HTCodecRegistry<IMoveComponent> MOVES = HTRegistryManager.create(Util.prefix("move_controllers"), OTDMoveComponents::getDirectCodec);
 
-    static void register(BootstapContext<IMoveComponent> context){
+    ResourceKey<IMoveComponent> SHOOTER_FLYING = create("shooter_flying");
 
+    static void register(BootstapContext<IMoveComponent> context){
+        context.register(SHOOTER_FLYING, new FlyingMoveComponent(20, false));
     }
 
     static ResourceKey<IMoveComponent> create(String name) {

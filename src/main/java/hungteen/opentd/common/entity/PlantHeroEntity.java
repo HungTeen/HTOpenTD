@@ -9,6 +9,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
 import java.util.Optional;
@@ -64,6 +65,11 @@ public class PlantHeroEntity extends TowerEntity {
         if(tag.contains("MoveToPos")){
             this.setMoveTo(BlockPos.of(tag.getLong("MoveToPos")));
         }
+    }
+
+    @Override
+    protected float getFlyingSpeed() {
+        return this.getSpeed() * (this.getControllingPassenger() instanceof Player ? 0.1F : 0.05F);
     }
 
     @Override

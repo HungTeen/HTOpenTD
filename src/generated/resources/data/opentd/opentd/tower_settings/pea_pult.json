@@ -17,7 +17,7 @@
       {
         "bullet_setting": "opentd:creeper_pea",
         "is_parabola": true,
-        "vertical_angle_limit": 60.0
+        "vertical_angle_limit": 90.0
       }
     ],
     "shoot_sound": {
@@ -30,7 +30,7 @@
       "chance": 0.2,
       "priority": 1,
       "refresh_cd": 10000,
-      "target_finder": "opentd:range_creeper"
+      "target_finder": "opentd:around_enemies"
     }
   ]
 }

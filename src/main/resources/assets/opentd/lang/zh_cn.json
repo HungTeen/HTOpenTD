@@ -12,8 +12,16 @@
   "tip.opentd.nut_flower_card": "放置在草方块上，吸引周围敌人，死后爆炸",
   "item.opentd.laser_flower_card": "激光葵卡（测试）",
   "tip.opentd.laser_flower_card": "放置在草方块上，发射激光攻击",
+  "item.opentd.fly_shooter_card": "飞行射手卡（测试）",
+  "tip.opentd.fly_shooter_card": "任意放置",
+  "item.opentd.rush_flower_card": "奔跑葵卡（测试）",
+  "tip.opentd.rush_flower_card": "任意放置",
 
   "itemGroup.opentd.summon_cards": "开放式塔防",
+
+  "entity.opentd.plant_entity": "植物",
+  "entity.opentd.bullet_entity": "子弹",
+  "entity.opentd.plant_hero_entity": "英雄",
 
   "tip.opentd.wrong_block": "不能放置在该方块上",
   "tip.opentd.wrong_entity": "不能放置在该实体上",

@@ -259,21 +259,7 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
     @Override
     protected void customServerAiStep() {
         super.customServerAiStep();
-        if (this.getComponent() != null && this.getComponent().bossBarSetting().isPresent()) {
-            BossBarSetting setting = this.getComponent().bossBarSetting().get();
-            if (this.bossEvent == null) {
-                this.bossEvent = new ServerBossEvent(
-                        setting.title().map(Component::translatable).map(Component.class::cast).orElse(this.getDisplayName()),
-                        BossEvent.BossBarColor.byName(setting.color()),
-                        BossEvent.BossBarOverlay.PROGRESS
-                );
-                this.bossEvent.setDarkenScreen(setting.darkenScreen());
-                this.bossEvent.setPlayBossMusic(setting.playBossMusic());
-                this.bossEvent.setCreateWorldFog(setting.createWorldFog());
-            } else {
-                this.bossEvent.setProgress(this.getHealth() / this.getMaxHealth());
-            }
-        }
+        this.getBossEventOpt().ifPresent(bossEvent -> bossEvent.setProgress(this.getHealth() / this.getMaxHealth()));
     }
 
     @Override
@@ -305,7 +291,7 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
             final double deltaX = shootSetting.offset().x * vec.x - shootSetting.offset().z * vec.z;
             final double deltaZ = shootSetting.offset().x * vec.z + shootSetting.offset().z * vec.x;
             bullet.setPos(this.getX() + deltaX, this.getY() + deltaY, this.getZ() + deltaZ);
-            if (this.getTarget() != null && shootSetting.bulletSetting().get().lockToTarget()) {
+            if (this.getTarget() != null) {
                 bullet.shootToTarget(this, shootSetting, this.getTarget(), this.getTarget().getX() - bullet.getX(), this.getTarget().getY() + this.getTarget().getBbHeight() - bullet.getY(), this.getTarget().getZ() - bullet.getZ());
             } else {
                 bullet.shootTo(this, shootSetting, vec);
@@ -541,21 +527,31 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
     @Override
     public void startSeenByPlayer(ServerPlayer serverPlayer) {
         super.startSeenByPlayer(serverPlayer);
-        if(this.bossEvent != null){
-            this.bossEvent.addPlayer(serverPlayer);
-        }
+        this.getBossEventOpt().ifPresent(bossEvent -> bossEvent.addPlayer(serverPlayer));
     }
 
     @Override
     public void stopSeenByPlayer(ServerPlayer serverPlayer) {
         super.stopSeenByPlayer(serverPlayer);
-        if(this.bossEvent != null) {
-            this.bossEvent.removePlayer(serverPlayer);
-        }
+        this.getBossEventOpt().ifPresent(bossEvent -> bossEvent.removePlayer(serverPlayer));
     }
 
-    public ServerBossEvent getBossEvent() {
-        return bossEvent;
+    public Optional<ServerBossEvent> getBossEventOpt() {
+        if (this.getComponent() != null && this.getComponent().bossBarSetting().isPresent()) {
+            if (this.bossEvent == null) {
+                BossBarSetting setting = this.getComponent().bossBarSetting().get();
+                this.bossEvent = new ServerBossEvent(
+                        setting.title().map(Component::translatable).map(Component.class::cast).orElse(this.getDisplayName()),
+                        BossEvent.BossBarColor.byName(setting.color()),
+                        BossEvent.BossBarOverlay.PROGRESS
+                );
+                this.bossEvent.setDarkenScreen(setting.darkenScreen());
+                this.bossEvent.setPlayBossMusic(setting.playBossMusic());
+                this.bossEvent.setCreateWorldFog(setting.createWorldFog());
+            }
+            return Optional.of(this.bossEvent);
+        }
+        return Optional.empty();
     }
 
     @Override
@@ -614,6 +610,14 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
             }
         }
         return super.canBeRiddenUnderFluidType(type, rider);
+    }
+
+    @Override
+    public boolean canDrownInFluidType(FluidType type) {
+        if(this.getComponent() != null && type == ForgeMod.WATER_TYPE.get()){
+            return ! this.getComponent().towerSetting().canBreathInWater();
+        }
+        return super.canDrownInFluidType(type);
     }
 
     @Override

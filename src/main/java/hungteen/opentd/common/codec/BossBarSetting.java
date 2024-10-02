@@ -2,7 +2,7 @@ package hungteen.opentd.common.codec;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.network.chat.Component;
+import net.minecraft.world.BossEvent;
 
 import java.util.Optional;
 
@@ -20,5 +20,9 @@ public record BossBarSetting(Optional<String> title, String color, boolean darke
             Codec.BOOL.optionalFieldOf("play_boss_music", false).forGetter(BossBarSetting::playBossMusic),
             Codec.BOOL.optionalFieldOf("create_world_fog", false).forGetter(BossBarSetting::createWorldFog)
     ).apply(instance, BossBarSetting::new)).codec();
+
+    public static BossBarSetting of(Optional<String> title, BossEvent.BossBarColor color, boolean darkenScreen, boolean playBossMusic, boolean createWorldFog){
+        return new BossBarSetting(title, color.getName(), darkenScreen, playBossMusic, createWorldFog);
+    }
 
 }

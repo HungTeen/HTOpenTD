@@ -1,7 +1,7 @@
 {
   "type": "opentd:pvz_plant",
   "plant_setting": {
-    "id": "opentd:pea_shooter_test",
+    "id": "opentd:diamond_shooter",
     "render_setting": {
       "animation": "opentd:animations/pea_shooter.animation.json",
       "height": 0.8,

@@ -32,6 +32,7 @@ public interface OTDTargetFilters {
     ResourceKey<ITargetFilter> CREEPER_ONLY = create("creeper_only");
     ResourceKey<ITargetFilter> SKELETON_TAG = create("skeleton_tag");
     ResourceKey<ITargetFilter> ENEMY_CLASS = create("enemy_class");
+    ResourceKey<ITargetFilter> PLAYER_CLASS = create("player_class");
     ResourceKey<ITargetFilter> SUN_FLOWER_NBT = create("sun_flower_nbt");
     ResourceKey<ITargetFilter> EQUAL_ENTITY = create("equal_entity");
     ResourceKey<ITargetFilter> IN_TEST_TEAM = create("in_test_team");
@@ -45,6 +46,7 @@ public interface OTDTargetFilters {
         context.register(CREEPER_ONLY, new TypeTargetFilter(List.of(EntityType.CREEPER)));
         context.register(SKELETON_TAG, new TagTargetFilter(Optional.of(EntityTypeTags.SKELETONS), Optional.empty()));
         context.register(ENEMY_CLASS, new ClassFilter(ClassFilter.ENEMY));
+        context.register(PLAYER_CLASS, new ClassFilter(ClassFilter.PLAYER));
         context.register(SUN_FLOWER_NBT, new NBTTargetFilter(new CompoundTag(), NBTUtil.sunflowerPredicate()));
         context.register(EQUAL_ENTITY, SelfFilter.INSTANCE);
         context.register(IN_TEST_TEAM, new TeamFilter(Optional.of("test"), true, false, false));

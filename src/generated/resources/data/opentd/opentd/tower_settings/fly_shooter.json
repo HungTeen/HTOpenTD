@@ -1,0 +1,77 @@
+{
+  "type": "opentd:plant_hero",
+  "boss_bar_setting": {
+    "color": "blue",
+    "create_world_fog": true
+  },
+  "die_effect": "opentd:wither_sound",
+  "hero_setting": {
+    "extra_nbt": {
+      "Attributes": [
+        {
+          "Base": 1.0,
+          "Name": "minecraft:generic.flying_speed"
+        }
+      ]
+    },
+    "id": "opentd:fly_shooter",
+    "render_setting": {
+      "animation": "opentd:animations/pea_shooter.animation.json",
+      "height": 1.2,
+      "model": "opentd:geo/pea_shooter.geo.json",
+      "scale": 1.2,
+      "texture": "opentd:textures/entity/pea_shooter.png",
+      "width": 0.9
+    }
+  },
+  "laser_goal": {
+    "continue_effect": "opentd:four_point_damage",
+    "cool_down": 200,
+    "duration": 100,
+    "effect_interval": 40,
+    "final_effect": "opentd:splash_damage_to_all_entities",
+    "laser_color": 5636095,
+    "laser_distance": 20.0,
+    "laser_filter": "opentd:player_class",
+    "laser_width": 1.0
+  },
+  "movement_setting": {
+    "backward_percent": 0.0,
+    "move_controller": "opentd:shooter_flying",
+    "navigator_setting": {
+      "navigator": "opentd:fly"
+    },
+    "upward_percent": 0.0
+  },
+  "shoot_goal": {
+    "shoot_count": 5,
+    "shoot_settings": [
+      {
+        "bullet_setting": "opentd:flame_pea",
+        "vertical_angle_limit": 10.0
+      },
+      {
+        "bullet_setting": "opentd:flame_pea",
+        "horizontal_angle_offset": 45.0,
+        "vertical_angle_limit": 10.0
+      },
+      {
+        "bullet_setting": "opentd:flame_pea",
+        "horizontal_angle_offset": -45.0,
+        "vertical_angle_limit": 10.0
+      }
+    ],
+    "shoot_sound": {
+      "sound_id": "minecraft:entity.blaze.shoot"
+    },
+    "start_tick": 10
+  },
+  "target_settings": [
+    {
+      "chance": 0.2,
+      "priority": 1,
+      "refresh_cd": 10000,
+      "target_finder": "opentd:only_players"
+    }
+  ]
+}

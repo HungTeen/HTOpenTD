@@ -11,6 +11,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.pathfinder.BlockPathTypes;
 
 import java.util.List;
 import java.util.Optional;
@@ -51,6 +52,10 @@ public record MovementSetting(Optional<NavigationSetting> navigationSetting, Opt
             navigator.setCanFloat(canFloat());
             return navigator;
         }
+    }
+
+    public static List<Pair<String, Float>> parse(List<Pair<BlockPathTypes, Float>> list){
+        return list.stream().map(pair -> Pair.of(pair.getFirst().name(), pair.getSecond())).toList();
     }
 
 }

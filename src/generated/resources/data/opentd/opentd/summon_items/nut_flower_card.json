@@ -2,7 +2,7 @@
   "item_setting": {
     "cool_down": 20,
     "max_stack_size": 64,
-    "model": "opentd:wall_nut_card",
+    "model": "opentd:nut_flower_card",
     "name": "item.opentd.nut_flower_card",
     "texts": [
       "tip.opentd.nut_flower_card"

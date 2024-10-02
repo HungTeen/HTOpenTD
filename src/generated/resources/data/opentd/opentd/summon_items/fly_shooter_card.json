@@ -1,0 +1,13 @@
+{
+  "item_setting": {
+    "cool_down": 20,
+    "max_stack_size": 64,
+    "model": "opentd:fly_shooter_card",
+    "name": "item.opentd.fly_shooter_card",
+    "texts": [
+      "tip.opentd.fly_shooter_card"
+    ]
+  },
+  "requirement": "opentd:nothing",
+  "tower_setting": "opentd:fly_shooter"
+}

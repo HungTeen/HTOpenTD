@@ -1,0 +1,49 @@
+{
+  "type": "opentd:plant_hero",
+  "attack_goal": {
+    "attack_sound": {
+      "sound_id": "minecraft:entity.creeper.primed"
+    },
+    "cool_down": 10,
+    "distance": 2.0,
+    "duration": 20,
+    "effect": "opentd:explosion_effect",
+    "start_tick": 10
+  },
+  "boss_bar_setting": {
+    "color": "red",
+    "create_world_fog": true
+  },
+  "die_effect": "opentd:wither_sound",
+  "hero_setting": {
+    "extra_nbt": {
+      "Attributes": [
+        {
+          "Base": 100.0,
+          "Name": "minecraft:generic.max_health"
+        }
+      ]
+    },
+    "id": "opentd:rush_flower",
+    "render_setting": {
+      "animation": "opentd:animations/sun_flower.animation.json",
+      "height": 1.0,
+      "model": "opentd:geo/sun_flower.geo.json",
+      "texture": "opentd:textures/entity/sun_flower.png",
+      "width": 0.8
+    },
+    "tower_setting": {
+      "can_breath_in_water": true,
+      "can_ride_in_water": true,
+      "custom_death": false
+    }
+  },
+  "target_settings": [
+    {
+      "chance": 0.2,
+      "priority": 1,
+      "refresh_cd": 10000,
+      "target_finder": "opentd:only_players"
+    }
+  ]
+}

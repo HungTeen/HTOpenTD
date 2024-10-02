@@ -1,7 +1,0 @@
-{
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "opentd:item/mega_card",
-    "layer1": "opentd:item/potato_mine"
-  }
-}

@@ -16,7 +16,6 @@ import net.minecraft.core.HolderGetter;
 import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.resources.ResourceKey;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -34,6 +33,8 @@ public interface OTDSummonEntries {
     ResourceKey<SummonEntry> SUN_FLOWER_CARD = create("sun_flower_card");
     ResourceKey<SummonEntry> NUT_FLOWER_CARD = create("nut_flower_card");
     ResourceKey<SummonEntry> LASER_FLOWER_CARD = create("laser_flower_card");
+    ResourceKey<SummonEntry> FLY_SHOOTER_CARD = create("fly_shooter_card");
+    ResourceKey<SummonEntry> RUSH_FLOWER_CARD = create("rush_flower_card");
 
     static void register(BootstapContext<SummonEntry> context) {
         final HolderGetter<ITargetFilter> filters = OTDTargetFilters.registry().helper().lookup(context);
@@ -41,36 +42,28 @@ public interface OTDSummonEntries {
         final HolderGetter<ISummonRequirement> requirements = OTDSummonRequirements.registry().helper().lookup(context);
         context.register(PEA_SHOOTER_CARD, new SummonEntry(
                 ItemSetting.builder().card()
-                        .model(Util.prefix("pea_shooter_card"))
-                        .name("item.opentd.pea_shooter_card")
-                        .texts(List.of(Util.get().langKey("tip", "pea_shooter_card")))
+                        .modelNameTip("pea_shooter_card")
                         .build(),
                 Optional.of(requirements.getOrThrow(OTDSummonRequirements.AROUND_SUN_FLOWER)),
                 Optional.of(towerComponents.getOrThrow(OTDTowerComponents.PEA_SHOOTER))
         ));
         context.register(PEA_PULT_CARD, new SummonEntry(
                 ItemSetting.builder().card()
-                        .model(Util.prefix("cabbage_pult_card"))
-                        .name("item.opentd.pea_pult_card")
-                        .texts(List.of(Util.get().langKey("tip", "pea_pult_card")))
+                        .modelNameTip("pea_pult_card")
                         .build(),
                 Optional.of(requirements.getOrThrow(OTDSummonRequirements.ON_CREEPER)),
                 Optional.of(towerComponents.getOrThrow(OTDTowerComponents.PEA_PULT))
         ));
         context.register(DIAMOND_SHOOTER_CARD, new SummonEntry(
                 ItemSetting.builder().card()
-                        .model(Util.prefix("pea_shooter_enjoy_card"))
-                        .name("item.opentd.diamond_shooter_card")
-                        .texts(List.of(Util.get().langKey("tip", "diamond_shooter_card")))
+                        .modelNameTip("diamond_shooter_card")
                         .build(),
                 Optional.of(requirements.getOrThrow(OTDSummonRequirements.NEED_DIAMOND)),
                 Optional.of(towerComponents.getOrThrow(OTDTowerComponents.DIAMOND_SHOOTER))
         ));
         context.register(SUN_FLOWER_CARD, new SummonEntry(
                 ItemSetting.builder().card()
-                        .model(Util.prefix("sun_flower_card"))
-                        .name("item.opentd.sun_flower_card")
-                        .texts(List.of(Util.get().langKey("tip", "sun_flower_card")))
+                        .modelNameTip("sun_flower_card")
                         .damage(10)
                         .build(),
                 Optional.of(requirements.getOrThrow(OTDSummonRequirements.NOTHING)),
@@ -78,21 +71,31 @@ public interface OTDSummonEntries {
         ));
         context.register(NUT_FLOWER_CARD, new SummonEntry(
                 ItemSetting.builder().card()
-                        .model(Util.prefix("wall_nut_card"))
-                        .name("item.opentd.nut_flower_card")
-                        .texts(List.of(Util.get().langKey("tip", "nut_flower_card")))
+                        .modelNameTip("nut_flower_card")
                         .build(),
                 Optional.of(requirements.getOrThrow(OTDSummonRequirements.ON_GRASS)),
                 Optional.of(towerComponents.getOrThrow(OTDTowerComponents.NUT_FLOWER))
         ));
         context.register(LASER_FLOWER_CARD, new SummonEntry(
                 ItemSetting.builder().card()
-                        .model(Util.prefix("sun_flower_enjoy_card"))
-                        .name("item.opentd.laser_flower_card")
-                        .texts(List.of(Util.get().langKey("tip", "laser_flower_card")))
+                        .modelNameTip("laser_flower_card")
                         .build(),
                 Optional.of(requirements.getOrThrow(OTDSummonRequirements.ON_GRASS)),
                 Optional.of(towerComponents.getOrThrow(OTDTowerComponents.LASER_FLOWER))
+        ));
+        context.register(FLY_SHOOTER_CARD, new SummonEntry(
+                ItemSetting.builder().card()
+                        .modelNameTip("fly_shooter_card")
+                        .build(),
+                Optional.of(requirements.getOrThrow(OTDSummonRequirements.NOTHING)),
+                Optional.of(towerComponents.getOrThrow(OTDTowerComponents.FLY_SHOOTER))
+        ));
+        context.register(RUSH_FLOWER_CARD, new SummonEntry(
+                ItemSetting.builder().card()
+                        .modelNameTip("rush_flower_card")
+                        .build(),
+                Optional.of(requirements.getOrThrow(OTDSummonRequirements.NOTHING)),
+                Optional.of(towerComponents.getOrThrow(OTDTowerComponents.RUSH_FLOWER))
         ));
     }
 

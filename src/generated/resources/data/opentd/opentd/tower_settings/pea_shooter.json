@@ -4,8 +4,8 @@
     "extra_nbt": {
       "Attributes": [
         {
-          "Base": 0.4000000059604645,
-          "Name": "minecraft:generic.movement_speed"
+          "Base": 10.0,
+          "Name": "minecraft:generic.max_health"
         }
       ]
     },

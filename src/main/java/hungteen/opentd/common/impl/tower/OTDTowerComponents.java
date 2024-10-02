@@ -1,31 +1,33 @@
 package hungteen.opentd.common.impl.tower;
 
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import hungteen.htlib.api.interfaces.IHTCodecRegistry;
 import hungteen.htlib.common.registry.HTCodecRegistry;
 import hungteen.htlib.common.registry.HTRegistryManager;
 import hungteen.htlib.util.helper.ColorHelper;
-import hungteen.htlib.util.helper.registry.EntityHelper;
 import hungteen.opentd.api.interfaces.*;
 import hungteen.opentd.common.codec.*;
 import hungteen.opentd.common.impl.OTDBulletSettings;
+import hungteen.opentd.common.impl.OTDPathNavigations;
 import hungteen.opentd.common.impl.effect.OTDEffectComponents;
 import hungteen.opentd.common.impl.filter.OTDTargetFilters;
 import hungteen.opentd.common.impl.finder.OTDTargetFinders;
+import hungteen.opentd.common.impl.move.OTDMoveComponents;
+import hungteen.opentd.util.NBTUtil;
 import hungteen.opentd.util.Util;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.BossEvent;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -43,16 +45,19 @@ public interface OTDTowerComponents {
     ResourceKey<ITowerComponent> SUN_FLOWER = create("sun_flower");
     ResourceKey<ITowerComponent> NUT_FLOWER = create("nut_flower");
     ResourceKey<ITowerComponent> LASER_FLOWER = create("laser_flower");
+    ResourceKey<ITowerComponent> FLY_SHOOTER = create("fly_shooter");
+    ResourceKey<ITowerComponent> RUSH_FLOWER = create("rush_flower");
 
     static void register(BootstapContext<ITowerComponent> context) {
         final HolderGetter<ITargetFilter> filters = OTDTargetFilters.registry().helper().lookup(context);
         final HolderGetter<ITargetFinder> finders = OTDTargetFinders.registry().helper().lookup(context);
         final HolderGetter<IEffectComponent> effects = OTDEffectComponents.registry().helper().lookup(context);
+        final HolderGetter<IMoveComponent> movements = OTDMoveComponents.registry().helper().lookup(context);
         final HolderGetter<BulletSetting> bullets = OTDBulletSettings.registry().helper().lookup(context);
         context.register(PEA_SHOOTER, new PVZPlantComponent(
                 new PVZPlantComponent.PlantSetting(
                         TowerSetting.DEFAULT,
-                        get1(),
+                        NBTUtil.attributeTags(List.of(Pair.of(Attributes.MAX_HEALTH, 10D))),
                         PVZPlantComponent.GrowSettings.DEFAULT,
                         Util.prefix("pea_shooter"), 0, true, false,
                         false,
@@ -91,13 +96,13 @@ public interface OTDTowerComponents {
                         RenderSetting.DEFAULT
                 ),
                 List.of(
-                        new TargetSetting(1, 0.2F, true, 10000, finders.getOrThrow(OTDTargetFinders.RANGE_CREEPER))
+                        new TargetSetting(1, 0.2F, true, 10000, finders.getOrThrow(OTDTargetFinders.AROUND_ENEMIES))
                 ),
                 Optional.of(new ShootGoalSetting(
                         0, 20, 10, 2, false, Optional.of(Holder.direct(SoundEvents.CROSSBOW_HIT)),
                         List.of(
                                 new ShootGoalSetting.ShootSetting(
-                                        false, true, 0, Vec3.ZERO, 60, 0, 10,
+                                        false, true, 0, Vec3.ZERO, 90, 0, 10,
                                         bullets.getOrThrow(OTDBulletSettings.CREEPER_PEA)
                                 )
                         )
@@ -116,7 +121,7 @@ public interface OTDTowerComponents {
                         TowerSetting.DEFAULT,
                         new CompoundTag(),
                         PVZPlantComponent.GrowSettings.DEFAULT,
-                        Util.prefix("pea_shooter_test"), 0, true, false,
+                        Util.prefix("diamond_shooter"), 0, true, false,
                         false,
                         true,
                         RenderSetting.DEFAULT
@@ -144,10 +149,10 @@ public interface OTDTowerComponents {
         ));
         context.register(SUN_FLOWER, new PVZPlantComponent(
                 new PVZPlantComponent.PlantSetting(
-                        new TowerSetting(false, true, true, 30),
+                        new TowerSetting(false, false, true, true, 30),
                         new CompoundTag(),
                         PVZPlantComponent.GrowSettings.DEFAULT,
-                        Util.prefix("sun_flower_test"), 2000, false, false,
+                        Util.prefix("sun_flower"), 3000, false, false,
                         false, true,
                         RenderSetting.make(0.8F, 1F, 1F, false, "sun_flower")
                 ),
@@ -174,10 +179,10 @@ public interface OTDTowerComponents {
         ));
         context.register(NUT_FLOWER, new PVZPlantComponent(
                 new PVZPlantComponent.PlantSetting(
-                        new TowerSetting(false, true, true, 100),
+                        TowerSetting.DEFAULT,
                         new CompoundTag(),
                         PVZPlantComponent.GrowSettings.DEFAULT,
-                        Util.prefix("sun_flower_test"), 2000, false, false,
+                        Util.prefix("nut_flower"), 0, false, false,
                         false, true,
                         RenderSetting.make(0.8F, 1F, 1F, false, "sun_flower")
                 ),
@@ -200,10 +205,10 @@ public interface OTDTowerComponents {
         ));
         context.register(LASER_FLOWER, new PVZPlantComponent(
                 new PVZPlantComponent.PlantSetting(
-                        new TowerSetting(false, true, true, 10),
+                        TowerSetting.DEFAULT,
                         new CompoundTag(),
                         PVZPlantComponent.GrowSettings.DEFAULT,
-                        Util.prefix("sun_flower_test"), 2000, false, false,
+                        Util.prefix("laser_flower"), 0, false, false,
                         false, true,
                         RenderSetting.make(0.8F, 1F, 1F, false, "sun_flower")
                 ),
@@ -228,21 +233,93 @@ public interface OTDTowerComponents {
                 ),
                 Optional.empty()
         ));
-    }
-
-    private static CompoundTag get1() {
-        CompoundTag tag = new CompoundTag();
-        {
-            ListTag listtag = new ListTag();
-            {
-                CompoundTag compoundtag = new CompoundTag();
-                compoundtag.putString("Name", Objects.requireNonNull(EntityHelper.attribute().getKey((Attributes.MOVEMENT_SPEED)).toString()));
-                compoundtag.putDouble("Base", 0.4F);
-                listtag.add(compoundtag);
-            }
-            tag.put("Attributes", listtag);
-        }
-        return tag;
+        context.register(FLY_SHOOTER, new PlantHeroComponent(
+                new PlantHeroComponent.HeroSetting(
+                        TowerSetting.DEFAULT,
+                        NBTUtil.attributeTags(List.of(Pair.of(Attributes.FLYING_SPEED, 1D))),
+                        Util.prefix("fly_shooter"), true,
+                        RenderSetting.make(0.9F, 1.2F, 1.2F, false, "pea_shooter")
+                ),
+                Optional.of(
+                        new MovementSetting(
+                                Optional.of(new MovementSetting.NavigationSetting(
+                                        OTDPathNavigations.FLY, List.of(), false, false, true
+                                )),
+                                Optional.of(movements.getOrThrow(OTDMoveComponents.SHOOTER_FLYING)),
+                                true, true, false, 1.0, 0, 0
+                        )
+                ),
+                List.of(
+                        new TargetSetting(1, 0.2F, true, 10000, finders.getOrThrow(OTDTargetFinders.ONLY_PLAYERS))
+                ),
+                Optional.of(new ShootGoalSetting(
+                        0, 30, 10, 5, false, Optional.of(Holder.direct(SoundEvents.BLAZE_SHOOT)),
+                        List.of(
+                                new ShootGoalSetting.ShootSetting(
+                                        false, false, 0, Vec3.ZERO, 10, 0, 10,
+                                        bullets.getOrThrow(OTDBulletSettings.FLAME_PEA)
+                                ),
+                                new ShootGoalSetting.ShootSetting(
+                                        false, false, 0, Vec3.ZERO, 10, 45, 10,
+                                        bullets.getOrThrow(OTDBulletSettings.FLAME_PEA)
+                                ),
+                                new ShootGoalSetting.ShootSetting(
+                                        false, false, 0, Vec3.ZERO, 10, -45, 10,
+                                        bullets.getOrThrow(OTDBulletSettings.FLAME_PEA)
+                                )
+                        )
+                )),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.of(new LaserGoalSetting(
+                        200, 100, 40,
+                        Optional.of(filters.getOrThrow(OTDTargetFilters.PLAYER_CLASS)),
+                        Optional.of(effects.getOrThrow(OTDEffectComponents.FOUR_POINT_DAMAGE)),
+                        Optional.of(effects.getOrThrow(OTDEffectComponents.SPLASH_DAMAGE_TO_ALL_ENTITIES)),
+                        1F, 10F, 20D, false, Optional.empty(), Optional.of(ColorHelper.AQUA.rgb())
+                )),
+                Optional.empty(),
+                List.of(),
+                Optional.empty(),
+                Optional.of(
+                        effects.getOrThrow(OTDEffectComponents.WITHER_SOUND_EFFECT)
+                ),
+                Optional.of(
+                        BossBarSetting.of(Optional.empty(), BossEvent.BossBarColor.BLUE, false, false, true)
+                ),
+                Optional.empty()
+        ));
+        context.register(RUSH_FLOWER, new PlantHeroComponent(
+                new PlantHeroComponent.HeroSetting(
+                        TowerSetting.DEFAULT_WATER,
+                        NBTUtil.attributeTags(List.of(Pair.of(Attributes.MAX_HEALTH, 100D))),
+                        Util.prefix("rush_flower"), true,
+                        RenderSetting.make(0.8F, 1F, 1F, false, "sun_flower")
+                ),
+                Optional.empty(),
+                List.of(
+                        new TargetSetting(1, 0.2F, true, 10000, finders.getOrThrow(OTDTargetFinders.ONLY_PLAYERS))
+                ),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.of(
+                        new AttackGoalSetting(
+                                20, 10, 10, false, 2F, Optional.of(Holder.direct(SoundEvents.CREEPER_PRIMED)),
+                                effects.getOrThrow(OTDEffectComponents.EXPLOSION_EFFECT)
+                        )
+                ),
+                Optional.empty(),
+                Optional.empty(),
+                List.of(),
+                Optional.empty(),
+                Optional.of(
+                        effects.getOrThrow(OTDEffectComponents.WITHER_SOUND_EFFECT)
+                ),
+                Optional.of(
+                        BossBarSetting.of(Optional.empty(), BossEvent.BossBarColor.RED, false, false, true)
+                ),
+                Optional.empty()
+        ));
     }
 
     static ResourceKey<ITowerComponent> create(String name) {

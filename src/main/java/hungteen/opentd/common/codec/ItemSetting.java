@@ -51,6 +51,12 @@ public record ItemSetting(Optional<String> name, ResourceLocation model, int max
             return this.stack(64).damage(0).cd(20);
         }
 
+        public Builder modelNameTip(String name){
+            return this.name(Util.get().langKey("item", name))
+                    .model(Util.prefix(name))
+                    .texts(List.of(Util.get().langKey("tip", name)));
+        }
+
         public Builder model(ResourceLocation model) {
             this.model = model;
             return this;

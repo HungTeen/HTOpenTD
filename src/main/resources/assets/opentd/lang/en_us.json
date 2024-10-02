@@ -12,8 +12,16 @@
   "tip.opentd.nut_flower_card": "Place on grass block, attract enemy around, explode after death",
   "item.opentd.laser_flower_card": "Laser Flower Card (Test)",
   "tip.opentd.laser_flower_card": "Place on grass block, shoot laser to attack",
+  "item.opentd.fly_shooter_card": "Fly Shooter Card (Test)",
+  "tip.opentd.fly_shooter_card": "Any place",
+  "item.opentd.rush_flower_card": "Rush Flower Card (Test)",
+  "tip.opentd.rush_flower_card": "Any place",
 
   "itemGroup.opentd.summon_cards": "Open Tower Defence",
+
+  "entity.opentd.plant_entity": "OTD Entity (Plant)",
+  "entity.opentd.bullet_entity": "OTD Entity (Bullet)",
+  "entity.opentd.plant_hero_entity": "OTD Entity (Hero)",
 
   "tip.opentd.wrong_block": "Can not place on this block",
   "tip.opentd.wrong_entity": "Can not place on this entity",
