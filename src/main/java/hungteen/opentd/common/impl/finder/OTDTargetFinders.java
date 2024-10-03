@@ -27,6 +27,7 @@ public interface OTDTargetFinders {
     ResourceKey<ITargetFinder> RANGE_CREEPER = create("range_creeper");
     ResourceKey<ITargetFinder> LINE_ENEMIES = create("range_enemies");
     ResourceKey<ITargetFinder> AROUND_ENEMIES = create("around_enemies");
+    ResourceKey<ITargetFinder> AROUND_ENEMIES_IGNORE_SIGHT = create("around_enemies_ignore_sight");
     ResourceKey<ITargetFinder> ONLY_PLAYERS = create("only_players");
 
     static void register(BootstapContext<ITargetFinder> context){
@@ -42,6 +43,9 @@ public interface OTDTargetFinders {
         ));
         context.register(AROUND_ENEMIES, new RangeFinder(
                 true, 10, 10, filters.getOrThrow(OTDTargetFilters.ENEMY_CLASS)
+        ));
+        context.register(AROUND_ENEMIES_IGNORE_SIGHT, new RangeFinder(
+                false, 15, 15, filters.getOrThrow(OTDTargetFilters.ENEMY_CLASS)
         ));
         context.register(ONLY_PLAYERS, new RangeFinder(
                 true, 10, 10, filters.getOrThrow(OTDTargetFilters.PLAYER_CLASS)

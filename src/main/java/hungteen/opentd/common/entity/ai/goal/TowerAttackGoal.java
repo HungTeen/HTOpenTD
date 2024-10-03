@@ -1,9 +1,8 @@
-package hungteen.opentd.common.entity.ai;
+package hungteen.opentd.common.entity.ai.goal;
 
 import hungteen.htlib.util.helper.registry.EntityHelper;
 import hungteen.opentd.common.codec.AttackGoalSetting;
 import hungteen.opentd.common.entity.TowerEntity;
-import hungteen.opentd.common.impl.tower.PVZPlantComponent;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
 

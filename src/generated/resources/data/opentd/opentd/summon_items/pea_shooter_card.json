@@ -1,6 +1,6 @@
 {
   "item_setting": {
-    "cool_down": 20,
+    "cool_down": 100,
     "max_stack_size": 64,
     "model": "opentd:pea_shooter_card",
     "name": "item.opentd.pea_shooter_card",

@@ -56,6 +56,8 @@ public class OpenTD {
 
         final IEventBus forgeBus = MinecraftForge.EVENT_BUS;
         forgeBus.addGenericListener(Entity.class, OpenTDCapabilities::attachCapabilities);
+
+        OTDConfigs.init();
     }
 
     public void register(IEventBus modBus){

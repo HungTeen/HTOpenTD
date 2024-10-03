@@ -25,9 +25,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.Level;
@@ -434,6 +432,14 @@ public class BulletEntity extends Projectile implements IOTDEntity {
             }
         }
         return super.isAlliedTo(entity);
+    }
+
+    @Override
+    public EntityDimensions getDimensions(Pose pose) {
+        final float width = getRenderSetting().width();
+        final float height = getRenderSetting().height();
+        final float scale = getRenderSetting().scale();
+        return EntityDimensions.scalable(width * scale, height * scale);
     }
 
     public void addAdditionalSaveData(CompoundTag compound) {

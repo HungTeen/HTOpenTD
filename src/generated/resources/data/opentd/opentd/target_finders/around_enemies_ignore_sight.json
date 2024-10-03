@@ -1,0 +1,7 @@
+{
+  "type": "opentd:range",
+  "check_sight": false,
+  "height": 15.0,
+  "target_filter": "opentd:enemy_class",
+  "width": 15.0
+}

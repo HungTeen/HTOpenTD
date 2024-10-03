@@ -21,11 +21,11 @@ public class PlantEntityRender extends TowerEntityRender<PlantEntity> {
         if (animatable.getComponent() != null) {
             double tmp;
             if(animatable.oldAge != animatable.getAge()){
-                final float oldScale = animatable.getGrowSettings().scales().get(animatable.oldAge);
-                final float newScale = animatable.getGrowSettings().scales().get(animatable.getAge());
+                final float oldScale = animatable.getGrowSetting().scales().get(animatable.oldAge);
+                final float newScale = animatable.getGrowSetting().scales().get(animatable.getAge());
                 tmp = MathHelper.smooth(oldScale, newScale, PlantEntity.GROW_ANIM_CD - animatable.growAnimTick, PlantEntity.GROW_ANIM_CD);
             } else{
-                tmp = animatable.getGrowSettings().scales().get(animatable.getAge());
+                tmp = animatable.getGrowSetting().scales().get(animatable.getAge());
             }
             return  (float) (tmp * animatable.getComponent().plantSetting().renderSetting().scale());
         }

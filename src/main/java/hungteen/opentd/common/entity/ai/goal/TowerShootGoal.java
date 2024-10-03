@@ -1,4 +1,4 @@
-package hungteen.opentd.common.entity.ai;
+package hungteen.opentd.common.entity.ai.goal;
 
 import hungteen.htlib.util.helper.registry.EntityHelper;
 import hungteen.opentd.common.codec.ShootGoalSetting;
@@ -79,7 +79,14 @@ public class TowerShootGoal extends HTGoal {
     }
 
     protected boolean checkTarget() {
-        return EntityHelper.isEntityValid(this.target) && this.towerEntity.canAttack(this.target) && this.towerEntity.getSensing().hasLineOfSight(this.target);
+        if(EntityHelper.isEntityValid(this.target) && this.towerEntity.canAttack(this.target)){
+            ShootGoalSetting setting = setting();
+            if(setting != null && setting.mustSeeTarget() && !this.towerEntity.getSensing().hasLineOfSight(this.target)){
+                return false;
+            }
+            return true;
+        }
+        return false;
     }
 
 }

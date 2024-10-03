@@ -86,7 +86,7 @@ public class PlantEntity extends TowerEntity {
         super.tick();
         if (this.level() instanceof ServerLevel) {
             // 植物生长。
-            if (this.isAlive()) {
+            if (this.isAlive() && !this.isNoAi()) {
                 if (this.canGrow()) {
                     if (this.growTick >= this.getGrowNeedTime()) {
                         this.onGrow();
@@ -162,9 +162,9 @@ public class PlantEntity extends TowerEntity {
     public void onGrow() {
         this.setAge(this.getAge() + 1);
         this.growTick = 0;
-        this.getGrowSettings().growSound().map(Holder::get).ifPresent(this::playSound);
+        this.getGrowSetting().growSound().map(Holder::get).ifPresent(this::playSound);
         if (this.level() instanceof ServerLevel serverLevel) {
-            this.getGrowSettings().growEffects().stream()
+            this.getGrowSetting().growEffects().stream()
                     .filter(l -> l.getSecond() == this.getAge())
                     .map(Pair::getFirst)
                     .forEach(l -> l.get().effectTo(serverLevel, this, this.blockPosition()));
@@ -230,9 +230,9 @@ public class PlantEntity extends TowerEntity {
 
     @Override
     public EntityDimensions getDimensions(Pose pose) {
-        final float width = getRenderSettings().width();
-        final float height = getRenderSettings().height();
-        final float scale = getGrowSettings().scales().get(this.getAge()) * getRenderSettings().scale();
+        final float width = getRenderSetting().width();
+        final float height = getRenderSetting().height();
+        final float scale = getGrowSetting().scales().get(this.getAge()) * getRenderSetting().scale();
         return EntityDimensions.scalable(width * scale, height * scale);
     }
 
@@ -288,12 +288,8 @@ public class PlantEntity extends TowerEntity {
         }
     }
 
-    public PVZPlantComponent.GrowSettings getGrowSettings() {
+    public PVZPlantComponent.GrowSettings getGrowSetting() {
         return this.getComponent() == null ? PVZPlantComponent.GrowSettings.DEFAULT : this.getComponent().plantSetting().growSetting();
-    }
-
-    public RenderSetting getRenderSettings() {
-        return this.getComponent() == null ? RenderSetting.DEFAULT : this.getComponent().plantSetting().renderSetting();
     }
 
     public void setAge(int age) {

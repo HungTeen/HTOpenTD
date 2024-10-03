@@ -7,7 +7,7 @@ import hungteen.htlib.util.helper.RandomHelper;
 import hungteen.htlib.util.helper.registry.EntityHelper;
 import hungteen.opentd.api.interfaces.ITowerComponent;
 import hungteen.opentd.common.codec.*;
-import hungteen.opentd.common.entity.ai.*;
+import hungteen.opentd.common.entity.ai.goal.*;
 import hungteen.opentd.common.event.events.ShootBulletEvent;
 import hungteen.opentd.common.impl.tower.OTDTowerComponents;
 import hungteen.opentd.util.EntityUtil;

@@ -7,7 +7,14 @@
     "name": "item.opentd.sun_flower_card",
     "texts": [
       "tip.opentd.sun_flower_card"
-    ]
+    ],
+    "use_cost": {
+      "type": "minecraft:uniform",
+      "value": {
+        "max_inclusive": 5,
+        "min_inclusive": 2
+      }
+    }
   },
   "requirement": "opentd:nothing",
   "tower_setting": "opentd:sun_flower"

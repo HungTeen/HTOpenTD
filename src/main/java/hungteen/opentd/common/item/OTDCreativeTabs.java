@@ -2,6 +2,7 @@ package hungteen.opentd.common.item;
 
 import hungteen.htlib.util.helper.StringHelper;
 import hungteen.htlib.util.helper.registry.ItemHelper;
+import hungteen.opentd.OTDConfigs;
 import hungteen.opentd.common.codec.SummonEntry;
 import hungteen.opentd.common.impl.OTDSummonEntries;
 import hungteen.opentd.util.Util;
@@ -30,7 +31,12 @@ public interface OTDCreativeTabs {
                             .withTabsBefore(CreativeModeTabs.SPAWN_EGGS)
                             .displayItems((parameters, output) -> {
                                 HolderLookup.RegistryLookup<SummonEntry> summonEntries = parameters.holders().lookupOrThrow(OTDSummonEntries.registry().getRegistryKey());
-                                summonEntries.listElementIds().map(key -> {
+                                summonEntries.listElementIds().filter(key -> {
+                                    if(! OTDConfigs.displayDefaultCards()){
+                                        return ! Util.in(key.location());
+                                    }
+                                    return true;
+                                }).map(key -> {
                                     return SummonTowerItem.create(key, summonEntries.getOrThrow(key).get());
                                 }).forEach(output::accept);
                             }).withSearchBar().withBackgroundLocation(Util.mc().containerTexture("creative_inventory/tab_item_search"))

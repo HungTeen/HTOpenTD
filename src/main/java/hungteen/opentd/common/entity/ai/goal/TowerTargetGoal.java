@@ -1,4 +1,4 @@
-package hungteen.opentd.common.entity.ai;
+package hungteen.opentd.common.entity.ai.goal;
 
 import hungteen.htlib.util.helper.algorithm.SortHelper;
 import hungteen.htlib.util.helper.registry.EntityHelper;

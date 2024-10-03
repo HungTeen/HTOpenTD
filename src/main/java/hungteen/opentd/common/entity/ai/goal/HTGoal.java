@@ -1,4 +1,4 @@
-package hungteen.opentd.common.entity.ai;
+package hungteen.opentd.common.entity.ai.goal;
 
 import net.minecraft.world.entity.ai.goal.Goal;
 

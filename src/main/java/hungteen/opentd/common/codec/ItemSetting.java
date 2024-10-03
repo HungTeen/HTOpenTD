@@ -4,19 +4,21 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import hungteen.opentd.util.Util;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.valueproviders.IntProvider;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public record ItemSetting(Optional<String> name, ResourceLocation model, int maxStackSize, int maxDamage,
-                          int coolDown, List<String> textComponents) {
+                          int coolDown, Optional<IntProvider> useCost, List<String> textComponents) {
     public static final Codec<ItemSetting> CODEC = RecordCodecBuilder.<ItemSetting>mapCodec(instance -> instance.group(
             Codec.optionalField("name", Codec.STRING).forGetter(ItemSetting::name),
             ResourceLocation.CODEC.fieldOf("model").forGetter(ItemSetting::model),
             Codec.intRange(0, 1023).optionalFieldOf("max_stack_size", 1).forGetter(ItemSetting::maxStackSize),
             Codec.intRange(0, 65535).optionalFieldOf("max_damage", 0).forGetter(ItemSetting::maxDamage),
             Codec.intRange(5, 1000000).optionalFieldOf("cool_down", 5).forGetter(ItemSetting::coolDown),
+            Codec.optionalField("use_cost", IntProvider.CODEC).forGetter(ItemSetting::useCost),
             Codec.STRING.listOf().optionalFieldOf("texts", new ArrayList<>()).forGetter(ItemSetting::textComponents)
     ).apply(instance, ItemSetting::new)).codec();
 
@@ -36,6 +38,7 @@ public record ItemSetting(Optional<String> name, ResourceLocation model, int max
 
     public static class Builder {
         private String name = null;
+        private IntProvider useCost = null;
         private ResourceLocation model = Util.prefix("pea_shooter_card");
         private int maxStackSize = 1;
         private int maxDamage = 0;
@@ -54,7 +57,7 @@ public record ItemSetting(Optional<String> name, ResourceLocation model, int max
         public Builder modelNameTip(String name){
             return this.name(Util.get().langKey("item", name))
                     .model(Util.prefix(name))
-                    .texts(List.of(Util.get().langKey("tip", name)));
+                    .texts(java.util.List.of(Util.get().langKey("tip", name)));
         }
 
         public Builder model(ResourceLocation model) {
@@ -72,6 +75,11 @@ public record ItemSetting(Optional<String> name, ResourceLocation model, int max
             return this;
         }
 
+        public Builder useCost(IntProvider useCost) {
+            this.useCost = useCost;
+            return this;
+        }
+
         public Builder cd(int coolDown) {
             this.coolDown = coolDown;
             return this;
@@ -83,7 +91,7 @@ public record ItemSetting(Optional<String> name, ResourceLocation model, int max
         }
 
         public ItemSetting build() {
-            return new ItemSetting(Optional.ofNullable(name), model, maxStackSize, maxDamage, coolDown, textComponents);
+            return new ItemSetting(Optional.ofNullable(name), model, maxStackSize, maxDamage, coolDown, Optional.ofNullable(useCost), textComponents);
         }
     }
 }

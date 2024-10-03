@@ -1,4 +1,4 @@
-package hungteen.opentd.common.entity.ai;
+package hungteen.opentd.common.entity.ai.goal;
 
 import hungteen.htlib.util.helper.registry.EntityHelper;
 import hungteen.opentd.api.interfaces.IEffectComponent;

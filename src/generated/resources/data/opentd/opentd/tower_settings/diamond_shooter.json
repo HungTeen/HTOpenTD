@@ -12,6 +12,7 @@
   },
   "shoot_goal": {
     "cool_down": 120,
+    "must_see_target": false,
     "shoot_settings": [
       {
         "bullet_setting": "opentd:diamond_pea",
@@ -28,7 +29,7 @@
       "chance": 0.2,
       "priority": 1,
       "refresh_cd": 10000,
-      "target_finder": "opentd:around_enemies"
+      "target_finder": "opentd:around_enemies_ignore_sight"
     }
   ]
 }

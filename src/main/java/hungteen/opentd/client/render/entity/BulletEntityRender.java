@@ -5,8 +5,11 @@ import com.mojang.math.Axis;
 import hungteen.opentd.client.model.entity.BulletEntityModel;
 import hungteen.opentd.common.entity.BulletEntity;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
 /**
@@ -21,6 +24,19 @@ public class BulletEntityRender extends GeoEntityRenderer<BulletEntity> {
     }
 
     @Override
+    protected void applyRotations(BulletEntity animatable, PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTick) {
+        super.applyRotations(animatable, poseStack, ageInTicks, rotationYaw, partialTick);
+        if (animatable.getComponent() != null) {
+            final float scale = getScale(animatable);
+            poseStack.scale(scale, scale, scale);
+        }
+    }
+
+    protected float getScale(BulletEntity animatable){
+        return animatable.getRenderSetting() == null ? 1F : animatable.getRenderSetting().scale();
+    }
+
+    @Override
     public void render(BulletEntity animatable, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
         if (animatable.bulletSetting() != null) {
             poseStack.pushPose();
@@ -32,5 +48,13 @@ public class BulletEntityRender extends GeoEntityRenderer<BulletEntity> {
             super.render(animatable, entityYaw, partialTick, poseStack, bufferSource, packedLight);
             poseStack.popPose();
         }
+    }
+
+    @Override
+    public RenderType getRenderType(BulletEntity animatable, ResourceLocation texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
+        if (animatable.getRenderSetting() != null && animatable.getRenderSetting().translucent()) {
+            return RenderType.entityTranslucent(getTextureLocation(animatable));
+        }
+        return super.getRenderType(animatable, texture, bufferSource, partialTick);
     }
 }

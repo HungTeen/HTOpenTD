@@ -15,6 +15,7 @@ import hungteen.opentd.util.Util;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.util.valueproviders.UniformInt;
 
 import java.util.Optional;
 
@@ -43,6 +44,7 @@ public interface OTDSummonEntries {
         context.register(PEA_SHOOTER_CARD, new SummonEntry(
                 ItemSetting.builder().card()
                         .modelNameTip("pea_shooter_card")
+                        .cd(100)
                         .build(),
                 Optional.of(requirements.getOrThrow(OTDSummonRequirements.AROUND_SUN_FLOWER)),
                 Optional.of(towerComponents.getOrThrow(OTDTowerComponents.PEA_SHOOTER))
@@ -50,6 +52,7 @@ public interface OTDSummonEntries {
         context.register(PEA_PULT_CARD, new SummonEntry(
                 ItemSetting.builder().card()
                         .modelNameTip("pea_pult_card")
+                        .stack(10)
                         .build(),
                 Optional.of(requirements.getOrThrow(OTDSummonRequirements.ON_CREEPER)),
                 Optional.of(towerComponents.getOrThrow(OTDTowerComponents.PEA_PULT))
@@ -65,6 +68,7 @@ public interface OTDSummonEntries {
                 ItemSetting.builder().card()
                         .modelNameTip("sun_flower_card")
                         .damage(10)
+                        .useCost(UniformInt.of(2, 5))
                         .build(),
                 Optional.of(requirements.getOrThrow(OTDSummonRequirements.NOTHING)),
                 Optional.of(towerComponents.getOrThrow(OTDTowerComponents.SUN_FLOWER))

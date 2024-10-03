@@ -36,12 +36,13 @@
     "laser_width": 1.0
   },
   "movement_setting": {
-    "backward_percent": 0.0,
+    "backward_percent": 0.2,
+    "keep_distance": true,
     "move_controller": "opentd:shooter_flying",
     "navigator_setting": {
       "navigator": "opentd:fly"
     },
-    "upward_percent": 0.0
+    "upward_percent": 0.4
   },
   "shoot_goal": {
     "shoot_count": 5,

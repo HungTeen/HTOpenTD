@@ -15,7 +15,7 @@ import java.util.Optional;
  * @author: HungTeen
  * @create: 2023-05-10 22:19
  **/
-public record ShootGoalSetting(int duration, int coolDown, int startTick, int shootCount, boolean needRest, Optional<Holder<SoundEvent>> shootSound,
+public record ShootGoalSetting(int duration, int coolDown, int startTick, int shootCount, boolean needRest, boolean mustSeeTarget, Optional<Holder<SoundEvent>> shootSound,
                                List<ShootSetting> shootSettings) {
     public static final Codec<ShootGoalSetting> CODEC = RecordCodecBuilder.<ShootGoalSetting>mapCodec(instance -> instance.group(
             Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("duration", 0).forGetter(ShootGoalSetting::duration),
@@ -23,6 +23,7 @@ public record ShootGoalSetting(int duration, int coolDown, int startTick, int sh
             Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("start_tick", 20).forGetter(ShootGoalSetting::startTick),
             Codec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("shoot_count", 1).forGetter(ShootGoalSetting::shootCount),
             Codec.BOOL.optionalFieldOf("need_rest", false).forGetter(ShootGoalSetting::needRest),
+            Codec.BOOL.optionalFieldOf("must_see_target", true).forGetter(ShootGoalSetting::mustSeeTarget),
             Codec.optionalField("shoot_sound", SoundEvent.CODEC).forGetter(ShootGoalSetting::shootSound),
             ShootSetting.CODEC.listOf().fieldOf("shoot_settings").forGetter(ShootGoalSetting::shootSettings)
     ).apply(instance, ShootGoalSetting::new)).codec();

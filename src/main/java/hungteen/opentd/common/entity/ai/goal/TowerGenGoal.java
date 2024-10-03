@@ -1,9 +1,8 @@
-package hungteen.opentd.common.entity.ai;
+package hungteen.opentd.common.entity.ai.goal;
 
 import hungteen.htlib.util.WeightedList;
 import hungteen.opentd.common.codec.GenGoalSetting;
 import hungteen.opentd.common.entity.TowerEntity;
-import hungteen.opentd.common.impl.tower.PVZPlantComponent;
 
 /**
  * @program: HTOpenTD

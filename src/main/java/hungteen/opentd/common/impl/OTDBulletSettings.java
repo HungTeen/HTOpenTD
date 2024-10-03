@@ -65,8 +65,8 @@ public interface OTDBulletSettings {
         context.register(DIAMOND_PEA, new BulletSetting(
                 filters.getOrThrow(OTDTargetFilters.ALL),
                 effects.getOrThrow(OTDEffectComponents.DIAMOND_AND_EMERALD),
-                0.1F, 1, 1000, 0.0000F, 1F, 0.95F, false, true, true,
-                RenderSetting.make(0.5F, 0.5F, 0.6F, false, "sun_flower"),
+                0.1F, 1, 1000, 0.0000F, 1F, 0.95F, true, true, true,
+                RenderSetting.make(0.5F, 0.5F, 0.6F, true, "pea_shooter_test"),
                 Optional.empty(),
                 Optional.of(
                         new ParticleSetting(

@@ -20,6 +20,7 @@ public interface OTDMoveTypes {
 
     IMoveComponentType<SwimmingMoveComponent> SWIMMING = register(new DefaultMoveType<>("swimming", SwimmingMoveComponent.CODEC));
     IMoveComponentType<FlyingMoveComponent> FLYING = register(new DefaultMoveType<>("flying", FlyingMoveComponent.CODEC));
+    IMoveComponentType<OTDFlyingMoveComponent> OTD_FLYING = register(new DefaultMoveType<>("otd_flying", OTDFlyingMoveComponent.CODEC));
 
     static <T extends IMoveComponent> IMoveComponentType<T> register(IMoveComponentType<T> type){
         return registry().register(type);

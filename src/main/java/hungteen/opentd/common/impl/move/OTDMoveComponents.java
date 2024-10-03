@@ -23,7 +23,7 @@ public interface OTDMoveComponents {
     ResourceKey<IMoveComponent> SHOOTER_FLYING = create("shooter_flying");
 
     static void register(BootstapContext<IMoveComponent> context){
-        context.register(SHOOTER_FLYING, new FlyingMoveComponent(20, false));
+        context.register(SHOOTER_FLYING, new OTDFlyingMoveComponent(20, false));
     }
 
     static ResourceKey<IMoveComponent> create(String name) {

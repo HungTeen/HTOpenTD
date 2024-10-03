@@ -138,7 +138,8 @@ public class SummonTowerItem extends Item {
 
     public void consume(ServerLevel level, Player player, Entity entity, ItemStack stack, InteractionHand hand) {
         if (!player.getAbilities().instabuild) {
-            stack.hurtAndBreak(1, player, (p) -> {
+            final int damage = getItemSetting(stack).useCost().map(l -> l.sample(player.getRandom())).orElse(1);
+            stack.hurtAndBreak(damage, player, (p) -> {
                 player.broadcastBreakEvent(hand);
             });
             getSummonRequirement(level, stack).consume(level, player);

@@ -6,8 +6,11 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraftforge.entity.IEntityAdditionalSpawnData;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Consumer;
 
 /**
@@ -16,6 +19,8 @@ import java.util.function.Consumer;
  * @data 2023/6/7 11:12
  */
 public interface IOTDEntity extends GeoEntity, IEntityAdditionalSpawnData, IEntityForKJS{
+
+    Map<String, RawAnimation> RAW_ANIMATION_MAP = new HashMap<>();
 
     RenderSetting getRenderSetting();
 
@@ -26,13 +31,15 @@ public interface IOTDEntity extends GeoEntity, IEntityAdditionalSpawnData, IEnti
     }
 
     default PlayState specificAnimation(AnimationState<?> state) {
-        // TODO 指定动画。
-//        if (this.getCurrentAnimation().isPresent()){
-//            builder.addAnimation(this.getCurrentAnimation().get(), ILoopType.EDefaultLoopTypes.PLAY_ONCE);
-//        } else {
-//            state.resetCurrentAnimation();
-//            return PlayState.STOP;
-//        }
-        return PlayState.CONTINUE;
+        if (this.getCurrentAnimation().isPresent()){
+            return state.setAndContinue(getRawAnimation(this.getCurrentAnimation().get()));
+        } else {
+            state.resetCurrentAnimation();
+            return PlayState.STOP;
+        }
+    }
+
+    default RawAnimation getRawAnimation(String name){
+        return RAW_ANIMATION_MAP.computeIfAbsent(name, k -> RawAnimation.begin().thenPlay(name));
     }
 }

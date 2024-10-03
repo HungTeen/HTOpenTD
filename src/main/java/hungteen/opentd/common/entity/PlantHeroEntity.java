@@ -1,7 +1,7 @@
 package hungteen.opentd.common.entity;
 
 import hungteen.opentd.common.codec.RenderSetting;
-import hungteen.opentd.common.entity.ai.TowerMoveToGoal;
+import hungteen.opentd.common.entity.ai.goal.TowerMoveToGoal;
 import hungteen.opentd.common.impl.tower.PlantHeroComponent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;

@@ -68,7 +68,7 @@ public interface OTDTowerComponents {
                         new TargetSetting(1, 0.2F, true, 10000, finders.getOrThrow(OTDTargetFinders.RANGE_SKELETONS))
                 ),
                 Optional.of(new ShootGoalSetting(
-                        0, 20, 10, 2, false, Optional.of(Holder.direct(SoundEvents.SNOW_GOLEM_SHOOT)),
+                        0, 20, 10, 2, false, true, Optional.of(Holder.direct(SoundEvents.SNOW_GOLEM_SHOOT)),
                         List.of(
                                 new ShootGoalSetting.ShootSetting(
                                         false, false, 0, Vec3.ZERO, 10, 0, 10,
@@ -99,7 +99,7 @@ public interface OTDTowerComponents {
                         new TargetSetting(1, 0.2F, true, 10000, finders.getOrThrow(OTDTargetFinders.AROUND_ENEMIES))
                 ),
                 Optional.of(new ShootGoalSetting(
-                        0, 20, 10, 2, false, Optional.of(Holder.direct(SoundEvents.CROSSBOW_HIT)),
+                        0, 20, 10, 2, false, true, Optional.of(Holder.direct(SoundEvents.CROSSBOW_HIT)),
                         List.of(
                                 new ShootGoalSetting.ShootSetting(
                                         false, true, 0, Vec3.ZERO, 90, 0, 10,
@@ -127,10 +127,10 @@ public interface OTDTowerComponents {
                         RenderSetting.DEFAULT
                 ),
                 List.of(
-                        new TargetSetting(1, 0.2F, true, 10000, finders.getOrThrow(OTDTargetFinders.AROUND_ENEMIES))
+                        new TargetSetting(1, 0.2F, true, 10000, finders.getOrThrow(OTDTargetFinders.AROUND_ENEMIES_IGNORE_SIGHT))
                 ),
                 Optional.of(new ShootGoalSetting(
-                        0, 120, 10, 1, false, Optional.of(Holder.direct(SoundEvents.BLAZE_SHOOT)),
+                        0, 120, 10, 1, false, false, Optional.of(Holder.direct(SoundEvents.BLAZE_SHOOT)),
                         List.of(
                                 new ShootGoalSetting.ShootSetting(
                                         false, false, 0, Vec3.ZERO, 10, 0, 10,
@@ -246,14 +246,14 @@ public interface OTDTowerComponents {
                                         OTDPathNavigations.FLY, List.of(), false, false, true
                                 )),
                                 Optional.of(movements.getOrThrow(OTDMoveComponents.SHOOTER_FLYING)),
-                                true, true, false, 1.0, 0, 0
+                                true, true, true, 1.0, 0.2, 0.4
                         )
                 ),
                 List.of(
                         new TargetSetting(1, 0.2F, true, 10000, finders.getOrThrow(OTDTargetFinders.ONLY_PLAYERS))
                 ),
                 Optional.of(new ShootGoalSetting(
-                        0, 30, 10, 5, false, Optional.of(Holder.direct(SoundEvents.BLAZE_SHOOT)),
+                        0, 30, 10, 5, false, true, Optional.of(Holder.direct(SoundEvents.BLAZE_SHOOT)),
                         List.of(
                                 new ShootGoalSetting.ShootSetting(
                                         false, false, 0, Vec3.ZERO, 10, 0, 10,
@@ -296,7 +296,13 @@ public interface OTDTowerComponents {
                         Util.prefix("rush_flower"), true,
                         RenderSetting.make(0.8F, 1F, 1F, false, "sun_flower")
                 ),
-                Optional.empty(),
+                Optional.of(
+                        new MovementSetting(
+                                Optional.empty(),
+                                Optional.empty(),
+                                true, false, true, 1.0, 0.2, 0.4
+                        )
+                ),
                 List.of(
                         new TargetSetting(1, 0.2F, true, 10000, finders.getOrThrow(OTDTargetFinders.ONLY_PLAYERS))
                 ),

@@ -38,6 +38,12 @@
       "custom_death": false
     }
   },
+  "movement_setting": {
+    "avoid_water": false,
+    "backward_percent": 0.2,
+    "keep_distance": true,
+    "upward_percent": 0.4
+  },
   "target_settings": [
     {
       "chance": 0.2,
