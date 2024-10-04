@@ -114,6 +114,13 @@ public class TowerEntityRender<T extends TowerEntity> extends GeoEntityRenderer<
             int j = 64 + (int)(f8 * 191.0F);
             int k = 32 + (int)(f8 * 191.0F);
             int l = 128 - (int)(f8 * 64.0F);
+            // 固定激光颜色。
+            if(towerEntity.getLaserSetting().laserColor().isPresent()){
+                int color = towerEntity.getLaserSetting().laserColor().get();
+                j = (color >> 16) & 0xFF;
+                k = (color >> 8) & 0xFF;
+                l = color & 0xFF;
+            }
             float f9 = 0.2F;
             float f10 = 0.282F;
             float f11 = Mth.cos(f7 + 2.3561945F) * 0.282F;

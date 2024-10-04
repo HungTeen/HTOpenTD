@@ -23,6 +23,7 @@ public class HTMoveComponents {
 
     public static final IMoveComponentType<SwimmingMoveComponent> SWIMMING = register(new DefaultMoveType<>("swimming", SwimmingMoveComponent.CODEC));
     public static final IMoveComponentType<FlyingMoveComponent> FLYING = register(new DefaultMoveType<>("flying", FlyingMoveComponent.CODEC));
+    public static final IMoveComponentType<OTDFlyingMoveComponent> OTD_FLYING = register(new DefaultMoveType<>("otd_flying", OTDFlyingMoveComponent.CODEC));
 
     public static <T extends IMoveComponent> IMoveComponentType<T> register(IMoveComponentType<T> type){
         registry().register(type);

@@ -74,10 +74,10 @@ public class TowerLaserAttackGoal extends HTGoal {
                 this.towerEntity.preAttackTick = Objects.requireNonNull(this.setting()).coolDown();
             } else {
                 if (this.attackTime > 0 && this.attackTime % this.setting().effectInterval() == 0) {
-                    effectTo(this.setting().continueEffect());
+                    this.setting().continueEffect().ifPresent(this::effectTo);
                 }
                 if (this.attackTime >= this.setting().duration()) {
-                    effectTo(this.setting().finalEffect());
+                    this.setting().finalEffect().ifPresent(this::effectTo);
                 }
             }
         } else {
@@ -95,7 +95,7 @@ public class TowerLaserAttackGoal extends HTGoal {
             final Vec3 laser = ep.subtract(st);
             final AABB aabb = EntityHelper.getEntityAABB(this.towerEntity, this.setting().laserDistance(), this.setting().laserDistance());
             EntityHelper.getPredicateEntities(this.towerEntity, aabb, Entity.class, entity -> {
-                if(this.setting().laserFilter().match(serverLevel, this.towerEntity, entity)){
+                if(this.setting().laserFilter().isEmpty() || this.setting().laserFilter().get().match(serverLevel, this.towerEntity, entity)){
                     final Vec3 tp = entity.getEyePosition();
                     final Vec3 vec = tp.subtract(st);
                     if(vec.length() < this.setting().laserDistance() && vec.length() > 0 && laser.length() > 0) {

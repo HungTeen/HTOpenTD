@@ -8,6 +8,7 @@ import hungteen.opentd.common.entity.BulletEntity;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib3.geo.render.built.GeoModel;
@@ -45,5 +46,13 @@ public class BulletEntityRender extends GeoProjectilesRenderer<BulletEntity> {
             super.render(animatable, entityYaw, partialTick, poseStack, bufferSource, packedLight);
             poseStack.popPose();
         }
+    }
+
+    @Override
+    public RenderType getRenderType(BulletEntity animatable, float partialTick, PoseStack poseStack, @Nullable MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, int packedLight, ResourceLocation texture) {
+        if (animatable.getRenderSetting() != null && animatable.getRenderSetting().translucent()) {
+            return RenderType.entityTranslucent(getTextureLocation(animatable));
+        }
+        return super.getRenderType(animatable, partialTick, poseStack, bufferSource, buffer, packedLight, texture);
     }
 }

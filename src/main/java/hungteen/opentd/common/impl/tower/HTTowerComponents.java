@@ -75,7 +75,7 @@ public class HTTowerComponents {
                             )
                     )),
                     Optional.of(new ShootGoalSetting(
-                            0, 20, 10, 4, false, Optional.of(SoundEvents.SNOW_GOLEM_SHOOT),
+                            0, 20, 10, 4, false, true, Optional.of(SoundEvents.SNOW_GOLEM_SHOOT),
                             Arrays.asList(
                                     new ShootGoalSetting.ShootSetting(
                                             false, false, 0, Vec3.ZERO, 10, 0, 10,
@@ -125,7 +125,7 @@ public class HTTowerComponents {
     public static final HTRegistryHolder<ITowerComponent> SUN_FLOWER = TOWERS.innerRegister(
             OpenTD.prefix("sun_flower_test"), new PVZPlantComponent(
                     new PVZPlantComponent.PlantSetting(
-                            new TowerSetting(false, true, true, 30),
+                            new TowerSetting(false, false, true, true, 30),
                             new CompoundTag(),
                             PVZPlantComponent.GrowSettings.DEFAULT,
                             OpenTD.prefix("sun_flower_test"), 2000, false, false,

@@ -115,7 +115,7 @@ public class PlantEntity extends TowerEntity {
         super.tick();
         if (this.level instanceof ServerLevel) {
             // 植物生长。
-            if (this.isAlive()) {
+            if (this.isAlive() && !this.isNoAi()) {
                 if (this.canGrow()) {
                     if (this.growTick >= this.getGrowNeedTime()) {
                         this.onGrow();

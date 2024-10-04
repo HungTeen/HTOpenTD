@@ -11,8 +11,6 @@ import hungteen.opentd.common.codec.RenderSetting;
 import hungteen.opentd.common.codec.ShootGoalSetting;
 import hungteen.opentd.common.event.events.BulletHitEvent;
 import hungteen.opentd.common.impl.HTBulletSettings;
-import hungteen.opentd.common.impl.tower.HTTowerComponents;
-import hungteen.opentd.common.impl.tower.PVZPlantComponent;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -25,10 +23,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.Level;
@@ -55,7 +50,8 @@ import software.bernie.geckolib3.util.GeckoLibUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 /**
@@ -291,8 +287,10 @@ public class BulletEntity extends Projectile implements IOTDEntity {
     /**
      * attack bullet such as pea or spore
      */
-    public void shootToTarget(Mob owner, ShootGoalSetting.ShootSetting shootSetting, Entity target, double dx, double dy, double dz) {
-        this.lockTarget = Optional.ofNullable(target);
+    public void shootToTarget(Mob owner, ShootGoalSetting.ShootSetting shootSetting, @Nonnull Entity target, double dx, double dy, double dz) {
+        if(shootSetting.bulletSetting().lockToTarget()){
+            this.lockTarget = Optional.of(target);
+        }
         if (shootSetting.isParabola()) {
             this.pult(owner, shootSetting, target);
         } else {
@@ -333,12 +331,11 @@ public class BulletEntity extends Projectile implements IOTDEntity {
 
     private void setPultSpeed(double g, double t1, double t2, double dx, double dz) {
         final double dxz = Math.sqrt(dx * dx + dz * dz);
-        final double vxz = dxz / (t1 + t2);
         final double vy = g * t1;
-        if (dxz == 0) {
+        if (dxz < 1) {
             this.setDeltaMovement(0, vy, 0);
         } else {
-            this.setDeltaMovement(vxz * dx / dxz, vy, vxz * dz / dxz);
+            this.setDeltaMovement(dx / (t1 + t2), vy, dz / (t1 + t2));
         }
     }
 
@@ -433,6 +430,11 @@ public class BulletEntity extends Projectile implements IOTDEntity {
             }
         }
         return super.isAlliedTo(entity);
+    }
+
+    @Override
+    public EntityDimensions getDimensions(Pose pose) {
+        return getRenderSetting().dimension();
     }
 
     public void addAdditionalSaveData(CompoundTag compound) {
