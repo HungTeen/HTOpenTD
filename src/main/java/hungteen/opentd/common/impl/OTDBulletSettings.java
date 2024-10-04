@@ -34,6 +34,7 @@ public interface OTDBulletSettings {
     ResourceKey<BulletSetting> CREEPER_PEA = create("creeper_pea");
     ResourceKey<BulletSetting> DIAMOND_PEA = create("diamond_pea");
     ResourceKey<BulletSetting> FLAME_PEA = create("flame_pea");
+    ResourceKey<BulletSetting> EVENT_PEA = create("event_pea");
 
     static void register(BootstapContext<BulletSetting> context){
         final HolderGetter<ITargetFilter> filters = OTDTargetFilters.registry().helper().lookup(context);
@@ -85,6 +86,14 @@ public interface OTDBulletSettings {
                                 ParticleTypes.FLAME, 1, true, new Vec3(1, 1, 1), new Vec3(0.1, 0.1, 0.1)
                         )
                 )
+        ));
+        context.register(EVENT_PEA, new BulletSetting(
+                filters.getOrThrow(OTDTargetFilters.ALL),
+                effects.getOrThrow(OTDEffectComponents.TEST_EVENT),
+                0.2F, 1, 300, 0.0001F, 0.99999F, 0.8F, false, false, true,
+                RenderSetting.make(0.5F, 0.5F, 0.6F, false, "pea_shooter"),
+                Optional.empty(),
+                Optional.empty()
         ));
     }
 

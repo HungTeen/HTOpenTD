@@ -61,9 +61,6 @@ public class OTDFlyingMoveControl extends MoveControl {
             final float dx = this.strafeRight + this.variantSpeed;
             final float dy = (this.mob.getTarget().getEyeY() + 5 - this.mob.getY() > 0) ? 1F : -1F;
 
-            if(! this.mob.closerThan(this.mob.getTarget(), 15)){
-                this.strafeForwards *= -1;
-            }
             this.mob.setSpeed(speed);
             this.mob.setZza(this.strafeForwards);
             this.mob.setXxa(dx);

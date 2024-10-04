@@ -3,15 +3,15 @@
 #### 新内容
 * 增加豌豆投手、钻石射手、向日果、激光葵、飞行射手以及一批简单示例。
 * 物品设置的物品描述支持国际化。
-* 增加 laser_color 选项，可固定激光颜色。
-* 添加 can_breath_in_water 选项，可使实体在水中呼吸。
+* 增加 `laser_color` 选项，可固定激光颜色。
+* 添加 `can_breath_in_water` 选项，可使实体在水中呼吸。
 * 新增OTD飞行组件（原版飞行不支持控距）。
-* 射击组件增加 must_see_target 字段，来限制射击目标必须在视野内。
-* 物品设置新增 use_cost 来灵活控制物品的使用消耗。
+* 射击组件增加 `must_see_target` 字段，来限制射击目标必须在视野内。
+* 物品设置新增 `use_cost` 来灵活控制物品的使用消耗。
 #### Bug修复
 * 召唤效果组件位置不对。
 * 激光组件的持续作用和最终作用必须同时存在，否则不生效。
-* class_filter 中的 player 不生效。
+* `class_filter` 中的 player 不生效。
 * 投手如果不开启自动跟踪就只打自己。
 * 子弹的碰撞箱不生效。
 * KubeJS 无法修改当前播放的动画。
@@ -32,6 +32,20 @@
 * 召唤卡的item_settings改名item_setting，tower_settings改名tower_setting。
 * 取消item_settings独立数据包文件夹,item_setting中的requirement字段移动到平级。
 ## 1.19.x
+### 1.19.2-1.2.3
+#### 新内容
+* 增加 `laser_color` 选项，可固定激光颜色。
+* 添加 `can_breath_in_water` 选项，可使实体在水中呼吸。
+* 新增OTD飞行组件（原版飞行不支持控距）。
+* 射击组件增加 `must_see_target` 字段，来限制射击目标必须在视野内。
+#### Bug修复
+* 召唤效果组件位置不对。
+* 激光组件的持续作用和最终作用必须同时存在，否则不生效。
+* `class_filter` 中的 player 不生效。
+* 投手如果不开启自动跟踪就只打自己。
+* 子弹的碰撞箱不生效。
+* 子弹透明、缩放选项无效。
+* 生长等组件会无视NoAI。
 ### 1.19.2-1.2.2
 #### 新内容
 * tower_setting添加persistent字段，使其不会被自然刷新。

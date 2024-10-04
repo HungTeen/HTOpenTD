@@ -24,7 +24,12 @@
     "shoot_settings": [
       {
         "bullet_setting": "opentd:skeleton_pea",
-        "vertical_angle_limit": 10.0
+        "vertical_angle_limit": 60.0
+      },
+      {
+        "bullet_setting": "opentd:event_pea",
+        "shoot_tick": 1,
+        "vertical_angle_limit": 30.0
       }
     ],
     "shoot_sound": {

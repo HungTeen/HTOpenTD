@@ -1,0 +1,16 @@
+{
+  "bullet_speed": 0.2,
+  "effect": "opentd:test_event",
+  "gravity": 1.0E-4,
+  "max_exist_tick": 300,
+  "render_setting": {
+    "animation": "opentd:animations/pea_shooter.animation.json",
+    "height": 0.5,
+    "model": "opentd:geo/pea_shooter.geo.json",
+    "scale": 0.6,
+    "texture": "opentd:textures/entity/pea_shooter.png",
+    "width": 0.5
+  },
+  "slow_down": 0.99999,
+  "target_filter": "opentd:all"
+}

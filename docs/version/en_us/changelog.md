@@ -1,6 +1,51 @@
 ## 1.20.x
-### 1.20.x-1.2.0
+### 1.20.1-1.3.1
+#### New Features
+* Added Pea Shooter, Diamond Shooter, Sun Flower, Laser Sunflower, Flying Shooter, and a batch of simple examples.
+* Item descriptions in item settings now support internationalization.
+* Added `laser_color` option to fix the laser color.
+* Added `can_breath_in_water` option to allow entities to breathe underwater.
+* Introduced `OTDFlyingMoveComponent` (vanilla one does not support distance control).
+* Added `must_see_target` field to the shooting component to restrict targets to those within the line of sight.
+* Added `use_cost` to item settings for flexible control over item usage consumption.
+#### Bug Fixes
+* Incorrect position of the summon effect component.
+* The laser component requires both continuous effect and final effect to be present, otherwise, it will not work.
+* The player option in class_filter does not work.
+* Pult only hits itself if auto-tracking is not enabled.
+* Bullet hitbox do not work.
+* KubeJS cannot modify the currently playing animation.
+* Bullet transparency and scaling options are ineffective.
+* The growth component ignores the NoAI setting.
+* Render offset issue for summon card cooldown in the GUI.
+#### Other Changes
+* Entities with NoAI no longer trigger the continuous effect component.
+* Removed entity assertion filtering component.
+* Flight speed is now affected by the FlyingSpeed attribute.
+* Added an option in the configuration file to show or hide default plants.
+### 1.20.x-1.3.0
+#### New Features
+* All OTD data packs now support references.
+#### Bug Fixes
+* The `min_count` field in the surrounding entity requirement component is ineffective.
+#### Other Changes
+* Renamed `item_settings` to `item_setting` and `tower_settings` to `tower_setting`.
+* Removed the independent data pack folder for `item_settings`, and moved the `requirement` field in `item_setting` to the same level.
 ## 1.19.x
+### 1.19.2-1.2.3
+#### New Features
+* Added `laser_color` option to modify the laser color.
+* Added `can_breath_in_water` option to allow entities to breathe underwater.
+* Introduced OTD flight component (vanilla flight does not support distance control).
+* Added `must_see_target` field to the shooting component to restrict targets to those within the line of sight.
+#### Bug Fixes
+* Incorrect position of the summon effect component.
+* The laser component requires both continuous effect and final effect to be present, otherwise, it will not work.
+* The player option in class_filter does not work.
+* Pult only hits itself if auto-tracking is not enabled.
+* Bullet hitbox do not work. 
+* Bullet transparency and scaling options are ineffective. 
+* Components like growth ignore the NoAI setting.
 ### 1.19.2-1.2.2
 #### New Features
 * Add 'persistent' in tower_setting, which can disable natural despawn.

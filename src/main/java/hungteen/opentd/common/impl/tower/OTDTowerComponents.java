@@ -71,8 +71,12 @@ public interface OTDTowerComponents {
                         0, 20, 10, 2, false, true, Optional.of(Holder.direct(SoundEvents.SNOW_GOLEM_SHOOT)),
                         List.of(
                                 new ShootGoalSetting.ShootSetting(
-                                        false, false, 0, Vec3.ZERO, 10, 0, 10,
+                                        false, false, 0, Vec3.ZERO, 60, 0, 10,
                                         bullets.getOrThrow(OTDBulletSettings.SKELETON_PEA)
+                                ),
+                                new ShootGoalSetting.ShootSetting(
+                                        false, false, 1, Vec3.ZERO, 30, 0, 10,
+                                        bullets.getOrThrow(OTDBulletSettings.EVENT_PEA)
                                 )
                         )
                 )),

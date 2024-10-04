@@ -48,6 +48,7 @@ public interface OTDEffectComponents {
     ResourceKey<IEffectComponent> ENDERMAN_SOUND_EFFECT = create("enderman_sound");
     ResourceKey<IEffectComponent> WITHER_SOUND_EFFECT = create("wither_sound");
     ResourceKey<IEffectComponent> PEA_DAMAGE = create("pea_damage");
+    ResourceKey<IEffectComponent> TEST_EVENT = create("test_event");
 
     static void register(BootstapContext<IEffectComponent> context){
         final HolderGetter<ITargetFilter> filters = OTDTargetFilters.registry().helper().lookup(context);
@@ -83,6 +84,7 @@ public interface OTDEffectComponents {
         context.register(PEA_DAMAGE, new ListEffectComponent(List.of(
                 effects.getOrThrow(FOUR_POINT_DAMAGE), effects.getOrThrow(KNOCKBACK_DAMAGE)
         )));
+        context.register(TEST_EVENT, new EventEffectComponent(Util.prefix("test_event")));
     }
 
     static ResourceKey<IEffectComponent> create(String name) {
