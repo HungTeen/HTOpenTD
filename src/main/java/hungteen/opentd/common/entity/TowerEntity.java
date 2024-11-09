@@ -118,7 +118,7 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
         entityData.define(INSTANT_TICK, 0);
         entityData.define(RESTING, false);
         entityData.define(ATTACK_TARGET, 0);
-        entityData.define(CLIENT_RES, new ClientEntityResource());
+        entityData.define(CLIENT_RES, new ClientEntityResource(3));
     }
 
     @Override
@@ -300,24 +300,25 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
 
     public void gen(GenGoalSetting.GenSetting genSetting) {
         if (genSetting != null && this.getComponent() != null && this.getComponent().genGoalSetting().isPresent()) {
-            for(int i = 0; i < genSetting.count(); ++ i)
-            if (this.level instanceof ServerLevel serverlevel && Level.isInSpawnableBounds(this.blockPosition())) {
-                CompoundTag compoundtag = genSetting.nbt().copy();
-                compoundtag.putString("id", EntityHelper.get().getKey(genSetting.entityType()).toString());
-                final Vec3 position = this.getEyePosition().add(genSetting.offset());
-                Entity entity = EntityType.loadEntityRecursive(compoundtag, serverlevel, (e) -> {
-                    e.moveTo(position.x(), position.y(), position.z(), this.getYRot(), this.getXRot());
-                    return e;
-                });
-                if (entity != null) {
-                    if (entity instanceof Mob) {
-                        ((Mob) entity).finalizeSpawn(serverlevel, serverlevel.getCurrentDifficultyAt(entity.blockPosition()), MobSpawnType.MOB_SUMMONED, null, null);
+            for(int i = 0; i < genSetting.count(); ++ i) {
+                if (this.level instanceof ServerLevel serverlevel && Level.isInSpawnableBounds(this.blockPosition())) {
+                    CompoundTag compoundtag = genSetting.nbt().copy();
+                    compoundtag.putString("id", EntityHelper.get().getKey(genSetting.entityType()).toString());
+                    final Vec3 position = this.getEyePosition().add(genSetting.offset());
+                    Entity entity = EntityType.loadEntityRecursive(compoundtag, serverlevel, (e) -> {
+                        e.moveTo(position.x(), position.y(), position.z(), this.getYRot(), this.getXRot());
+                        return e;
+                    });
+                    if (entity != null) {
+                        if (entity instanceof Mob) {
+                            ((Mob) entity).finalizeSpawn(serverlevel, serverlevel.getCurrentDifficultyAt(entity.blockPosition()), MobSpawnType.MOB_SUMMONED, null, null);
+                        }
+                        final double dx = RandomHelper.floatRange(this.getRandom());
+                        final double dz = RandomHelper.floatRange(this.getRandom());
+                        entity.setDeltaMovement(new Vec3(dx, 0, dz).scale(genSetting.horizontalSpeed()).add(0, genSetting.verticalSpeed(), 0));
+                        serverlevel.tryAddFreshEntityWithPassengers(entity);
+                        this.getComponent().genGoalSetting().get().genSound().ifPresent(this::playSound);
                     }
-                    final double dx = RandomHelper.floatRange(this.getRandom());
-                    final double dz = RandomHelper.floatRange(this.getRandom());
-                    entity.setDeltaMovement(new Vec3(dx, 0, dz).scale(genSetting.horizontalSpeed()).add(0, genSetting.verticalSpeed(), 0));
-                    serverlevel.tryAddFreshEntityWithPassengers(entity);
-                    this.getComponent().genGoalSetting().get().genSound().ifPresent(this::playSound);
                 }
             }
         }
@@ -854,9 +855,21 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
         ));
         animationData.addAnimationController(new AnimationController<>(
                 this,
-                "specific",
+                "specific1",
                 0,
-                this::specificAnimation
+                e -> this.specificAnimation(e, this.getCurrentAnimation(0))
+        ));
+        animationData.addAnimationController(new AnimationController<>(
+                this,
+                "specific2",
+                0,
+                e -> this.specificAnimation(e, this.getCurrentAnimation(1))
+        ));
+        animationData.addAnimationController(new AnimationController<>(
+                this,
+                "specific3",
+                0,
+                e -> this.specificAnimation(e, this.getCurrentAnimation(2))
         ));
     }
 

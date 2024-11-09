@@ -1,6 +1,5 @@
 package hungteen.opentd.common.item;
 
-import hungteen.opentd.api.interfaces.ISummonRequirement;
 import hungteen.opentd.api.interfaces.ITowerComponent;
 import hungteen.opentd.common.entity.TowerEntity;
 import hungteen.opentd.common.event.events.PostSummonTowerEvent;
@@ -56,6 +55,7 @@ public class SummonTowerItem extends Item {
         super(new Properties().tab(OTDTabs.CARDS));
     }
 
+    @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack itemStack = player.getItemInHand(hand);
         BlockHitResult hitResult = getPlayerPOVHitResult(level, player, ClipContext.Fluid.SOURCE_ONLY);
@@ -87,7 +87,7 @@ public class SummonTowerItem extends Item {
                 blockpos = hitResult.getBlockPos().relative(hitResult.getDirection());
             }
 
-            if (level.mayInteract(player, blockpos) && player.mayUseItemAt(blockpos, hitResult.getDirection(), itemStack)) {
+            if (level.mayInteract(player, blockpos)) {
                 if (Level.isInSpawnableBounds(blockpos) && canPlace((ServerLevel) level, player, itemStack, state, blockpos)) {
                     // KubeJs Event Inject.
                     if(! MinecraftForge.EVENT_BUS.post(new SummonTowerEvent(player, itemStack, hand, blockpos))){

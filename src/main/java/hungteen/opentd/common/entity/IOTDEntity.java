@@ -1,7 +1,6 @@
 package hungteen.opentd.common.entity;
 
 import com.mojang.serialization.Codec;
-import hungteen.opentd.OpenTD;
 import hungteen.opentd.common.codec.RenderSetting;
 import net.minecraft.nbt.NbtOps;
 import net.minecraftforge.entity.IEntityAdditionalSpawnData;
@@ -11,6 +10,7 @@ import software.bernie.geckolib3.core.builder.AnimationBuilder;
 import software.bernie.geckolib3.core.builder.ILoopType;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -28,10 +28,10 @@ public interface IOTDEntity extends IAnimatable, IEntityAdditionalSpawnData, IEn
                 .ifPresentOrElse(consumer,emptyRunnable);
     }
 
-    default PlayState specificAnimation(AnimationEvent<?> event) {
+    default PlayState specificAnimation(AnimationEvent<?> event, Optional<String> opt) {
         final AnimationBuilder builder = new AnimationBuilder();
-        if (this.getCurrentAnimation().isPresent()){
-            builder.addAnimation(this.getCurrentAnimation().get(), ILoopType.EDefaultLoopTypes.PLAY_ONCE);
+        if (opt.isPresent()){
+            builder.addAnimation(opt.get(), ILoopType.EDefaultLoopTypes.PLAY_ONCE);
         } else {
             event.getController().markNeedsReload();
         }

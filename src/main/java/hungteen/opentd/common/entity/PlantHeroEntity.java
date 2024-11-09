@@ -1,26 +1,15 @@
 package hungteen.opentd.common.entity;
 
 import hungteen.opentd.common.codec.RenderSetting;
-import hungteen.opentd.common.codec.TowerComponent;
-import hungteen.opentd.common.entity.ai.TowerAttackGoal;
 import hungteen.opentd.common.entity.ai.TowerMoveToGoal;
-import hungteen.opentd.common.impl.tower.PVZPlantComponent;
 import hungteen.opentd.common.impl.tower.PlantHeroComponent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.goal.MoveToBlockGoal;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;
-import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.core.manager.AnimationData;
-import software.bernie.geckolib3.core.manager.AnimationFactory;
-import software.bernie.geckolib3.util.GeckoLibUtil;
 
 import java.util.Optional;
 
@@ -75,6 +64,11 @@ public class PlantHeroEntity extends TowerEntity {
         if(tag.contains("MoveToPos")){
             this.setMoveTo(BlockPos.of(tag.getLong("MoveToPos")));
         }
+    }
+
+    @Override
+    public float getFrictionInfluencedSpeed(float friction) {
+        return this.onGround ? super.getFrictionInfluencedSpeed(friction) : this.getSpeed();
     }
 
     @Override

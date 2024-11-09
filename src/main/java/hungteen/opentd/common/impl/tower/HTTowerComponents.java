@@ -90,7 +90,14 @@ public class HTTowerComponents {
                                                     ),
                                                     new ListEffectComponent(Arrays.asList(
                                                             new DamageEffectComponent(false, 5F, 0),
-                                                            new SplashEffectComponent(5, 5, true, new OrTargetFilter(Arrays.asList()), new DamageEffectComponent(false, 2F, 0.1F)),
+                                                            new SplashEffectComponent(5, 5, true, new AlwaysTrueFilter(), new ListEffectComponent(List.of(
+                                                                    new DamageEffectComponent(false, 2F, 0.1F),
+                                                                    new EffectEffectComponent(false, List.of(
+                                                                            new ParticleSetting(
+                                                                                    ParticleTypes.HAPPY_VILLAGER, 10, true, new Vec3(1, 1, 1), new Vec3(0.1, 0.1, 0.1)
+                                                                            )
+                                                                    ), Optional.empty())
+                                                            ))),
                                                             new NBTEffectComponent(get(), false),
                                                             new RandomEffectComponent(10, 1, true, Arrays.asList(
                                                                     Pair.of(

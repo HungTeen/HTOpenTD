@@ -71,7 +71,7 @@ public class TowerLaserAttackGoal extends HTGoal {
             if (this.attackTime > Objects.requireNonNull(this.setting()).duration()) {
                 this.attackTime = -1;
                 this.towerEntity.setActiveAttackTarget(0);
-                this.towerEntity.preAttackTick = Objects.requireNonNull(this.setting()).coolDown();
+                this.towerEntity.preLaserTick = Objects.requireNonNull(this.setting()).coolDown();
             } else {
                 if (this.attackTime > 0 && this.attackTime % this.setting().effectInterval() == 0) {
                     this.setting().continueEffect().ifPresent(this::effectTo);
