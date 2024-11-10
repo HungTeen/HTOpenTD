@@ -1,4 +1,5 @@
 {
   "type": "opentd:damage",
-  "amount": 4.0
+  "amount": 4.0,
+  "specific_source": "minecraft:arrow"
 }

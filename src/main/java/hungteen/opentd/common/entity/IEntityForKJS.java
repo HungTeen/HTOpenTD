@@ -36,7 +36,11 @@ public interface IEntityForKJS {
     }
 
     default Optional<String> getCurrentAnimation() {
-        return Optional.ofNullable(getClientResource().getCurrentAnimation());
+        return getCurrentAnimation(0);
+    }
+
+    default Optional<String> getCurrentAnimation(int idx) {
+        return Optional.ofNullable(getClientResource().getCurrentAnimation(idx));
     }
 
     default void setTowerModel(ResourceLocation towerModel) {
@@ -55,59 +59,99 @@ public interface IEntityForKJS {
         this.setClientResource(new ClientEntityResource().from(this.getClientResource()).setCurrentAnimation(currentAnimation));
     }
 
-   class ClientEntityResource {
+    class ClientEntityResource {
         private ResourceLocation towerTexture = null;
         private ResourceLocation towerModel = null;
         private ResourceLocation towerAnimation = null;
-        private String currentAnimation = null;
+        private String[] currentAnimations = null;
 
-        public ClientEntityResource from(ClientEntityResource resource){
+        public ClientEntityResource() {
+            this.currentAnimations = new String[1];
+        }
+
+        public ClientEntityResource(int length) {
+            this.currentAnimations = new String[length];
+        }
+
+        public ClientEntityResource from(ClientEntityResource resource) {
             this.setTowerTexture(resource.getTowerTexture());
             this.setTowerModel(resource.getTowerModel());
             this.setTowerAnimation(resource.getTowerAnimation());
-            this.setCurrentAnimation(resource.getCurrentAnimation());
+            this.setCurrentAnimations(resource.getCurrentAnimations());
             return this;
         }
 
-        public CompoundTag saveTo(CompoundTag tag){
-            if(this.getTowerTexture() != null){
+        public CompoundTag saveTo(CompoundTag tag) {
+            if (this.getTowerTexture() != null) {
                 tag.putString("TowerTexture", this.getTowerTexture().toString());
             }
-            if(this.getTowerModel() != null){
+            if (this.getTowerModel() != null) {
                 tag.putString("TowerModel", this.getTowerModel().toString());
             }
-            if(this.getTowerAnimation() != null){
+            if (this.getTowerAnimation() != null) {
                 tag.putString("TowerAnimation", this.getTowerAnimation().toString());
             }
-            if(this.getCurrentAnimation() != null){
-                tag.putString("CurrentAnimation", this.getCurrentAnimation());
+            if (this.getCurrentAnimations() != null) {
+                CompoundTag listTag = new CompoundTag();
+                listTag.putInt("AnimationLength", currentAnimations.length);
+                for (int i = 0; i < currentAnimations.length; i++) {
+                    if (getCurrentAnimation(i) != null) {
+                        listTag.putString("Animation_" + i, getCurrentAnimation(i));
+                    }
+                }
+                tag.put("CurrentAnimations", listTag);
             }
             return tag;
         }
 
-        public ClientEntityResource readFrom(CompoundTag tag){
-            if(tag.contains("TowerTexture")){
+        public ClientEntityResource readFrom(CompoundTag tag) {
+            if (tag.contains("TowerTexture")) {
                 this.setTowerTexture(new ResourceLocation(tag.getString("TowerTexture")));
             }
-            if(tag.contains("TowerModel")){
+            if (tag.contains("TowerModel")) {
                 this.setTowerModel(new ResourceLocation(tag.getString("TowerModel")));
             }
-            if(tag.contains("TowerAnimation")){
+            if (tag.contains("TowerAnimation")) {
                 this.setTowerAnimation(new ResourceLocation(tag.getString("TowerAnimation")));
             }
-            if(tag.contains("CurrentAnimation")){
-                this.setCurrentAnimation(tag.getString("CurrentAnimation"));
+            if (tag.contains("CurrentAnimations")) {
+                CompoundTag listTag = tag.getCompound("CurrentAnimations");
+                int length = listTag.getInt("AnimationLength");
+                String[] currentAnimations = new String[length];
+                for (int i = 0; i < length; i++) {
+                    if (listTag.contains("Animation_" + i)) {
+                        currentAnimations[i] = listTag.getString("Animation_" + i);
+                    }
+                }
+                this.setCurrentAnimations(currentAnimations);
             }
             return this;
         }
 
-        public String getCurrentAnimation() {
-            return currentAnimation;
+        public String getCurrentAnimation(){
+            return getCurrentAnimation(0);
+        }
+
+        public String getCurrentAnimation(int idx) {
+            assert idx >= 0 && idx < currentAnimations.length;
+            return currentAnimations[idx];
+        }
+
+        public String[] getCurrentAnimations() {
+            return currentAnimations;
         }
 
         public ClientEntityResource setCurrentAnimation(String currentAnimation) {
-            this.currentAnimation = currentAnimation;
+            return setCurrentAnimation(currentAnimation, 0);
+        }
+        public ClientEntityResource setCurrentAnimation(String currentAnimation, int idx) {
+            assert idx >= 0 && idx < currentAnimations.length;
+            this.currentAnimations[idx] = currentAnimation;
             return this;
+        }
+
+        public void setCurrentAnimations(String[] currentAnimations) {
+            this.currentAnimations = currentAnimations;
         }
 
         public ResourceLocation getTowerAnimation() {

@@ -4,20 +4,25 @@ import com.mojang.serialization.Codec;
 import hungteen.htlib.api.interfaces.IHTCodecRegistry;
 import hungteen.htlib.common.registry.HTCodecRegistry;
 import hungteen.htlib.common.registry.HTRegistryManager;
+import hungteen.htlib.util.helper.registry.DamageHelper;
 import hungteen.htlib.util.helper.registry.SoundHelper;
 import hungteen.opentd.api.interfaces.IEffectComponent;
 import hungteen.opentd.api.interfaces.IEffectComponentType;
 import hungteen.opentd.api.interfaces.ITargetFilter;
+import hungteen.opentd.common.codec.ParticleSetting;
 import hungteen.opentd.common.impl.filter.OTDTargetFilters;
 import hungteen.opentd.util.NBTUtil;
 import hungteen.opentd.util.Util;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.damagesource.DamageType;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.phys.Vec3;
@@ -53,9 +58,10 @@ public interface OTDEffectComponents {
     static void register(BootstapContext<IEffectComponent> context){
         final HolderGetter<ITargetFilter> filters = OTDTargetFilters.registry().helper().lookup(context);
         final HolderGetter<IEffectComponent> effects = OTDEffectComponents.registry().helper().lookup(context);
+        final HolderGetter<DamageType> damageTypes = DamageHelper.get().lookup(context);
         final HolderGetter<SoundEvent> sounds = SoundHelper.get().lookup(context);
-        context.register(FOUR_POINT_DAMAGE, new DamageEffectComponent(false, 4F, 0F));
-        context.register(KNOCKBACK_DAMAGE, new DamageEffectComponent(false, 1F, 1F));
+        context.register(FOUR_POINT_DAMAGE, new DamageEffectComponent(Optional.of(damageTypes.getOrThrow(DamageTypes.ARROW)), false, 4F, 0F));
+        context.register(KNOCKBACK_DAMAGE, new DamageEffectComponent(Optional.empty(), false, 1F, 1F));
         context.register(SPLASH_DAMAGE_TO_ALL_ENTITIES, new SplashEffectComponent(
                 3F, 2F, false, filters.getOrThrow(OTDTargetFilters.ALL), effects.getOrThrow(FOUR_POINT_DAMAGE)
         ));
@@ -71,7 +77,12 @@ public interface OTDEffectComponents {
         context.register(SUMMON_XP_AROUND, new SummonEffectComponent(
                 1, 5, Optional.of(5), 16, true, true, EntityType.EXPERIENCE_ORB, new CompoundTag()
         ));
-        context.register(DIAMOND_AND_EMERALD, new FunctionEffectComponent(false, Util.prefix("test")));
+        context.register(DIAMOND_AND_EMERALD, new ListEffectComponent(List.of(
+                Holder.direct(new FunctionEffectComponent(false, Util.prefix("test"))),
+                Holder.direct(new EffectEffectComponent(false, List.of(new ParticleSetting(
+                        ParticleTypes.HAPPY_VILLAGER, 10, true, new Vec3(1, 1, 1), new Vec3(0.1, 0.1, 0.1)
+                )), Optional.of(Holder.direct(SoundEvents.PLAYER_LEVELUP))))
+        )));
         context.register(KNOCKBACK_EFFECT, new KnockbackEffectComponent(
                 false, false, 1F, 0.5F, Vec3.ZERO
         ));

@@ -10,6 +10,7 @@ import hungteen.opentd.common.codec.RenderSetting;
 import hungteen.opentd.common.codec.ShootGoalSetting;
 import hungteen.opentd.common.event.events.BulletHitEvent;
 import hungteen.opentd.common.impl.OTDBulletSettings;
+import hungteen.opentd.util.EntityUtil;
 import hungteen.opentd.util.Util;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import net.minecraft.core.BlockPos;
@@ -91,9 +92,7 @@ public class BulletEntity extends Projectile implements IOTDEntity {
         BulletSetting.CODEC.encodeStart(NbtOps.INSTANCE, this.component)
                 .resultOrPartial(msg -> Util.error("Bullet Entity error : " + msg))
                 .ifPresent(settings -> this.componentTag = (CompoundTag) settings);
-        final double d0 = this.getDeltaMovement().horizontalDistance();
-        this.setYRot((float) (Mth.atan2(this.getDeltaMovement().x, this.getDeltaMovement().z) * (double) (180F / (float) Math.PI)));
-        this.setXRot((float) (Mth.atan2(this.getDeltaMovement().y, d0) * (double) (180F / (float) Math.PI)));
+        EntityUtil.rotateTowardsMovement(this, 1F);
     }
 
     @Override
@@ -110,6 +109,7 @@ public class BulletEntity extends Projectile implements IOTDEntity {
         this.componentTag = additionalData.readNbt();
     }
 
+    @Override
     public void tick() {
         super.tick();
         this.noPhysics = this.ignoreBlock();
@@ -126,7 +126,7 @@ public class BulletEntity extends Projectile implements IOTDEntity {
             }
         }
         // lock to target.
-        if (this.bulletSetting().lockToTarget() && this.lockTarget.isPresent() && EntityHelper.isEntityValid(lockTarget.get())) {
+        if (this.bulletSetting().lockToTarget() && this.lockTarget.isPresent() && EntityHelper.isEntityValid(lockTarget.get()) && this.tickCount % 5 == 0) {
             final Entity target = this.lockTarget.get();
             final Vec3 speed = this.getDeltaMovement();
             if (this.isParabola) {
@@ -188,7 +188,7 @@ public class BulletEntity extends Projectile implements IOTDEntity {
         double d2 = this.getX() + vec3.x;
         double d0 = this.getY() + vec3.y;
         double d1 = this.getZ() + vec3.z;
-        ProjectileUtil.rotateTowardsMovement(this, 0.2F);
+        EntityUtil.rotateTowardsMovement(this, 1F);
         float f = this.bulletSetting().slowDown();
         if (this.isInWater()) {
             for (int i = 0; i < 4; ++i) {
@@ -205,13 +205,14 @@ public class BulletEntity extends Projectile implements IOTDEntity {
             this.setDeltaMovement(vec31.x, vec31.y - (double) this.getGravity(), vec31.z);
         }
 
-        if (this.getTrailParticle() != null) {
+        if (this.level().isClientSide() && this.getTrailParticle() != null) {
             this.getTrailParticle().spawn(this.level(), new Vec3(d2, d0 + 0.5D, d1), this.random);
         }
 
         this.setPos(d2, d0, d1);
     }
 
+    @Override
     protected void onHit(HitResult result) {
         HitResult.Type type = result.getType();
         if (type == HitResult.Type.ENTITY) {
@@ -231,6 +232,7 @@ public class BulletEntity extends Projectile implements IOTDEntity {
 
     }
 
+    @Override
     protected void onHitEntity(EntityHitResult result) {
         if (this.shouldHit(result.getEntity()) && this.level() instanceof ServerLevel serverLevel) {
             this.getEffect().ifPresent(l -> l.effectTo(serverLevel, this, result.getEntity()));
@@ -242,6 +244,7 @@ public class BulletEntity extends Projectile implements IOTDEntity {
         }
     }
 
+    @Override
     protected void onHitBlock(BlockHitResult result) {
         if (!this.ignoreBlock() && this.level() instanceof ServerLevel serverLevel) {
             BlockState blockstate = serverLevel.getBlockState(result.getBlockPos());
@@ -442,6 +445,7 @@ public class BulletEntity extends Projectile implements IOTDEntity {
         return EntityDimensions.scalable(width * scale, height * scale);
     }
 
+    @Override
     public void addAdditionalSaveData(CompoundTag compound) {
         compound.putInt("TickCount", this.tickCount);
         compound.putInt("HitCount", this.hitCount);
@@ -459,6 +463,7 @@ public class BulletEntity extends Projectile implements IOTDEntity {
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
+    @Override
     public void readAdditionalSaveData(CompoundTag compound) {
         // 专门用于NBT召唤特定子弹。
         if (compound.contains("ComponentLocation")) {
@@ -561,7 +566,7 @@ public class BulletEntity extends Projectile implements IOTDEntity {
                         this,
                         "specific",
                         0,
-                        this::specificAnimation
+                        e -> this.specificAnimation(e, this.getCurrentAnimation(0))
                 )
         );
     }

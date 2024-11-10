@@ -11,6 +11,7 @@ import software.bernie.geckolib.core.object.PlayState;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -30,9 +31,9 @@ public interface IOTDEntity extends GeoEntity, IEntityAdditionalSpawnData, IEnti
                 .ifPresentOrElse(consumer,emptyRunnable);
     }
 
-    default PlayState specificAnimation(AnimationState<?> state) {
-        if (this.getCurrentAnimation().isPresent()){
-            return state.setAndContinue(getRawAnimation(this.getCurrentAnimation().get()));
+    default PlayState specificAnimation(AnimationState<?> state, Optional<String> opt) {
+        if (opt.isPresent()){
+            return state.setAndContinue(getRawAnimation(opt.get()));
         } else {
             state.resetCurrentAnimation();
             return PlayState.STOP;

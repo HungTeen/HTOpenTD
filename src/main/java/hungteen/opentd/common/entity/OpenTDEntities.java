@@ -24,7 +24,7 @@ public class OpenTDEntities {
     });
 
     public static final RegistryObject<EntityType<BulletEntity>> BULLET_ENTITY = ENTITY_TYPES.register("bullet_entity", () -> {
-        return EntityType.Builder.of(BulletEntity::new, MobCategory.MISC).sized(0.5F, 0.5F).build(Util.prefix("bullet_entity").toString());
+        return EntityType.Builder.of(BulletEntity::new, MobCategory.MISC).sized(0.5F, 0.5F).updateInterval(2).build(Util.prefix("bullet_entity").toString());
     });
 
     public static final RegistryObject<EntityType<PlantHeroEntity>> PLANT_HERO_ENTITY = ENTITY_TYPES.register("plant_hero_entity", () -> {

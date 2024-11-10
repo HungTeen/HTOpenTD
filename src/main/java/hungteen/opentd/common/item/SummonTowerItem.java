@@ -61,6 +61,7 @@ public class SummonTowerItem extends Item {
         super(new Properties());
     }
 
+    @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack itemStack = player.getItemInHand(hand);
         BlockHitResult hitResult = getPlayerPOVHitResult(level, player, ClipContext.Fluid.SOURCE_ONLY);
@@ -92,7 +93,7 @@ public class SummonTowerItem extends Item {
                 blockpos = hitResult.getBlockPos().relative(hitResult.getDirection());
             }
 
-            if (level.mayInteract(player, blockpos) && player.mayUseItemAt(blockpos, hitResult.getDirection(), itemStack)) {
+            if (level.mayInteract(player, blockpos)) {
                 if (Level.isInSpawnableBounds(blockpos) && canPlace((ServerLevel) level, player, itemStack, state, blockpos)) {
                     // KubeJs Event Inject.
                     if (!MinecraftForge.EVENT_BUS.post(new SummonTowerEvent(player, itemStack, hand, blockpos))) {

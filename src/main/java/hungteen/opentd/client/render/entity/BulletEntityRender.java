@@ -25,10 +25,12 @@ public class BulletEntityRender extends GeoEntityRenderer<BulletEntity> {
 
     @Override
     protected void applyRotations(BulletEntity animatable, PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTick) {
-        super.applyRotations(animatable, poseStack, ageInTicks, rotationYaw, partialTick);
+//        super.applyRotations(animatable, poseStack, ageInTicks, rotationYaw, partialTick);
         if (animatable.getComponent() != null) {
             final float scale = getScale(animatable);
             poseStack.scale(scale, scale, scale);
+            poseStack.mulPose(Axis.YP.rotationDegrees(- Mth.lerp(partialTick, animatable.yRotO, animatable.getYRot())));
+            poseStack.mulPose(Axis.XP.rotationDegrees(Mth.lerp(partialTick, animatable.xRotO, animatable.getXRot())));
         }
     }
 
@@ -39,14 +41,7 @@ public class BulletEntityRender extends GeoEntityRenderer<BulletEntity> {
     @Override
     public void render(BulletEntity animatable, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
         if (animatable.bulletSetting() != null) {
-            poseStack.pushPose();
-            final float scale = animatable.bulletSetting().renderSettings().scale();
-            poseStack.scale(scale, scale, scale);
-            poseStack.mulPose(Axis.YP.rotationDegrees(- Mth.lerp(partialTick, animatable.yRotO, animatable.getYRot()) - 90.0F));
-            poseStack.mulPose(Axis.ZP.rotationDegrees(- Mth.lerp(partialTick, animatable.xRotO, animatable.getXRot())));
-            poseStack.mulPose(Axis.YP.rotationDegrees(- Mth.lerp(partialTick, animatable.yRotO, animatable.getYRot()) + 180.0F));
             super.render(animatable, entityYaw, partialTick, poseStack, bufferSource, packedLight);
-            poseStack.popPose();
         }
     }
 

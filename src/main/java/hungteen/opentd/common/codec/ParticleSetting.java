@@ -3,6 +3,7 @@ package hungteen.opentd.common.codec;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import hungteen.htlib.util.helper.RandomHelper;
+import hungteen.htlib.util.helper.registry.ParticleHelper;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.SimpleParticleType;
@@ -44,8 +45,11 @@ public record ParticleSetting(ParticleType<?> particleType, int amount, boolean 
                     pos = center.add(RandomHelper.doubleRange(rand, offset().x()), RandomHelper.doubleRange(rand, offset().y()), RandomHelper.doubleRange(rand, offset().z()));
                     speed = new Vec3(RandomHelper.doubleRange(rand, speed().x()), RandomHelper.doubleRange(rand, speed().y()), RandomHelper.doubleRange(rand, speed().z()));
                 }
-                //TODO 粒子效果失效。
-//                ParticleHelper.spawnParticles(level, getType().get(), pos, speed.x(), speed.y(), speed.z());
+                if(level.isClientSide()){
+                    level.addParticle(getType().get(), pos.x(), pos.y(), pos.z(), speed.x(), speed.y(), speed.z());
+                } else {
+                    ParticleHelper.spawnParticles(level, getType().get(), pos.x(), pos.y(), pos.z(), 1, 0.1, 0.1, speed.length());
+                }
             }
         }
     }

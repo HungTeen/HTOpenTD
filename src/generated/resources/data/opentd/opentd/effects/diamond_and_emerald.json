@@ -1,4 +1,32 @@
 {
-  "type": "opentd:function",
-  "function": "opentd:test"
+  "type": "opentd:list",
+  "effects": [
+    {
+      "type": "opentd:function",
+      "function": "opentd:test"
+    },
+    {
+      "type": "opentd:effect",
+      "particle_settings": [
+        {
+          "amount": 10,
+          "offset": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "particle_type": "minecraft:happy_villager",
+          "speed": [
+            0.1,
+            0.1,
+            0.1
+          ]
+        }
+      ],
+      "self": false,
+      "sound": {
+        "sound_id": "minecraft:entity.player.levelup"
+      }
+    }
+  ]
 }
