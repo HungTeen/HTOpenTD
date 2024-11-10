@@ -43,6 +43,7 @@ import net.minecraftforge.network.NetworkHooks;
 import software.bernie.geckolib3.core.PlayState;
 import software.bernie.geckolib3.core.builder.AnimationBuilder;
 import software.bernie.geckolib3.core.builder.ILoopType;
+import software.bernie.geckolib3.core.controller.AnimationController;
 import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
@@ -152,29 +153,29 @@ public class BulletEntity extends Projectile implements IOTDEntity {
                 nextSpeed = target.getEyePosition().subtract(this.position()).normalize().scale(this.getSpeed());
             }
             this.setDeltaMovement(speed.add((nextSpeed.x() - speed.x()) * scale, (nextSpeed.y() - speed.y()) * scale, (nextSpeed.z() - speed.z()) * scale));
+        }
 
-            // on hit.
-            HitResult hitresult = ProjectileUtil.getHitResult(this, this::canHitEntity);
-            boolean flag = false;
-            if (hitresult.getType() == HitResult.Type.BLOCK) {
-                BlockPos blockpos = ((BlockHitResult) hitresult).getBlockPos();
-                BlockState blockstate = this.level.getBlockState(blockpos);
-                if (blockstate.is(Blocks.NETHER_PORTAL)) {
-                    this.handleInsidePortal(blockpos);
-                    flag = true;
-                } else if (blockstate.is(Blocks.END_GATEWAY)) {
-                    BlockEntity blockentity = this.level.getBlockEntity(blockpos);
-                    if (blockentity instanceof TheEndGatewayBlockEntity && TheEndGatewayBlockEntity.canEntityTeleport(this)) {
-                        TheEndGatewayBlockEntity.teleportEntity(this.level, blockpos, blockstate, this, (TheEndGatewayBlockEntity) blockentity);
-                    }
-
-                    flag = true;
+        // on hit.
+        HitResult hitresult = ProjectileUtil.getHitResult(this, this::canHitEntity);
+        boolean flag = false;
+        if (hitresult.getType() == HitResult.Type.BLOCK) {
+            BlockPos blockpos = ((BlockHitResult) hitresult).getBlockPos();
+            BlockState blockstate = this.level.getBlockState(blockpos);
+            if (blockstate.is(Blocks.NETHER_PORTAL)) {
+                this.handleInsidePortal(blockpos);
+                flag = true;
+            } else if (blockstate.is(Blocks.END_GATEWAY)) {
+                BlockEntity blockentity = this.level.getBlockEntity(blockpos);
+                if (blockentity instanceof TheEndGatewayBlockEntity && TheEndGatewayBlockEntity.canEntityTeleport(this)) {
+                    TheEndGatewayBlockEntity.teleportEntity(this.level, blockpos, blockstate, this, (TheEndGatewayBlockEntity) blockentity);
                 }
-            }
 
-            if (hitresult.getType() != HitResult.Type.MISS && !flag && !net.minecraftforge.event.ForgeEventFactory.onProjectileImpact(this, hitresult)) {
-                this.onHit(hitresult);
+                flag = true;
             }
+        }
+
+        if (hitresult.getType() != HitResult.Type.MISS && !flag && !net.minecraftforge.event.ForgeEventFactory.onProjectileImpact(this, hitresult)) {
+            this.onHit(hitresult);
         }
 
         //move.
@@ -553,18 +554,18 @@ public class BulletEntity extends Projectile implements IOTDEntity {
 
     @Override
     public void registerControllers(AnimationData animationData) {
-//        animationData.addAnimationController(new AnimationController<>(
-//                this,
-//                "move_or_idle",
-//                0,
-//                this::idleOrMove
-//        ));
-//        animationData.addAnimationController(new AnimationController<>(
-//                this,
-//                "specific",
-//                0,
-//                e -> this.specificAnimation(e, this.getCurrentAnimation())
-//        ));
+        animationData.addAnimationController(new AnimationController<>(
+                this,
+                "move_or_idle",
+                0,
+                this::idleOrMove
+        ));
+        animationData.addAnimationController(new AnimationController<>(
+                this,
+                "specific",
+                0,
+                e -> this.specificAnimation(e, this.getCurrentAnimation())
+        ));
     }
 
     @Override

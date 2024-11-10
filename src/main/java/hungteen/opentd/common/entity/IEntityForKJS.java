@@ -56,7 +56,11 @@ public interface IEntityForKJS {
     }
 
     default void setCurrentAnimation(String currentAnimation) {
-        this.setClientResource(new ClientEntityResource().from(this.getClientResource()).setCurrentAnimation(currentAnimation));
+        setCurrentAnimation(currentAnimation, 0);
+    }
+
+    default void setCurrentAnimation(String currentAnimation, int idx) {
+        this.setClientResource(new ClientEntityResource().from(this.getClientResource()).setCurrentAnimation(currentAnimation, idx));
     }
 
     class ClientEntityResource {

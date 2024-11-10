@@ -106,7 +106,7 @@ public class HTTowerComponents {
                                                                     )
                                                             ))
                                                     )),
-                                                    0.2F, 1, 300, 0.0001F, 0.99999F, 0.8F, false, true, true,
+                                                    0.2F, 1, 300, 0.0001F, 0.99999F, 0.8F, false, false, true,
                                                     RenderSetting.make(0.5F, 0.5F, 0.6F, false, "pea_shooter"),
                                                     Optional.empty(),
                                                     Optional.of(
