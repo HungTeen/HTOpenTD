@@ -113,6 +113,7 @@ public class BulletEntity extends Projectile implements IOTDEntity {
     public void tick() {
         super.tick();
         this.noPhysics = this.ignoreBlock();
+        this.refreshDimensions();
         if (this.bulletSetting() == null) {
             if (this.tickCount > 5) {
                 this.discard();

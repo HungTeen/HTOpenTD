@@ -25,9 +25,9 @@ public class NBTUtil {
         return tag;
     }
 
-    public static CompoundTag fiveHealth() {
+    public static CompoundTag setHealth(float health) {
         CompoundTag tag = new CompoundTag();
-        tag.putFloat("Health", 5F);
+        tag.putFloat("Health", health);
         return tag;
     }
 
@@ -49,6 +49,12 @@ public class NBTUtil {
             }
             tag.put("Attributes", listtag);
         }
+        return tag;
+    }
+
+    public static CompoundTag customName(String name) {
+        CompoundTag tag = new CompoundTag();
+        tag.putString("CustomName", name);
         return tag;
     }
 }

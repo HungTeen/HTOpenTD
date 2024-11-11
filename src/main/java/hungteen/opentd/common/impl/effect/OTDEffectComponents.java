@@ -72,7 +72,7 @@ public interface OTDEffectComponents {
         context.register(ATTRACT_ALL_EFFECT, new AttractEffectComponent(
                 filters.getOrThrow(OTDTargetFilters.ALL), Optional.empty()
         ));
-        context.register(SET_FIVE_HEALTH, new NBTEffectComponent(NBTUtil.fiveHealth(), false));
+        context.register(SET_FIVE_HEALTH, new NBTEffectComponent(NBTUtil.setHealth(5), false));
         context.register(SET_ON_FIRE, new NBTEffectComponent(NBTUtil.onFire(), false));
         context.register(SUMMON_XP_AROUND, new SummonEffectComponent(
                 1, 5, Optional.of(5), 16, true, true, EntityType.EXPERIENCE_ORB, new CompoundTag()

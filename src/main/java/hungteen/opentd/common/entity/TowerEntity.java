@@ -655,7 +655,7 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundTag tag) {
+    public void load(CompoundTag tag) {
         // 专门用于NBT召唤特定防御塔。
         if (tag.contains("ComponentLocation")) {
             final ResourceLocation location = new ResourceLocation(tag.getString("ComponentLocation"));
@@ -663,10 +663,16 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
             OTDTowerComponents.registry().getOptValue(level(), resourceKey).flatMap(l -> CodecHelper.encodeNbt(OTDTowerComponents.getDirectCodec(), l)
                     .resultOrPartial(msg -> Util.error("Tower entity read error : " + msg))
             ).ifPresent(nbt -> this.componentTag = (CompoundTag) nbt);
+            if (this.getComponent() != null) {
+                tag.merge(this.getComponent().getExtraNBT());
+            }
         }
-        if (this.getComponent() != null) {
-            tag.merge(this.getComponent().getExtraNBT());
-        }
+
+        super.load(tag);
+    }
+
+    @Override
+    public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
         {// owner uuid.
             UUID ownerUuid;

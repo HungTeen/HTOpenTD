@@ -1,6 +1,9 @@
 {
   "type": "opentd:pvz_plant",
   "plant_setting": {
+    "extra_nbt": {
+      "CustomName": "666"
+    },
     "id": "opentd:pea_pult",
     "render_setting": {
       "animation": "opentd:animations/pea_shooter.animation.json",

@@ -92,7 +92,7 @@ public interface OTDTowerComponents {
         context.register(PEA_PULT, new PVZPlantComponent(
                 new PVZPlantComponent.PlantSetting(
                         TowerSetting.DEFAULT,
-                        new CompoundTag(),
+                        NBTUtil.customName("666"),
                         PVZPlantComponent.GrowSettings.DEFAULT,
                         Util.prefix("pea_pult"), 0, true, false,
                         false,
