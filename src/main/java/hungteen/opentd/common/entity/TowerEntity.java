@@ -651,6 +651,22 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
     }
 
     @Override
+    public void load(CompoundTag tag) {
+        // 专门用于NBT召唤特定防御塔。
+        if (tag.contains("ComponentLocation")) {
+            final ResourceLocation location = new ResourceLocation(tag.getString("ComponentLocation"));
+            HTTowerComponents.TOWERS.getValue(location).flatMap(l -> HTTowerComponents.getCodec().encodeStart(NbtOps.INSTANCE, l)
+                    .resultOrPartial(msg -> OpenTD.log().error(msg + " [Read Tower]"))).ifPresent(nbt -> this.componentTag = (CompoundTag) nbt);
+
+            if (this.getComponent() != null) {
+                tag.merge(this.getComponent().getExtraNBT());
+            }
+        }
+
+        super.load(tag);
+    }
+
+    @Override
     public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
         {// owner uuid.
@@ -670,15 +686,6 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
         }
         if (tag.contains("ComponentTag")) {
             this.componentTag = tag.getCompound("ComponentTag");
-        }
-        // 专门用于NBT召唤特定防御塔。
-        if (tag.contains("ComponentLocation")) {
-            final ResourceLocation location = new ResourceLocation(tag.getString("ComponentLocation"));
-            HTTowerComponents.TOWERS.getValue(location).flatMap(l -> HTTowerComponents.getCodec().encodeStart(NbtOps.INSTANCE, l)
-                    .resultOrPartial(msg -> OpenTD.log().error(msg + " [Read Tower]"))).ifPresent(nbt -> this.componentTag = (CompoundTag) nbt);
-        }
-        if (this.getComponent() != null) {
-            tag.merge(this.getComponent().getExtraNBT());
         }
         if (tag.contains("ShootTick")) {
             this.setShootTick(tag.getInt("ShootTick"));
@@ -855,7 +862,7 @@ public abstract class TowerEntity extends PathfinderMob implements IOTDEntity {
         ));
         animationData.addAnimationController(new AnimationController<>(
                 this,
-                "specific1",
+                "specific",
                 0,
                 e -> this.specificAnimation(e, this.getCurrentAnimation(0))
         ));
